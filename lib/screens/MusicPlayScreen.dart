@@ -1,9 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:audioplayers/audio_cache.dart';
-import 'package:audioplayers/audioplayers.dart';
-import '../services/EventBus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:hello_world/models/MusicInfoModel.dart';
+import 'package:path_provider/path_provider.dart';
+
+import '../services/EventBus.dart';
 
 /**
  * 播放页
@@ -27,27 +30,65 @@ class MusicInfo {
 }
 
 class _MusicPlayScreenState extends State<MusicPlayScreen> {
-  Duration _duration = new Duration();
   Duration _position = new Duration();
+  Duration _duration = new Duration(seconds: 1);
   bool _syncSlide = true;
+  MusicInfoModel musicInfoModel = new MusicInfoModel(
+    name: "",
+    path: "",
+    fullpath: "",
+    type: "",
+    syncstatus: true,
+  );
 
   MusicInfo musicInfo = new MusicInfo();
 
   AudioPlayerState _audioPlayerState = AudioPlayerState.COMPLETED;
 
-  String _localFilePath = "";
   static AudioPlayer advancedPlayer;
+  var _eventBusOn;
 
   @override
   void initState() {
     super.initState();
+
     initPlayer();
     initMusic();
+    print('playing');
+
+    _eventBusOn = eventBus.on<MusicPlayEvent>().listen((event) {
+      print(event.musicPlayAction);
+
+      if (event.musicInfoModel != null &&
+          musicInfoModel != event.musicInfoModel &&
+          event.musicInfoModel.name != "") {
+        musicInfoModel = event.musicInfoModel;
+        _position = new Duration(seconds: 0);
+        playFile();
+      } else {
+        if (_audioPlayerState != AudioPlayerState.PLAYING &&
+            event.musicInfoModel != null) {
+          advancedPlayer.resume();
+        }
+      }
+
+      setState(() {});
+    });
+  }
+
+  //销毁
+  @override
+  void dispose() {
+    this._eventBusOn.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
   }
 
   void initMusic() {
-    musicInfo.name = "Lose it Music Play";
-    musicInfo.author = "Flume ft. Vic Mensa";
     musicInfo.imgUrl =
         'http://p1.music.126.net/TYwiMwjbr5dfD0K44n-xww==/109951163409466795.jpg';
   }
@@ -61,11 +102,12 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
     });
 
     advancedPlayer.onAudioPositionChanged.listen((Duration d) {
-      // print('sync: $syncSlide');
+      print('duration: $d');
+      print('$_syncSlide, $_position, $d');
 
       if (_syncSlide &&
           (_position.inSeconds.toInt() - d.inSeconds.toInt()).abs() <= 2) {
-        // print('d: $d, _position: $_position');
+//         print('d: $d, _position: $_position');
         setState(() => _position = d);
       }
     });
@@ -77,23 +119,23 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
   }
 
   Future playFile() async {
+    if (musicInfoModel == null || musicInfoModel.name == "") {
+      return;
+    }
+    print(musicInfoModel.name + "==name");
     final dir = await getApplicationDocumentsDirectory();
-    var full_file = ('${dir.path}/fileName.mp3');
+    var full_file = ('${dir.path}/' + musicInfoModel.fullpath);
+    print(full_file);
     var file = File(full_file);
     if (await file.exists()) {
-      advancedPlayer.release();
-
-      advancedPlayer.play(_localFilePath, isLocal: true);
+      print('play ok');
+      advancedPlayer.play(file.path, isLocal: true);
 
       setState(() {
-        _localFilePath = file.path;
+        _audioPlayerState = AudioPlayerState.PLAYING;
       });
     }
   }
-
-  // playLocal() async {
-  //   int result = await audioPlayer.play(_localFilePath, isLocal: true);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -104,8 +146,9 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
     double _kLeadingWidth = kToolbarHeight;
     double _barHeight = _statusBarHeight + _kLeadingWidth;
 
-    // print(width);
-    // print(height);
+//    print(musicInfoModel.name + "--------------");
+    print(_position.inSeconds.toString() + "=====");
+    print(_duration.inSeconds.toString() + "2222222");
 
     return Container(
       height: height,
@@ -141,7 +184,7 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
                       height: _statusBarHeight,
                     ),
                     Text(
-                      musicInfo.name,
+                      musicInfoModel.name,
                       style: new TextStyle(
                         fontSize: 20.0,
                         color: Color.fromARGB(255, 106, 120, 145),
@@ -149,9 +192,9 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
                       ),
                     ),
                     Text(
-                      musicInfo.author,
+                      musicInfoModel.name,
                       style: new TextStyle(
-                        fontSize: 14.0,
+                        fontSize: 13.0,
                         color: Color.fromARGB(255, 106, 120, 145),
                         decoration: TextDecoration.none,
                       ),
@@ -179,7 +222,7 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
                   child: Icon(Icons.keyboard_arrow_down),
                   onPressed: () {
                     setState(() {
-                      eventBus.fire(MusicPlayEvent(MusicPlayAction.hide));
+                      eventBus.fire(MusicPlayEvent(MusicPlayAction.hide, null));
                     });
                   },
                 )),
@@ -202,50 +245,41 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
             Positioned(
                 bottom: 10,
                 child: Column(children: <Widget>[
-                  // Container(
-                  //   width: width,
-                  //   padding: const EdgeInsets.symmetric(vertical: 10),
-                  //   child: new Slider(
-                  //     label: "hwhe",
-                  //     value: _position.inSeconds.toDouble(),
-                  //     min: 0.0,
-                  //     max: _duration.inSeconds.toDouble(),
-                  //     activeColor: Color.fromARGB(255, 123, 161, 255),
-                  //     inactiveColor: Color.fromARGB(255, 160, 174, 196),
-                  //     onChanged: (double val) {
-                  //       Duration curPosition =
-                  //           new Duration(seconds: val.toInt());
-                  //       // print(this._position);
-                  //       setState(() {
-                  //         _position = curPosition;
-                  //       });
-                  //     },
-                  //     onChangeStart: (double val) {
-                  //       print('change start');
-                  //       // setState(() {
-                  //       _syncSlide = false;
-                  //       // });
-                  //     },
-                  //     onChangeEnd: (double val) {
-                  //       print('change end');
-                  //       // setState(() {
-                  //       // });
-
-                  //       Duration curPosition =
-                  //           new Duration(seconds: val.toInt());
-
-                  //       advancedPlayer.resume();
-
-                  //       advancedPlayer.seek(curPosition);
-
-                  //       setState(() {
-                  //         _position = curPosition;
-                  //         _syncSlide = true;
-                  //       });
-                  //       // initPlayer()
-                  //     },
-                  //   ),
-                  // ),
+                  Container(
+                    width: width,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: new CupertinoSlider(
+                      activeColor: Color.fromARGB(255, 123, 161, 255),
+//                      inactiveColor: Color.fromARGB(255, 160, 174, 196),
+                      value: _position.inSeconds.toDouble(),
+                      min: 0.0,
+                      max: _duration.inSeconds.toDouble(),
+                      onChanged: (double value) {
+                        Duration curPosition =
+                            new Duration(seconds: value.toInt());
+                        setState(() {
+                          _position = curPosition;
+                        });
+                      },
+                      onChangeStart: (double val) {
+                        print('change start');
+                        // setState(() {
+                        _syncSlide = false;
+                        // });
+                      },
+                      onChangeEnd: (double val) {
+                        print('change end');
+                        Duration curPosition =
+                            new Duration(seconds: val.toInt());
+                        advancedPlayer.resume();
+                        advancedPlayer.seek(curPosition);
+                        setState(() {
+                          _position = curPosition;
+                          _syncSlide = true;
+                        });
+                      },
+                    ),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[

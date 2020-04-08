@@ -96,7 +96,7 @@ class PlayListDetailScreenState extends State<PlayListDetailScreen> {
                               ),
                               onPressed: () {
                                 eventBus
-                                    .fire(MusicPlayEvent(MusicPlayAction.play));
+                                    .fire(MusicPlayEvent(MusicPlayAction.play, null));
                               },
                             ),
                             CupertinoButton.filled(

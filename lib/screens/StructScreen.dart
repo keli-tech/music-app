@@ -7,11 +7,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/models/MusicInfoModel.dart';
 import 'MusicPlayScreen.dart';
 import 'PlayListScreen.dart';
 import '../services/EventBus.dart';
-
-const String _kGalleryAssetsPackage = 'flutter_gallery_assets';
 
 const List<Color> coolColors = <Color>[
   Color.fromARGB(255, 255, 59, 48),
@@ -68,6 +67,7 @@ class _StructScreenState extends State<StructScreen> {
 
   int _showMusicScreen = 0;
   var _eventBusOn;
+  MusicInfoModel _musicInfoModel;
 
   @override
   void initState() {
@@ -75,6 +75,8 @@ class _StructScreenState extends State<StructScreen> {
 
     _eventBusOn = eventBus.on<MusicPlayEvent>().listen((event) {
       print(event.musicPlayAction);
+      print(event.musicInfoModel);
+
       // print(event);
       switch (event.musicPlayAction) {
         case MusicPlayAction.hide:
@@ -135,30 +137,19 @@ class _StructScreenState extends State<StructScreen> {
                 switch (index) {
                   case 0:
                     return CupertinoTabView(
-                      builder: (BuildContext context) {
-                        return PlayListScreen(
-                          colorItems: widget.colorItems,
-                          colorNameItems: widget.colorNameItems,
-                        );
-                      },
+                      builder: (BuildContext context) => PlayListScreen(),
                       defaultTitle: '音乐',
                     );
                     break;
                   case 1:
                     return CupertinoTabView(
-                      builder: (BuildContext context) => PlayListScreen(
-                        colorItems: widget.colorItems,
-                        colorNameItems: widget.colorNameItems,
-                      ),
+                      builder: (BuildContext context) => PlayListScreen(),
                       defaultTitle: '文件',
                     );
                     break;
                   case 2:
                     return CupertinoTabView(
-                      builder: (BuildContext context) => PlayListScreen(
-                        colorItems: widget.colorItems,
-                        colorNameItems: widget.colorNameItems,
-                      ),
+                      builder: (BuildContext context) => PlayListScreen(),
                       defaultTitle: '设置',
                     );
                     break;

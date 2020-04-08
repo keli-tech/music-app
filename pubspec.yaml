@@ -28,6 +28,7 @@ dependencies:
   sqflite:
   path:
   http_server:
+  dart_tags: ^0.2.3
 
 
 dev_dependencies:

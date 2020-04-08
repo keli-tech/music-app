@@ -1,21 +1,45 @@
-import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:io';
 
+import 'package:dart_tags/dart_tags.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http_server/http_server.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../models/MusicInfoModel.dart';
+import '../services/Database.dart';
 
 class MyHttpServer extends StatefulWidget {
   @override
   _MyHttpServerState createState() => _MyHttpServerState();
 }
 
+class Responses {
+  final Map Data;
+  final int Code;
+  final String Message;
+
+  Responses({
+    this.Data,
+    this.Code,
+    this.Message,
+  });
+
+  Map toJson() {
+    Map map = new Map();
+    map["Data"] = this.Data;
+    map["Code"] = this.Code;
+    map["Message"] = this.Message;
+    return map;
+  }
+}
+
 class _MyHttpServerState extends State<MyHttpServer> {
   String statusText = "Start Server";
   HttpServer server;
+
   startServer() async {
     var hostIp = '127.0.0.1';
     for (var interface in await NetworkInterface.list()) {
@@ -42,11 +66,20 @@ class _MyHttpServerState extends State<MyHttpServer> {
         server.port.toString());
 
     await for (var request in server) {
-      print(request.uri.toString() + 'hehe');
+      print(request.uri.toString().split("?").first);
 
-      switch (request.uri.toString()) {
+      switch (request.uri.toString().split("?").first) {
         case '/upload':
           uploadController(request);
+          break;
+        case '/musicList':
+          musicListController(request);
+          break;
+        case '/deleteMusicInfo':
+          deleteMusicController(request);
+          break;
+        case '/createFold':
+          createFoldController(request);
           break;
         case '/':
           homeController(request);
@@ -69,27 +102,131 @@ class _MyHttpServerState extends State<MyHttpServer> {
     setState(() {});
   }
 
-  Future<String> uploadController(HttpRequest request) async {
-    final file = await _localFile("fileName.mp3");
+  Future<String> musicListController(HttpRequest request) async {
+    HttpBodyHandler.processRequest(request).then((body) async {
+      String musicPath = request.uri.queryParameters["path"];
+      var musicInfoJson = "[";
 
-    HttpBodyHandler.processRequest(request).then((body) {
-      HttpBodyFileUpload fileUploaded = body.body['file'];
+      DBProvider.db.getMusicInfoByPath(musicPath).then((onValue) {
+        Map map = new Map();
+        map["List"] = onValue;
+        map["Total"] = onValue.length;
+        Responses response =
+            new Responses(Data: map, Code: 200, Message: "Success");
+        musicInfoJson = jsonEncode(response);
 
-      file.writeAsBytes(fileUploaded.content, mode: FileMode.WRITE).then((_) {
-        request.response.close();
+        request.response
+          ..headers.clear()
+          ..headers.contentType =
+              new ContentType("application", "json", charset: "UTF-8")
+          ..headers.set("Accept-Ranges", "bytes")
+          ..headers.set("Connection", "keep-alive")
+          ..headers.set("Content-Length", utf8.encode(musicInfoJson).length)
+          ..add(utf8.encode(musicInfoJson))
+          ..close();
       });
     });
-//flutter资源路径，需要提前配置好，保证可用，路径的最后要标注文件名与后缀，例如file.db
-    String assetPath;
+  }
 
-//存储文件路径，请保证可用
-//     String savePath;
-// //创建路径
-//     new Directory(dirname(path)).create(recursive: true);
-// //请确保没有文件已经存在
-//     File file = new File(path);
-// //写文件
-//     file.writeAsBytes(byteData.buffer.asInt8List(0));
+  Future<String> deleteMusicController(HttpRequest request) async {
+    // todo 处理列表数据；
+
+    HttpBodyHandler.processRequest(request).then((body) async {
+      int musicID = int.parse(request.uri.queryParameters["id"]);
+      var musicInfoJson = "";
+
+      DBProvider.db.getMusic(musicID).then((musicInfoModel) async {
+        final file = await _localFile(musicInfoModel.fullpath);
+        file.delete(recursive: true);
+
+        await DBProvider.db.deleteMusic(musicID);
+
+        Responses response =
+            new Responses(Data: new Map(), Code: 200, Message: "Success");
+        musicInfoJson = jsonEncode(response);
+
+        request.response
+          ..headers.clear()
+          ..headers.contentType =
+              new ContentType("application", "json", charset: "UTF-8")
+          ..headers.set("Accept-Ranges", "bytes")
+          ..headers.set("Connection", "keep-alive")
+          ..headers.set("Content-Length", utf8.encode(musicInfoJson).length)
+          ..add(utf8.encode(musicInfoJson))
+          ..close();
+      });
+    });
+  }
+
+  Future<String> createFoldController(HttpRequest request) async {
+    HttpBodyHandler.processRequest(request).then((body) async {
+      String foldPath = body.body['path'];
+      String foldName = body.body['name'];
+
+      var musicInfoJson = "";
+
+      MusicInfoModel musicInfoModel =
+          await DBProvider.db.getFoldByPathName(foldPath, foldName);
+      if (musicInfoModel != null && musicInfoModel.id > 0) {
+      } else {
+        MusicInfoModel newMusicInfo = MusicInfoModel(
+            name: foldName,
+            path: foldPath,
+            fullpath: foldPath + foldName + "/",
+            type: 'fold',
+            syncstatus: true);
+
+        await DBProvider.db.newMusicInfo(newMusicInfo);
+
+        final path = await _localPath;
+
+        var dir = await new Directory(path + foldPath + foldName + "/")
+            .create(recursive: true);
+      }
+
+      Responses response =
+          new Responses(Data: new Map(), Code: 200, Message: "Success");
+      musicInfoJson = jsonEncode(response);
+
+      request.response
+        ..headers.clear()
+        ..headers.contentType =
+            new ContentType("application", "json", charset: "UTF-8")
+        ..headers.set("Accept-Ranges", "bytes")
+        ..headers.set("Connection", "keep-alive")
+        ..headers.set("Content-Length", utf8.encode(musicInfoJson).length)
+        ..add(utf8.encode(musicInfoJson))
+        ..close();
+    });
+  }
+
+  Future<String> uploadController(HttpRequest request) async {
+    HttpBodyHandler.processRequest(request).then((body) async {
+      HttpBodyFileUpload fileUploaded = body.body['file'];
+      String musicPath = body.body['path'];
+
+      var file = await _localFile(musicPath + fileUploaded.filename);
+
+      file
+          .writeAsBytes(fileUploaded.content, mode: FileMode.WRITE)
+          .then((_) async {
+        MusicInfoModel newMusicInfo = MusicInfoModel(
+            name: fileUploaded.filename,
+            path: musicPath,
+            fullpath: musicPath + fileUploaded.filename,
+            type: fileUploaded.filename.split(".").last.toLowerCase(),
+            syncstatus: true);
+
+        await DBProvider.db.newMusicInfo(newMusicInfo);
+        request.response.close();
+
+        // todo bugfix, 部分无tab mp3 未读取到 tag，会卡住,
+        TagProcessor tp = new TagProcessor();
+//        tp
+//            .getTagsFromByteArray(file.readAsBytes())
+//            .then((l) => l.forEach((f) => print(f)));
+      });
+    });
   }
 
   Future<String> get _localPath async {

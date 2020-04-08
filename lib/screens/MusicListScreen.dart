@@ -66,7 +66,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
         // title: new Text('sadf'),
         trailing: new Icon(Icons.keyboard_arrow_right),
         onTap: () {
-          eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+          eventBus.fire(MusicPlayEvent(MusicPlayAction.play, null));
         },
         enabled: true,
       ),

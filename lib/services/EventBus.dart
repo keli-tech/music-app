@@ -1,5 +1,6 @@
 //EventBus.dart
 import 'package:event_bus/event_bus.dart';
+import 'package:hello_world/models/MusicInfoModel.dart';
 
 //初始化Bus
 EventBus eventBus = EventBus();
@@ -20,5 +21,7 @@ class ProductDetailEvent {
 //商品详情中全局监听的事件（点击购物车）
 class MusicPlayEvent {
   MusicPlayAction musicPlayAction;
-  MusicPlayEvent(this.musicPlayAction);
+  MusicInfoModel musicInfoModel;
+
+  MusicPlayEvent(this.musicPlayAction, this.musicInfoModel);
 }

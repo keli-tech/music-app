@@ -1,22 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:hello_world/models/MusicInfoModel.dart';
 import 'PlayListDetailScreen.dart';
 import 'MyHttpServer.dart';
+import 'dart:convert';
+
+import 'dart:io';
+import '../services/Database.dart';
+import '../models/MusicInfoModel.dart';
+import 'dart:math' as math;
+import '../services/EventBus.dart';
 
 const int _kChildCount = 50;
 
-class PlayListScreen extends StatelessWidget {
-  const PlayListScreen({this.colorItems, this.colorNameItems});
+class PlayListScreen extends StatefulWidget {
+  // const PlayListScreen({this.colorItems, this.colorNameItems});
+
+  @override
+  _PlayListScreen createState() => _PlayListScreen();
+}
+
+class _PlayListScreen extends State<PlayListScreen> {
+  _PlayListScreen()
+      : colorItems = List<Color>.generate(_kChildCount, (int index) {
+          return Colors.deepPurple;
+        }),
+        colorNameItems = List<String>.generate(_kChildCount, (int index) {
+          return "helloworld";
+        });
 
   final List<Color> colorItems;
   final List<String> colorNameItems;
+
+  List<MusicInfoModel> _musicInfoModels = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _refreshList();
+  }
+
+  _refreshList() async {
+    DBProvider.db.getMusicInfoByPath("/").then((onValue) {
+      setState(() {
+        _musicInfoModels = onValue;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.systemGroupedBackground,
       child: CustomScrollView(
-        semanticChildCount: _kChildCount,
+        semanticChildCount: _musicInfoModels.length,
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
               // trailing: trailingButtons,
@@ -36,12 +74,13 @@ class PlayListScreen extends StatelessWidget {
                 (BuildContext context, int index) {
                   return Tab1RowItem(
                     index: index,
-                    lastItem: index == _kChildCount - 1,
+                    lastItem: index == _musicInfoModels.length - 1,
                     color: colorItems[index],
                     colorName: colorNameItems[index],
+                    musicInfoModel: _musicInfoModels[index],
                   );
                 },
-                childCount: _kChildCount,
+                childCount: _musicInfoModels.length,
               ),
             ),
           ),
@@ -52,18 +91,26 @@ class PlayListScreen extends StatelessWidget {
 }
 
 class Tab1RowItem extends StatelessWidget {
-  const Tab1RowItem({this.index, this.lastItem, this.color, this.colorName});
+  const Tab1RowItem(
+      {this.index,
+      this.lastItem,
+      this.color,
+      this.colorName,
+      this.musicInfoModel});
 
   final int index;
   final bool lastItem;
   final Color color;
   final String colorName;
+  final MusicInfoModel musicInfoModel;
 
   @override
   Widget build(BuildContext context) {
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
+        eventBus.fire(MusicPlayEvent(MusicPlayAction.play, musicInfoModel));
+        return;
         Navigator.of(context).push(CupertinoPageRoute<void>(
           title: colorName,
           builder: (BuildContext context) => PlayListDetailScreen(
@@ -103,10 +150,12 @@ class Tab1RowItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(colorName),
+                        Text(
+                          musicInfoModel.name,
+                        ),
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
-                          'Buy this cool color',
+                          musicInfoModel.fullpath,
                           style: TextStyle(
                             color: CupertinoDynamicColor.resolve(
                                 CupertinoColors.secondaryLabel, context),
@@ -128,10 +177,10 @@ class Tab1RowItem extends StatelessWidget {
                     Navigator.of(context).push(CupertinoPageRoute<void>(
                       title: colorName,
                       builder: (BuildContext context) => MyHttpServer(
-                        // color: color,
-                        // colorName: colorName,
-                        // index: index,
-                      ),
+                          // color: color,
+                          // colorName: colorName,
+                          // index: index,
+                          ),
                     ));
                   },
                 ),
