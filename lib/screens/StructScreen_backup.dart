@@ -86,8 +86,6 @@ class _StructScreenState extends State<StructScreen>
     super.initState();
 
     _eventBusOn = eventBus.on<MusicPlayEvent>().listen((event) {
-      print(event.musicPlayAction);
-      // print(event);
       switch (event.musicPlayAction) {
         case MusicPlayAction.hide:
           _showMusicScreen = 0;

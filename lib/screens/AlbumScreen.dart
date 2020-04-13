@@ -56,7 +56,6 @@ class _AlbumScreenState extends State<AlbumScreen> {
     audioCache = new AudioCache(fixedPlayer: advancedPlayer);
 
     advancedPlayer.onDurationChanged.listen((Duration d) {
-      print('Max duration: $d');
       setState(() => _duration = d);
     });
 
@@ -250,8 +249,6 @@ class _AlbumScreenState extends State<AlbumScreen> {
               side: BorderSide(color: Color.fromARGB(255, 85, 125, 255))),
           child: Icon(Icons.pause),
           onPressed: () {
-            print(_audioPlayerState);
-            print('开始暂停');
             advancedPlayer.pause();
           },
         ),
@@ -272,16 +269,11 @@ class _AlbumScreenState extends State<AlbumScreen> {
               side: BorderSide(color: Color.fromARGB(255, 222, 232, 249))),
           child: Icon(Icons.play_arrow),
           onPressed: () {
-            print(_audioPlayerState);
-
             if (_audioPlayerState == AudioPlayerState.PLAYING) {
-              print('开始暂停');
               advancedPlayer.pause();
             } else if (_audioPlayerState == AudioPlayerState.PAUSED) {
-              print('开始恢复播放');
               advancedPlayer.resume();
             } else if (_audioPlayerState == AudioPlayerState.STOPPED) {
-              print('开始播放');
             } else if (_audioPlayerState == AudioPlayerState.COMPLETED) {
               audioCache.play('audio.mp3');
             }

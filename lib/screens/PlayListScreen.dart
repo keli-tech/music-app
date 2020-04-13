@@ -1,15 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
-import 'PlayListDetailScreen.dart';
-import 'MyHttpServer.dart';
-import 'dart:convert';
 
-import 'dart:io';
-import '../services/Database.dart';
 import '../models/MusicInfoModel.dart';
-import 'dart:math' as math;
-import '../services/EventBus.dart';
+import '../services/Database.dart';
+import 'MyHttpServer.dart';
+import 'PlayListDetailScreen.dart';
 
 const int _kChildCount = 50;
 
@@ -33,6 +29,7 @@ class _PlayListScreen extends State<PlayListScreen> {
   final List<String> colorNameItems;
 
   List<MusicInfoModel> _musicInfoModels = [];
+  TextEditingController _chatTextController = TextEditingController();
 
   @override
   void initState() {
@@ -51,24 +48,63 @@ class _PlayListScreen extends State<PlayListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+
     return CupertinoPageScaffold(
-      backgroundColor: CupertinoColors.systemGroupedBackground,
+      backgroundColor: themeData.backgroundColor,
       child: CustomScrollView(
         semanticChildCount: _musicInfoModels.length,
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
-              // trailing: trailingButtons,
-              ),
+            largeTitle: Text(
+              "歌单",
+              style: themeData.primaryTextTheme.headline,
+            ),
+            backgroundColor: themeData.backgroundColor,
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              //返回组件集合
+              List.generate(1, (int index) {
+                //返回 组件
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(CupertinoPageRoute<void>(
+                      title: "文件同步",
+                      builder: (BuildContext context) => MyHttpServer(
+                          // color: color,
+                          // colorName: colorName,
+                          // index: index,
+                          ),
+                    ));
+                  },
+                  child: Card(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.only(
+                          left: 30, top: 20, right: 30, bottom: 20),
+                      child: Row(children: <Widget>[
+                        Icon(
+                          Icons.add,
+                          size: 30,
+                          color: CupertinoColors.activeGreen,
+                        ),
+                        const Padding(padding: EdgeInsets.only(right: 20.0)),
+                        Text(
+                          "新建歌单",
+                          style: themeData.textTheme.title,
+                        ),
+                      ]),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
           SliverPadding(
             // Top media padding consumed by CupertinoSliverNavigationBar.
             // Left/Right media padding consumed by Tab1RowItem.
-            padding: MediaQuery.of(context)
-                .removePadding(
-                  removeTop: true,
-                  removeLeft: true,
-                  removeRight: true,
-                )
-                .padding,
+            padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 70),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
@@ -106,23 +142,18 @@ class Tab1RowItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        eventBus.fire(MusicPlayEvent(MusicPlayAction.play, musicInfoModel));
-        return;
         Navigator.of(context).push(CupertinoPageRoute<void>(
           title: colorName,
-          builder: (BuildContext context) => PlayListDetailScreen(
-            color: color,
-            colorName: colorName,
-            index: index,
-          ),
+          builder: (BuildContext context) => PlayListDetailScreen(),
         ));
       },
       child: Container(
-        color: CupertinoDynamicColor.resolve(
-            CupertinoColors.systemBackground, context),
+        color:
+            CupertinoDynamicColor.resolve(themeData.backgroundColor, context),
         child: SafeArea(
           top: false,
           bottom: false,
@@ -132,15 +163,15 @@ class Tab1RowItem extends StatelessWidget {
             child: Row(
               children: <Widget>[
                 Container(
-                  height: 60.0,
-                  width: 60.0,
+                  height: 76.0,
+                  width: 114.0,
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: BorderRadius.circular(8.0),
                     image: DecorationImage(
                       fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
                       image: NetworkImage(
-                          'http://p1.music.126.net/TYwiMwjbr5dfD0K44n-xww==/109951163409466795.jpg'),
+                          'http://p2.music.126.net/VA3kAvrg2YRrxCgDMJzHnw==/3265549618941178.jpg'),
                     ),
                   ),
                 ),
@@ -150,18 +181,22 @@ class Tab1RowItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          musicInfoModel.name,
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                musicInfoModel.name,
+                                maxLines: 1,
+                                style: themeData.primaryTextTheme.title,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
-                          musicInfoModel.fullpath,
-                          style: TextStyle(
-                            color: CupertinoDynamicColor.resolve(
-                                CupertinoColors.secondaryLabel, context),
-                            fontSize: 13.0,
-                            fontWeight: FontWeight.w300,
-                          ),
+                          "18首",
+                          style: themeData.primaryTextTheme.subtitle,
                         ),
                       ],
                     ),
@@ -170,7 +205,7 @@ class Tab1RowItem extends StatelessWidget {
                 CupertinoButton(
                   padding: EdgeInsets.zero,
                   child: const Icon(
-                    CupertinoIcons.plus_circled,
+                    Icons.play_circle_outline,
                     semanticLabel: 'Add',
                   ),
                   onPressed: () {
@@ -184,14 +219,6 @@ class Tab1RowItem extends StatelessWidget {
                     ));
                   },
                 ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Icon(
-                    CupertinoIcons.share,
-                    semanticLabel: 'Share',
-                  ),
-                  onPressed: () {},
-                ),
               ],
             ),
           ),
@@ -199,19 +226,21 @@ class Tab1RowItem extends StatelessWidget {
       ),
     );
 
-    if (lastItem) {
-      return row;
-    }
+//    if (lastItem) {
+//      return row;
+//    }
 
-    return Column(
-      children: <Widget>[
-        row,
-        Container(
-          height: 1.0,
-          color:
-              CupertinoDynamicColor.resolve(CupertinoColors.separator, context),
-        ),
-      ],
-    );
+    return row;
+
+//    return Column(
+//      children: <Widget>[
+//        row,
+//        Container(
+//          height: 1.0,
+//          color:
+//              CupertinoDynamicColor.resolve(CupertinoColors.separator, context),
+//        ),
+//      ],
+//    );
   }
 }

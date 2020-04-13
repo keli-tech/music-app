@@ -33,7 +33,10 @@ class DBProvider {
           "path TEXT,"
           "fullpath TEXT,"
           "type TEXT,"
-          "syncstatus BIT"
+          "syncstatus BIT,"
+          "title TEXT,"
+          "artist TEXT,"
+          "album TEXT"
           ")");
       await db.execute("CREATE TABLE IF NOT EXISTS Client ("
           "id INTEGER PRIMARY KEY,"
@@ -47,23 +50,27 @@ class DBProvider {
   newMusicInfo(MusicInfoModel newMusicInfo) async {
     final db = await database;
     var raw = await db.rawInsert(
-        "INSERT Into MusicInfoModel (name,path,fullpath,type,syncstatus)"
-        " VALUES (?,?,?,?,?)",
+        "INSERT Into MusicInfoModel (name,path,fullpath,type,syncstatus,title,artist,album)"
+        " VALUES (?,?,?,?,?,?,?,?)",
         [
           newMusicInfo.name,
           newMusicInfo.path,
           newMusicInfo.fullpath,
           newMusicInfo.type,
-          newMusicInfo.syncstatus
+          newMusicInfo.syncstatus,
+          newMusicInfo.title,
+          newMusicInfo.artist,
+          newMusicInfo.album,
         ]);
     return raw;
   }
 
+//根据路径获取音乐列表
   Future<List<MusicInfoModel>> getMusicInfoByPath(String musicPath) async {
     final db = await database;
 
-    var res = await db
-        .query("MusicInfoModel", where: "path = ? ", whereArgs: [musicPath]);
+    var res = await db.query("MusicInfoModel",
+        where: "path = ? ", orderBy: "type asc, title asc", whereArgs: [musicPath]);
 
     List<MusicInfoModel> list = res.isNotEmpty
         ? res.map((c) => MusicInfoModel.fromMap(c)).toList()
@@ -80,8 +87,8 @@ class DBProvider {
 
   Future<MusicInfoModel> getFoldByPathName(String path, String name) async {
     final db = await database;
-    var res =
-    await db.query("MusicInfoModel", where: "path =? and name = ?", whereArgs: [path, name]);
+    var res = await db.query("MusicInfoModel",
+        where: "path =? and name = ?", whereArgs: [path, name]);
     return res.isNotEmpty ? MusicInfoModel.fromMap(res.first) : null;
   }
 

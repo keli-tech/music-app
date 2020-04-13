@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_tags/dart_tags.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hello_world/services/FileManager.dart';
 import 'package:http_server/http_server.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -37,37 +39,45 @@ class Responses {
 }
 
 class _MyHttpServerState extends State<MyHttpServer> {
-  String statusText = "Start Server";
+  String serverUrl = "";
   HttpServer server;
+  bool serverStarted = false;
 
-  startServer() async {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (server != null) {
+      print("http server disposed!!");
+      server.close(force: true);
+    }
+    super.dispose();
+  }
+
+  _startServer() async {
     var hostIp = '127.0.0.1';
     for (var interface in await NetworkInterface.list()) {
       for (var addr in interface.addresses) {
-        hostIp = addr.address;
-        if (hostIp.startsWith("1")) {
-          print('${addr.address} IP');
+        if (addr.address.startsWith("1")) {
+          hostIp = addr.address;
           break;
         }
       }
     }
-    print(hostIp);
 
     setState(() {
-      statusText = 'Starting server on ${hostIp} Port : 8080';
+      serverStarted = true;
+      serverUrl = 'http://${hostIp}:8080';
     });
     server = await HttpServer.bind(
       hostIp,
       8080,
     );
-    print("Server running on IP : " +
-        server.address.toString() +
-        " On Port : " +
-        server.port.toString());
 
     await for (var request in server) {
-      print(request.uri.toString().split("?").first);
-
       switch (request.uri.toString().split("?").first) {
         case '/upload':
           uploadController(request);
@@ -97,9 +107,11 @@ class _MyHttpServerState extends State<MyHttpServer> {
     // });
   }
 
-  stopServer() async {
+  _stopServer() async {
     server.close(force: true);
-    setState(() {});
+    setState(() {
+      serverStarted = false;
+    });
   }
 
   Future<String> musicListController(HttpRequest request) async {
@@ -174,6 +186,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
             path: foldPath,
             fullpath: foldPath + foldName + "/",
             type: 'fold',
+            rank: 100,
             syncstatus: true);
 
         await DBProvider.db.newMusicInfo(newMusicInfo);
@@ -210,21 +223,44 @@ class _MyHttpServerState extends State<MyHttpServer> {
       file
           .writeAsBytes(fileUploaded.content, mode: FileMode.WRITE)
           .then((_) async {
-        MusicInfoModel newMusicInfo = MusicInfoModel(
-            name: fileUploaded.filename,
-            path: musicPath,
-            fullpath: musicPath + fileUploaded.filename,
-            type: fileUploaded.filename.split(".").last.toLowerCase(),
-            syncstatus: true);
+        //todo
+        int fileLength = await file.length();
 
-        await DBProvider.db.newMusicInfo(newMusicInfo);
         request.response.close();
 
         // todo bugfix, 部分无tab mp3 未读取到 tag，会卡住,
         TagProcessor tp = new TagProcessor();
-//        tp
-//            .getTagsFromByteArray(file.readAsBytes())
-//            .then((l) => l.forEach((f) => print(f)));
+        tp.getTagsFromByteArray(file.readAsBytes()).then((l) async {
+          l.forEach((f) async {
+            if (f.tags != null && f.tags.containsKey("picture")) {
+              AttachedPicture picture = f.tags["picture"];
+              String title = f.tags["title"];
+              String artist = f.tags["artist"];
+              String album = f.tags["album"];
+
+              MusicInfoModel newMusicInfo = MusicInfoModel(
+                name: fileUploaded.filename,
+                path: musicPath,
+                fullpath: musicPath + fileUploaded.filename,
+                type: fileUploaded.filename.split(".").last.toLowerCase(),
+                syncstatus: true,
+                title: title,
+                artist: artist,
+                album: album,
+              );
+
+              await DBProvider.db.newMusicInfo(newMusicInfo);
+
+              var dir = await FileManager.musicAlbumPicturePath(artist, album)
+                  .create(recursive: true);
+              var imageFile =
+                  await FileManager.musicAlbumPictureFile(artist, album);
+              imageFile
+                  .writeAsBytes(picture.imageData, mode: FileMode.WRITE)
+                  .then((_) async {});
+            }
+          });
+        });
       });
     });
   }
@@ -259,7 +295,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
     });
   }
 
-  // http 的公开资源
+// http 的公开资源
   publicController(HttpRequest request) {
     String fielPath = "assets/httpserver/public" + request.uri.path.toString();
     String filetype = fielPath.split('.').last;
@@ -295,16 +331,6 @@ class _MyHttpServerState extends State<MyHttpServer> {
             ..add(value.buffer.asUint8List())
             ..close();
         });
-
-        // rootBundle.loadString(fielPath).then((value) {
-        //   request.response
-        //     ..headers.contentType =
-        //         // new ContentType(type1, type2, charset: "utf-8")
-        //         new ContentType("application", "octet-stream")
-        //     // ..write('Hello, world')
-        //     ..write(value)
-        //     ..close();
-        // });
       } else {
         rootBundle.load(fielPath).then((value) {
           request.response
@@ -328,26 +354,123 @@ class _MyHttpServerState extends State<MyHttpServer> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+
     return Scaffold(
-        body: Center(
+      appBar: CupertinoNavigationBar(
+        middle: Text(
+          'Wi-Fi同步文件',
+          style: themeData.primaryTextTheme.headline,
+        ),
+        backgroundColor: themeData.backgroundColor,
+      ),
+      backgroundColor: themeData.backgroundColor,
+      body: Builder(
+          // Create an inner BuildContext so that the snackBar onPressed methods
+          // can refer to the Scaffold with Scaffold.of().
+          builder: buildBody),
+    );
+  }
+
+  Widget buildBody(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+
+    return Container(
+      padding: EdgeInsets.only(left: 5, top: 0, right: 5, bottom: 0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          RaisedButton(
-            onPressed: () {
-              startServer();
-            },
-            child: Text(statusText),
+          SizedBox(
+            height: 70,
           ),
-          RaisedButton(
-            onPressed: () {
-              stopServer();
+          AnimatedSwitcher(
+            transitionBuilder: (child, anim) {
+              return ScaleTransition(child: child, scale: anim);
             },
-            child: Text("stop server"),
-          )
+            switchInCurve: Curves.fastLinearToSlowEaseIn,
+            switchOutCurve: Curves.fastOutSlowIn,
+            duration: Duration(milliseconds: 400),
+            child: serverStarted == false
+                ? RaisedButton(
+                    padding: EdgeInsets.only(
+                        left: 30, top: 15, right: 30, bottom: 15),
+                    key: Key("stop"),
+                    color: themeData.primaryColor,
+                    onPressed: () {
+                      _startServer();
+                    },
+                    child: Text("启动Wi-Fi同步文件服务",
+                        style: themeData.primaryTextTheme.button),
+                  )
+                : RaisedButton(
+                    key: Key("start"),
+                    padding: EdgeInsets.only(
+                        left: 30, top: 15, right: 30, bottom: 15),
+                    color: Colors.red,
+                    onPressed: () {
+                      _stopServer();
+                    },
+                    child: Text("停止Wi-Fi同步文件服务",
+                        style: themeData.primaryTextTheme.button),
+                  ),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          Text(
+            "手机与电脑连接到同一个Wi-Fi网络，可以通过电脑端web浏览器来传输文件。",
+            style: themeData.textTheme.subtitle,
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          serverStarted == true
+              ? Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: new Text(
+                        '在电脑端浏览器中输入一下 url:',
+                        style: themeData.textTheme.title,
+                      ),
+                    ),
+                    Divider(),
+                    ListTile(
+                      title: new Text(
+                        serverUrl,
+                        style: themeData.textTheme.title,
+                      ),
+                      leading: Icon(
+                        Icons.desktop_mac,
+                        color: themeData.primaryColor,
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.content_copy),
+                        color: themeData.primaryColor,
+                        onPressed: () {
+                          // 复制 copy url
+                          ClipboardData data =
+                              new ClipboardData(text: serverUrl);
+                          Clipboard.setData(data).then((onValue){
+                            print("copy that");
+                          });
+
+                          Scaffold.of(context).showSnackBar(new SnackBar(
+                              backgroundColor: themeData.cardColor,
+                              content: Container(
+                                height: 70,
+                                child: new Text(
+                                  "已复制 url !",
+                                  style: themeData.primaryTextTheme.title,
+                                ),
+                              )));
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              : Text(""),
         ],
       ),
-    ));
+    );
   }
 }

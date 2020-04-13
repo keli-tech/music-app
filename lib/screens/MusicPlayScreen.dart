@@ -1,11 +1,11 @@
-import 'dart:io';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:hello_world/services/FileManager.dart';
+import 'package:provider/provider.dart';
 
+import '../common/RotateTransform.dart';
 import '../services/EventBus.dart';
 
 /**
@@ -13,9 +13,10 @@ import '../services/EventBus.dart';
  */
 
 class MusicPlayScreen extends StatefulWidget {
-  MusicPlayScreen({Key key, this.title}) : super(key: key);
+  MusicPlayScreen({Key key, this.title, this.index}) : super(key: key);
 
   final String title;
+  final String index;
 
   @override
   _MusicPlayScreenState createState() => _MusicPlayScreenState();
@@ -29,10 +30,14 @@ class MusicInfo {
   String imgUrl;
 }
 
-class _MusicPlayScreenState extends State<MusicPlayScreen> {
+class _MusicPlayScreenState extends State<MusicPlayScreen>
+    with SingleTickerProviderStateMixin {
   Duration _position = new Duration();
   Duration _duration = new Duration(seconds: 1);
   bool _syncSlide = true;
+
+  List<MusicInfoModel> musicInfoModels = [];
+  int playIndex = 0;
   MusicInfoModel musicInfoModel = new MusicInfoModel(
     name: "",
     path: "",
@@ -41,80 +46,117 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
     syncstatus: true,
   );
 
-  MusicInfo musicInfo = new MusicInfo();
+  Animation<double> animation;
+  AnimationController controller;
 
   AudioPlayerState _audioPlayerState = AudioPlayerState.COMPLETED;
 
-  static AudioPlayer advancedPlayer;
+  static AudioPlayer audioPlayer;
   var _eventBusOn;
 
   @override
   void initState() {
     super.initState();
 
-    initPlayer();
-    initMusic();
-    print('playing');
-
-    _eventBusOn = eventBus.on<MusicPlayEvent>().listen((event) {
-      print(event.musicPlayAction);
-
-      if (event.musicInfoModel != null &&
-          musicInfoModel != event.musicInfoModel &&
-          event.musicInfoModel.name != "") {
-        musicInfoModel = event.musicInfoModel;
-        _position = new Duration(seconds: 0);
-        playFile();
-      } else {
-        if (_audioPlayerState != AudioPlayerState.PLAYING &&
-            event.musicInfoModel != null) {
-          advancedPlayer.resume();
-        }
-      }
-
-      setState(() {});
-    });
+    _initPlayer();
+    _initEvent();
+    _initAnimationController();
   }
 
   //销毁
   @override
   void dispose() {
     this._eventBusOn.cancel();
+    audioPlayer.stop();
+    audioPlayer.dispose();
+
+    print("play screen disposed!!");
     super.dispose();
   }
 
   @override
-  void didUpdateWidget(oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  void deactivate() {
+    this._eventBusOn.cancel();
+    audioPlayer.stop();
+    audioPlayer.dispose();
+
+    print("play screen deactivate!!");
+    super.deactivate();
   }
 
-  void initMusic() {
-    musicInfo.imgUrl =
-        'http://p1.music.126.net/TYwiMwjbr5dfD0K44n-xww==/109951163409466795.jpg';
+  // 初始化旋转动画
+  void _initAnimationController() {
+    controller = new AnimationController(
+        duration: const Duration(seconds: 30), vsync: this);
+    //图片宽高从0变到300
+    animation = new Tween(begin: 0.0, end: 720.0).animate(controller);
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        //动画执行结束时反向执行动画
+        controller.reset();
+
+        controller.forward();
+      } else if (status == AnimationStatus.dismissed) {
+        //动画恢复到初始状态时执行动画（正向）
+        controller.forward();
+      }
+    });
+
+    //启动动画（正向）
+    controller.stop();
   }
 
-  void initPlayer() {
-    advancedPlayer = new AudioPlayer();
+  // 初始化监听事件
+  void _initEvent() {
+    _eventBusOn = eventBus.on<MusicPlayEvent>().listen((event) {
+      var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
 
-    advancedPlayer.onDurationChanged.listen((Duration d) {
-      print('Max duration: $d');
+      if (musicInfoData != null &&
+          musicInfoModel !=
+              musicInfoData.musicInfoModels[musicInfoData.playIndex] &&
+          musicInfoData.musicInfoModels[musicInfoData.playIndex].name != "") {
+        musicInfoModel = musicInfoData.musicInfoModels[musicInfoData.playIndex];
+
+        _position = new Duration(seconds: 0);
+        playFile();
+        audioPlayer.resume();
+        controller.forward();
+      } else {}
+
+      if (event.musicPlayAction == MusicPlayAction.play) {
+        audioPlayer.resume();
+        controller.forward();
+      } else if (event.musicPlayAction == MusicPlayAction.stop) {
+        audioPlayer.pause();
+        controller.stop();
+      }
+
+      setState(() {});
+    });
+  }
+
+  void _initPlayer() {
+    audioPlayer = new AudioPlayer();
+
+
+    audioPlayer.onDurationChanged.listen((Duration d) {
       setState(() => _duration = d);
     });
 
-    advancedPlayer.onAudioPositionChanged.listen((Duration d) {
-      print('duration: $d');
-      print('$_syncSlide, $_position, $d');
-
+    audioPlayer.onAudioPositionChanged.listen((Duration d) {
       if (_syncSlide &&
           (_position.inSeconds.toInt() - d.inSeconds.toInt()).abs() <= 2) {
-//         print('d: $d, _position: $_position');
         setState(() => _position = d);
       }
     });
 
-    advancedPlayer.onPlayerStateChanged.listen((AudioPlayerState s) {
-      // print('Current player state: $s');
+    audioPlayer.onPlayerStateChanged.listen((AudioPlayerState s) {
       setState(() => _audioPlayerState = s);
+    });
+
+    audioPlayer.onPlayerCompletion.listen((onData) {
+      print("finished playing");
+      playNext(context);
     });
   }
 
@@ -122,285 +164,319 @@ class _MusicPlayScreenState extends State<MusicPlayScreen> {
     if (musicInfoModel == null || musicInfoModel.name == "") {
       return;
     }
-    print(musicInfoModel.name + "==name");
-    final dir = await getApplicationDocumentsDirectory();
-    var full_file = ('${dir.path}/' + musicInfoModel.fullpath);
-    print(full_file);
-    var file = File(full_file);
-    if (await file.exists()) {
-      print('play ok');
-      advancedPlayer.play(file.path, isLocal: true);
 
-      setState(() {
-        _audioPlayerState = AudioPlayerState.PLAYING;
-      });
-    }
+    var file = FileManager.musicFilePath(musicInfoModel.fullpath);
+//    audioPlayer.setUrl(file, isLocal: true);
+    audioPlayer.play(file, isLocal: true);
+
+    audioPlayer
+        .setNotification(
+      title: musicInfoModel.title,
+      artist: musicInfoModel.artist,
+      albumTitle: musicInfoModel.album,
+      duration: _duration,
+      imageUrl:
+      'http://p2.music.126.net/VA3kAvrg2YRrxCgDMJzHnw==/3265549618941178.jpg',
+    )
+        .then((v) {
+      print('Notification ok');
+    }).catchError((e) {
+      print('error with setNotification $e');
+    });
+
+    setState(() {
+      _audioPlayerState = AudioPlayerState.PLAYING;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    ThemeData themeData = Theme.of(context);
+
+    final size = MediaQuery
+        .of(context)
+        .size;
     final width = size.width;
     final height = size.height;
-    double _statusBarHeight = MediaQuery.of(context).padding.top;
+    double _statusBarHeight = MediaQuery
+        .of(context)
+        .padding
+        .top;
     double _kLeadingWidth = kToolbarHeight;
     double _barHeight = _statusBarHeight + _kLeadingWidth;
 
-//    print(musicInfoModel.name + "--------------");
-    print(_position.inSeconds.toString() + "=====");
-    print(_duration.inSeconds.toString() + "2222222");
-
     return Container(
-      height: height,
-      color: Color.fromARGB(255, 231, 240, 253),
-      child: Stack(alignment: Alignment.topCenter,
-          // overflow: Overflow.clip,
-          // fit: StackFit.expand,
-          children: <Widget>[
-            //顶栏
-            Container(
-                width: width,
-                height: _statusBarHeight + _kLeadingWidth,
-                // color: Color.fromARGB(255, 225, 235, 250),
-                decoration: new BoxDecoration(
-                  border: new Border.all(
-                      color: Color.fromARGB(255, 225, 235, 250),
-                      width: 5), // 边色与边宽度
-                  boxShadow: [
-                    BoxShadow(color: Color.fromARGB(255, 225, 235, 250)),
-                    BoxShadow(
-                        color: Color(0x99cccccc),
-                        offset: Offset(2.0, 2.0),
-                        blurRadius: 2.5,
-                        spreadRadius: 3.0),
-                    BoxShadow(
-                        color: Color.fromARGB(255, 225, 235, 250),
-                        offset: Offset(1.0, 1.0)),
-                  ],
-                ),
-                child: Column(
+        height: height,
+        color: themeData.backgroundColor,
+        child: Consumer<MusicInfoData>(
+          builder: (context, musicInfoData, _) =>
+              Stack(alignment: Alignment.topCenter,
+                  // overflow: Overflow.clip,
+                  // fit: StackFit.expand,
                   children: <Widget>[
-                    SizedBox(
-                      height: _statusBarHeight,
+                    //顶栏
+                    Container(
+                        width: width,
+                        height: _statusBarHeight + _kLeadingWidth,
+                        color: themeData.backgroundColor,
+                        child: Column(
+                          children: <Widget>[
+                            SizedBox(
+                              height: _statusBarHeight,
+                            ),
+                          ],
+                        )),
+                    Positioned(
+                        top: _statusBarHeight,
+                        right: 5,
+                        child: RawMaterialButton(
+                          fillColor: themeData.primaryColor,
+                          constraints:
+                          const BoxConstraints(minWidth: 36.0, minHeight: 36.0),
+                          textStyle: new TextStyle(
+                            fontSize: 40.0,
+                            decoration: TextDecoration.none,
+                          ),
+                          elevation: 4,
+                          shape: CircleBorder(
+                              side: BorderSide(
+                                  color: Color.fromARGB(255, 85, 125, 255))),
+                          child: Icon(Icons.keyboard_arrow_down),
+                          onPressed: () {
+                            setState(() {
+                              eventBus.fire(
+                                  MusicPlayEvent(MusicPlayAction.hide));
+                            });
+                          },
+                        )),
+                    Column(
+                      children: <Widget>[
+                        SizedBox(
+                          height: _barHeight * 1.2,
+                        ),
+                        RotateTransform(
+                          animation: animation,
+                          //将要执行动画的子view
+                          child: CircleAvatar(
+                            backgroundImage: FileManager.musicAlbumPictureImage(
+                                musicInfoModel.artist, musicInfoModel.album),
+                            radius: width * 0.4, // --> 半径越大，图片越大
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      musicInfoModel.name,
-                      style: new TextStyle(
-                        fontSize: 20.0,
-                        color: Color.fromARGB(255, 106, 120, 145),
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                    Text(
-                      musicInfoModel.name,
-                      style: new TextStyle(
-                        fontSize: 13.0,
-                        color: Color.fromARGB(255, 106, 120, 145),
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ],
-                )),
-            Positioned(
-                top: _statusBarHeight,
-                right: 5,
-                child: RawMaterialButton(
-                  fillColor: Color.fromARGB(255, 117, 155, 255),
-                  constraints:
-                      const BoxConstraints(minWidth: 36.0, minHeight: 36.0),
 
-                  // textColor: Color.fromARGB(255, 23, 45, 196),
-                  textStyle: new TextStyle(
-                    fontSize: 40.0,
-                    color: Color.fromARGB(255, 255, 255, 255),
-                    decoration: TextDecoration.none,
-                  ),
-                  elevation: 4,
-                  shape: CircleBorder(
-                      side:
-                          BorderSide(color: Color.fromARGB(255, 85, 125, 255))),
-                  child: Icon(Icons.keyboard_arrow_down),
-                  onPressed: () {
-                    setState(() {
-                      eventBus.fire(MusicPlayEvent(MusicPlayAction.hide, null));
-                    });
-                  },
-                )),
-            // child: RawMaterialButton(
-            //     child: Icon(Icons.music_note),
-            //     onPressed: () {
-            //       eventBus.fire(MusicPlayEvent(MusicPlayAction.hide));
-            //     })),
-            // image
-            Column(children: <Widget>[
-              SizedBox(
-                height: _barHeight * 1.2,
-              ),
-              CircleAvatar(
-                backgroundImage: new NetworkImage(musicInfo.imgUrl),
-                radius: 120.0, // --> 半径越大，图片越大
-              ),
-            ]),
-            // 底部
-            Positioned(
-                bottom: 10,
-                child: Column(children: <Widget>[
-                  Container(
-                    width: width,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: new CupertinoSlider(
-                      activeColor: Color.fromARGB(255, 123, 161, 255),
-//                      inactiveColor: Color.fromARGB(255, 160, 174, 196),
-                      value: _position.inSeconds.toDouble(),
-                      min: 0.0,
-                      max: _duration.inSeconds.toDouble(),
-                      onChanged: (double value) {
-                        Duration curPosition =
-                            new Duration(seconds: value.toInt());
-                        setState(() {
-                          _position = curPosition;
-                        });
-                      },
-                      onChangeStart: (double val) {
-                        print('change start');
-                        // setState(() {
-                        _syncSlide = false;
-                        // });
-                      },
-                      onChangeEnd: (double val) {
-                        print('change end');
-                        Duration curPosition =
-                            new Duration(seconds: val.toInt());
-                        advancedPlayer.resume();
-                        advancedPlayer.seek(curPosition);
-                        setState(() {
-                          _position = curPosition;
-                          _syncSlide = true;
-                        });
-                      },
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      _genLastBtn(context),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      _genPausePlayBtn(context),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      _genNextBtn(context),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                ])),
-          ]),
-    );
+                    // 底部
+                    Positioned(
+                        bottom: 10,
+                        child: Column(children: <Widget>[
+                          SizedBox(
+                            height: 60,
+                          ),
+                          Text(
+                            musicInfoData.musicInfoModels.length > 0
+                                ? '${musicInfoData.musicInfoModels[musicInfoData
+                                .playIndex].title} - ${musicInfoData
+                                .musicInfoModels[musicInfoData.playIndex]
+                                .artist}'
+                                : "",
+                            style: themeData.primaryTextTheme.title,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            musicInfoData.musicInfoModels.length > 0
+                                ? '${musicInfoData.musicInfoModels[musicInfoData
+                                .playIndex].album}'
+                                : "",
+                            style: themeData.primaryTextTheme.subtitle,
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Container(
+                            width: width,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: new CupertinoSlider(
+                              activeColor: themeData.primaryColor,
+                              value: _position.inSeconds.toDouble(),
+                              min: 0.0,
+                              max: _duration.inSeconds.toDouble(),
+                              onChanged: (double value) {
+                                Duration curPosition =
+                                new Duration(seconds: value.toInt());
+                                setState(() {
+                                  _position = curPosition;
+                                });
+                              },
+                              onChangeStart: (double val) {
+                                // setState(() {
+                                _syncSlide = false;
+                                // });
+                              },
+                              onChangeEnd: (double val) {
+                                Duration curPosition =
+                                new Duration(seconds: val.toInt());
+                                audioPlayer.resume();
+                                audioPlayer.seek(curPosition);
+                                setState(() {
+                                  _position = curPosition;
+                                  _syncSlide = true;
+                                });
+                              },
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              _genLastBtn(context),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              _genPausePlayBtn(context),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              _genNextBtn(context),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                        ])),
+                  ]),
+        ));
   }
 
   Widget _genPausePlayBtn(BuildContext context) {
-    if (_audioPlayerState == AudioPlayerState.PLAYING) {
-      return Container(
-        height: 80,
-        child: RawMaterialButton(
-          fillColor: Color.fromARGB(255, 117, 155, 255),
-          // textColor: Color.fromARGB(255, 23, 45, 196),
-          textStyle: new TextStyle(
-            fontSize: 40.0,
-            color: Color.fromARGB(255, 255, 255, 255),
-            decoration: TextDecoration.none,
+    ThemeData themeData = Theme.of(context);
+    return AnimatedSwitcher(
+        transitionBuilder: (child, anim) {
+          return ScaleTransition(child: child, scale: anim);
+        },
+        switchInCurve: Curves.fastLinearToSlowEaseIn,
+        switchOutCurve: Curves.fastOutSlowIn,
+        duration: Duration(milliseconds: 300),
+        child: (_audioPlayerState == AudioPlayerState.PLAYING)
+            ? Container(
+          key: Key("play"),
+          height: 80,
+          child: RawMaterialButton(
+            fillColor: themeData.accentColor,
+            textStyle: new TextStyle(
+              fontSize: 40.0,
+              color: themeData.primaryTextTheme.title.color,
+              decoration: TextDecoration.none,
+            ),
+            elevation: 4,
+            shape: CircleBorder(
+                side: BorderSide(color: themeData.accentColor)),
+            child: Icon(Icons.pause),
+            onPressed: () {
+              eventBus.fire(MusicPlayEvent(MusicPlayAction.stop));
+            },
           ),
-          elevation: 4,
-          shape: CircleBorder(
-              side: BorderSide(color: Color.fromARGB(255, 85, 125, 255))),
-          child: Icon(Icons.pause),
-          onPressed: () {
-            print(_audioPlayerState);
-            print('开始暂停');
-            advancedPlayer.pause();
-          },
-        ),
-      );
-    } else {
-      return Container(
-        height: 80,
-        child: RawMaterialButton(
-          fillColor: Color.fromARGB(255, 229, 238, 253),
-          // textColor: Color.fromARGB(255, 23, 45, 196),
-          textStyle: new TextStyle(
-            fontSize: 40.0,
-            color: Color.fromARGB(255, 106, 120, 145),
-            decoration: TextDecoration.none,
+        )
+            : Container(
+          key: Key("pause"),
+          height: 80,
+          child: RawMaterialButton(
+            fillColor: themeData.primaryColor,
+            textStyle: new TextStyle(
+              fontSize: 40.0,
+              color: themeData.primaryTextTheme.title.color,
+              decoration: TextDecoration.none,
+            ),
+            elevation: 8,
+            shape: CircleBorder(
+                side: BorderSide(color: themeData.primaryColor)),
+            child: Icon(Icons.play_arrow),
+            onPressed: () {
+              if (_audioPlayerState == AudioPlayerState.PLAYING) {
+//              audioPlayer.pause();
+                eventBus.fire(MusicPlayEvent(MusicPlayAction.stop));
+              } else if (_audioPlayerState == AudioPlayerState.PAUSED) {
+                eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+              } else if (_audioPlayerState == AudioPlayerState.STOPPED) {} else
+              if (_audioPlayerState ==
+                  AudioPlayerState.COMPLETED) {
+                eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+                playFile();
+              }
+            },
           ),
-          elevation: 8,
-          shape: CircleBorder(
-              side: BorderSide(color: Color.fromARGB(255, 222, 232, 249))),
-          child: Icon(Icons.play_arrow),
-          onPressed: () {
-            print(_audioPlayerState);
-
-            if (_audioPlayerState == AudioPlayerState.PLAYING) {
-              print('开始暂停播放');
-              advancedPlayer.pause();
-            } else if (_audioPlayerState == AudioPlayerState.PAUSED) {
-              print('开始恢复播放');
-              advancedPlayer.resume();
-            } else if (_audioPlayerState == AudioPlayerState.STOPPED) {
-              print('开始播放');
-            } else if (_audioPlayerState == AudioPlayerState.COMPLETED) {
-              playFile();
-            }
-          },
-        ),
-      );
-    }
+        ));
   }
 
   Widget _genLastBtn(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+
     return Container(
       height: 80,
       child: RawMaterialButton(
-        fillColor: Color.fromARGB(255, 229, 238, 253),
-        // textColor: Color.fromARGB(255, 23, 45, 196),
+        fillColor: themeData.primaryColor,
         textStyle: new TextStyle(
           fontSize: 40.0,
-          color: Color.fromARGB(255, 106, 120, 145),
+          color: themeData.primaryTextTheme.title.color,
           decoration: TextDecoration.none,
         ),
         elevation: 8,
-        shape: CircleBorder(
-            side: BorderSide(color: Color.fromARGB(255, 222, 232, 249))),
+        shape: CircleBorder(side: BorderSide(color: themeData.primaryColor)),
         child: Icon(Icons.keyboard_arrow_left),
         onPressed: () {
-          Navigator.of(context).pushNamed("HomeScreen", arguments: "hi");
+          playPrev(context);
         },
       ),
     );
   }
 
   Widget _genNextBtn(BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+
     return Container(
       height: 80,
       child: RawMaterialButton(
-        fillColor: Color.fromARGB(255, 229, 238, 253),
-        // textColor: Color.fromARGB(255, 23, 45, 196),
+        fillColor: themeData.primaryColor,
         textStyle: new TextStyle(
           fontSize: 40.0,
-          color: Color.fromARGB(255, 106, 120, 145),
+          color: themeData.primaryTextTheme.title.color,
           decoration: TextDecoration.none,
         ),
         elevation: 8,
-        shape: CircleBorder(
-            side: BorderSide(color: Color.fromARGB(255, 222, 232, 249))),
+        shape: CircleBorder(side: BorderSide(color: themeData.primaryColor)),
         child: Icon(Icons.keyboard_arrow_right),
         onPressed: () {
-          Navigator.of(context).pushNamed("new_page", arguments: "hi");
+          playNext(context);
         },
       ),
     );
+  }
+
+  void playPrev(BuildContext context) {
+    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
+    int newIndex = musicInfoData.playIndex == 0
+        ? musicInfoData.musicInfoModels.length - 1
+        : musicInfoData.playIndex - 1;
+
+    Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
+
+    controller.reset();
+    controller.forward();
+    eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+  }
+
+  void playNext(BuildContext context) {
+    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
+    int newIndex =
+    musicInfoData.playIndex < musicInfoData.musicInfoModels.length - 1
+        ? musicInfoData.playIndex + 1
+        : 0;
+
+    Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
+
+    controller.reset();
+    controller.forward();
+    eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
   }
 }
