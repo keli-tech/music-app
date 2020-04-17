@@ -68,8 +68,22 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    _refreshList();
+  }
+
   _refreshList() async {
-    DBProvider.db.getMusicInfoByPath("/").then((onValue) {
+    DBProvider.db.getFavMusicInfoList().then((onValue) {
+      // 红心 ID Set
+      Set<int> musicInfoFavIDSet = onValue.map((f) {
+        return f.id;
+      }).toSet();
+      Provider.of<MusicInfoData>(context, listen: false)
+          .setMusicInfoFavIDSet(musicInfoFavIDSet);
+
       setState(() {
         _musicInfoModels = onValue;
       });
@@ -79,124 +93,67 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
+    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
 
-    var dataInfo = Provider.of<MusicInfoData>(context, listen: false);
-    print(dataInfo.musicInfoModel.toJson().toString());
-
-    return CupertinoPageScaffold(
-      backgroundColor: themeData.backgroundColor,
-      child: RefreshIndicator(
-        color: Colors.white,
-        backgroundColor: themeData.primaryColor,
-        child: CustomScrollView(
-          semanticChildCount: _musicInfoModels.length,
-          slivers: <Widget>[
-            CupertinoSliverNavigationBar(
-              largeTitle: Text(
-                "红心",
-                style: themeData.primaryTextTheme.headline,
+    return Container(
+      color: themeData.backgroundColor,
+      child: CupertinoPageScaffold(
+        backgroundColor: themeData.backgroundColor,
+        child: RefreshIndicator(
+          color: Colors.white,
+          backgroundColor: themeData.primaryColor,
+          child: CustomScrollView(
+            semanticChildCount: _musicInfoModels.length,
+            slivers: <Widget>[
+              CupertinoSliverNavigationBar(
+                backgroundColor: themeData.backgroundColor,
+                largeTitle: Text(
+                  "红心",
+                  style: themeData.primaryTextTheme.headline,
+                ),
+//                backgroundColor: themeData.backgroundColor,
               ),
-              backgroundColor: themeData.backgroundColor,
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                //返回组件集合
-                List.generate(1, (int index) {
-                  //返回 组件
-                  return GestureDetector(
-                    onTap: () {
-                      print("点击$index");
-                    },
-                    child: Card(
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.all(10),
-                        child: CupertinoTextField(
-                          controller: _chatTextController,
-                          textCapitalization: TextCapitalization.sentences,
-                          placeholder: 'search heart',
-                          placeholderStyle: themeData.textTheme.title,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 0.0,
-                              color: CupertinoColors.inactiveGray,
-                            ),
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          maxLines: null,
-                          keyboardType: TextInputType.text,
-                          prefix: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4.0),
-                            child: Icon(CupertinoIcons.search),
-                          ),
-                          suffix: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 4.0),
-                            child: CupertinoButton(
-                              color: CupertinoColors.systemGrey3,
-                              minSize: 0.0,
-                              child: const Icon(
-                                CupertinoIcons.clear,
-                                size: 21.0,
-                                color: CupertinoColors.white,
-                              ),
-                              padding: const EdgeInsets.all(2.0),
-                              borderRadius: BorderRadius.circular(15.0),
-                              onPressed: () =>
-                                  setState(() => _chatTextController.clear()),
-                            ),
-                          ),
-                          autofocus: false,
-                          suffixMode: OverlayVisibilityMode.editing,
-                          onSubmitted: (String text) =>
-                              setState(() => _chatTextController.clear()),
-                        ),
-                      ),
+              Consumer<MusicInfoData>(
+                builder: (context, musicInfoData, _) => SliverPadding(
+                  // Top media padding consumed by CupertinoSliverNavigationBar.
+                  // Left/Right media padding consumed by Tab1RowItem.
+                  padding:
+                      EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 70),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return Tab1RowItem(
+                          index: index,
+                          lastItem: index == _musicInfoModels.length - 1,
+                          musicInfoModels: _musicInfoModels,
+                          playId: musicInfoData.musicInfoModel.id,
+                          musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,
+                          animation: animation,
+                          controller: controller,
+                        );
+                      },
+                      childCount: _musicInfoModels.length,
                     ),
-                  );
-                }),
-              ),
-            ),
-            Consumer<MusicInfoData>(
-              builder: (context, musicInfoData, _) => SliverPadding(
-                // Top media padding consumed by CupertinoSliverNavigationBar.
-                // Left/Right media padding consumed by Tab1RowItem.
-                padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 70),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      return Tab1RowItem(
-                        index: index,
-                        lastItem: index == _musicInfoModels.length - 1,
-                        color: Colors.deepPurple,
-                        colorName: "colorName",
-                        musicInfoModels: _musicInfoModels,
-                        playIndex: musicInfoData.playIndex,
-                        animation: animation,
-                        controller: controller,
-                      );
-                    },
-                    childCount: _musicInfoModels.length,
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-        onRefresh: () {
-          if (_isLoding) return null;
-          setState(() {
-            _isLoding = true;
-          });
-          return _refreshList().then((value) {
-            print('success');
+            ],
+          ),
+          onRefresh: () {
+            if (_isLoding) return null;
             setState(() {
-              _isLoding = false;
+              _isLoding = true;
             });
-          }).catchError((error) {
-            print('failed');
-          });
-        },
+            return _refreshList().then((value) {
+              print('success');
+              setState(() {
+                _isLoding = false;
+              });
+            }).catchError((error) {
+              print('failed');
+            });
+          },
+        ),
       ),
     );
   }
@@ -206,19 +163,17 @@ class Tab1RowItem extends StatelessWidget {
   const Tab1RowItem(
       {this.index,
       this.lastItem,
-      this.color,
-      this.colorName,
       this.musicInfoModels,
-      this.playIndex,
+      this.playId,
+      this.musicInfoFavIDSet,
       this.animation,
       this.controller});
 
   final int index;
   final bool lastItem;
-  final Color color;
-  final String colorName;
   final List<MusicInfoModel> musicInfoModels;
-  final int playIndex;
+  final int playId;
+  final Set<int> musicInfoFavIDSet;
 
   final Animation<double> animation;
   final AnimationController controller;
@@ -227,20 +182,23 @@ class Tab1RowItem extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    MusicInfoModel musicInfoModel = musicInfoModels[index];
+    MusicInfoModel _musicInfoModel = musicInfoModels[index];
+    List<MusicInfoModel> mims =
+        musicInfoModels.getRange(0, musicInfoModels.length).toList();
+    mims.removeWhere((music) {
+      return music.type == "fold";
+    });
+    int offset = musicInfoModels.length - mims.length;
 
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         // todo 2 to 1
-        List<MusicInfoModel> mims =
-            musicInfoModels.getRange(0, musicInfoModels.length - 1).toList();
-        mims.removeWhere((music) {
-          return music.type == "fold";
-        });
+
         Provider.of<MusicInfoData>(context, listen: false)
-            .setMusicInfoModels(mims);
-        Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(index);
+            .setMusicInfoList(mims);
+        Provider.of<MusicInfoData>(context, listen: false)
+            .setPlayIndex(index - offset);
 
         controller.reset();
 
@@ -248,8 +206,7 @@ class Tab1RowItem extends StatelessWidget {
         eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
       },
       child: Container(
-        color:
-            CupertinoDynamicColor.resolve(themeData.backgroundColor, context),
+        color: themeData.backgroundColor,
         child: SafeArea(
           top: false,
           bottom: false,
@@ -265,8 +222,7 @@ class Tab1RowItem extends StatelessWidget {
                   switchInCurve: Curves.fastLinearToSlowEaseIn,
                   switchOutCurve: Curves.fastOutSlowIn,
                   duration: Duration(milliseconds: 300),
-                  child: musicInfoModels.length > 0 &&
-                          musicInfoModels[playIndex].id == musicInfoModel.id
+                  child: playId == musicInfoModels[index].id
                       ? RotateTransform(
                           animation: animation,
                           //将要执行动画的子view
@@ -275,13 +231,12 @@ class Tab1RowItem extends StatelessWidget {
                             height: 60.0,
                             width: 60.0,
                             decoration: BoxDecoration(
-                              color: color,
                               borderRadius: BorderRadius.circular(30.0),
                               image: DecorationImage(
                                   fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
                                   image: FileManager.musicAlbumPictureImage(
-                                      musicInfoModel.artist,
-                                      musicInfoModel.album)),
+                                      _musicInfoModel.artist,
+                                      _musicInfoModel.album)),
                             ),
                           ),
                         )
@@ -290,12 +245,12 @@ class Tab1RowItem extends StatelessWidget {
                           height: 60.0,
                           width: 60.0,
                           decoration: BoxDecoration(
-                            color: color,
                             borderRadius: BorderRadius.circular(8.0),
                             image: DecorationImage(
                               fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
                               image: FileManager.musicAlbumPictureImage(
-                                  musicInfoModel.artist, musicInfoModel.album),
+                                  _musicInfoModel.artist,
+                                  _musicInfoModel.album),
                             ),
                           ),
                         ),
@@ -308,24 +263,26 @@ class Tab1RowItem extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            Flex(
-                              direction: Axis.horizontal,
-                              children: <Widget>[
-                                Icon(
-                                  CupertinoIcons.heart_solid,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                              ],
-                            ),
+                            !musicInfoFavIDSet.contains(_musicInfoModel.id)
+                                ? Text("")
+                                : Flex(
+                                    direction: Axis.horizontal,
+                                    children: <Widget>[
+                                      Icon(
+                                        CupertinoIcons.heart_solid,
+                                        color: Colors.red,
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ),
                             const Padding(padding: EdgeInsets.only(right: 5.0)),
                             Expanded(
                               child: Text(
-                                musicInfoModel.type != "fold"
-                                    ? '${musicInfoModel.title} - ${musicInfoModel.artist}'
+                                _musicInfoModel.type != "fold"
+                                    ? '${_musicInfoModel.title} - ${_musicInfoModel.artist}'
                                     : "",
                                 maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
+                                style: themeData.textTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -333,8 +290,8 @@ class Tab1RowItem extends StatelessWidget {
                         ),
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
-                          musicInfoModel.type != "fold"
-                              ? '${musicInfoModel.album}'
+                          _musicInfoModel.type != "fold"
+                              ? '${_musicInfoModel.album}'
                               : "",
                           style: themeData.primaryTextTheme.subtitle,
                         ),
@@ -350,7 +307,7 @@ class Tab1RowItem extends StatelessWidget {
                   ),
                   onPressed: () {
                     Navigator.of(context).push(CupertinoPageRoute<void>(
-                      title: colorName,
+                      title: "hehe",
                       builder: (BuildContext context) => MyHttpServer(
                           // color: color,
                           // colorName: colorName,

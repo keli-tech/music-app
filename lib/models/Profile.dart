@@ -4,35 +4,37 @@ import 'package:hello_world/models/MusicInfoModel.dart';
 
 class Profile {
   int id;
-  MusicInfoModel musicInfoModel;
-  List<MusicInfoModel> musicInfoModelList;
-  String lastName;
-  bool blocked;
+  MusicInfoModel musicInfo;
+  List<MusicInfoModel> musicInfoList;
+  List<MusicInfoModel> musicInfoFavList;
+  int playIndex;
+
   String documentDirectory;
 
   Profile({
     this.id,
-    this.musicInfoModel,
-    this.musicInfoModelList,
-    this.lastName,
-    this.blocked,
+    this.musicInfo,
+    this.musicInfoList,
+    this.musicInfoFavList,
+    this.playIndex,
     this.documentDirectory,
   });
 
   factory Profile.fromMap(Map<String, dynamic> json) => new Profile(
         id: json["id"],
-        musicInfoModel: MusicInfoModel.fromJson(jsonEncode(json["musicInfoModel"])),
-        musicInfoModelList: json["musicInfoModelList"],
-        lastName: json["last_name"],
-        blocked: json["blocked"] == 1,
+        musicInfo: MusicInfoModel.fromJson(jsonEncode(json["musicInfo"])),
+        musicInfoList: json["musicInfoList"],
+        musicInfoFavList: json["musicInfoFavList"],
+        playIndex: json["playIndex"],
       );
 
   Map<String, dynamic> toMap() => {
         "id": id,
-        "musicInfoModel": musicInfoModel,
-        "musicInfoModelList": musicInfoModelList,
-        "last_name": lastName,
-        "blocked": blocked,
+        "musicInfo": musicInfo,
+        "musicInfoList": musicInfoList,
+        "musicInfoFavList": musicInfoFavList,
+        "playIndex": playIndex,
+        "documentDirectory": documentDirectory,
       };
 
   static Profile fromJson(String str) {

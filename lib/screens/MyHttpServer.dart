@@ -6,6 +6,7 @@ import 'package:dart_tags/dart_tags.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:http_server/http_server.dart';
 import 'package:path_provider/path_provider.dart';
@@ -186,7 +187,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
             path: foldPath,
             fullpath: foldPath + foldName + "/",
             type: 'fold',
-            rank: 100,
+            sort: 100,
             syncstatus: true);
 
         await DBProvider.db.newMusicInfo(newMusicInfo);
@@ -219,20 +220,22 @@ class _MyHttpServerState extends State<MyHttpServer> {
       String musicPath = body.body['path'];
 
       var file = await _localFile(musicPath + fileUploaded.filename);
-
+      // 保存文件
       file
           .writeAsBytes(fileUploaded.content, mode: FileMode.WRITE)
           .then((_) async {
-        //todo
+        //todo size
         int fileLength = await file.length();
 
         request.response.close();
 
-        // todo bugfix, 部分无tab mp3 未读取到 tag，会卡住,
+        // 保存到数据库
+        // todo bugfix, 部分无tab mp3 未读取到 tag，会卡住, 比如flac
         TagProcessor tp = new TagProcessor();
         tp.getTagsFromByteArray(file.readAsBytes()).then((l) async {
           l.forEach((f) async {
             if (f.tags != null && f.tags.containsKey("picture")) {
+              // 保存音乐文件表
               AttachedPicture picture = f.tags["picture"];
               String title = f.tags["title"];
               String artist = f.tags["artist"];
@@ -248,9 +251,23 @@ class _MyHttpServerState extends State<MyHttpServer> {
                 artist: artist,
                 album: album,
               );
+              int newMid = await DBProvider.db.newMusicInfo(newMusicInfo);
 
-              await DBProvider.db.newMusicInfo(newMusicInfo);
+              // 添加到专辑表
+              MusicPlayListModel newMusicPlayListModel = MusicPlayListModel(
+                name: album,
+                type: MusicPlayListModel.TYPE_ALBUM,
+                artist: artist,
+                sort: 100,
+              );
+              int newPlid =
+                  await DBProvider.db.newMusicPlayList(newMusicPlayListModel);
+              if (newPlid > 0 && newMid > 0) {
+                // 保存到列表
+                await DBProvider.db.addMusicToPlayList(newPlid, newMid);
+              }
 
+              // 保存音乐封面
               var dir = await FileManager.musicAlbumPicturePath(artist, album)
                   .create(recursive: true);
               var imageFile =
@@ -450,7 +467,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
                           // 复制 copy url
                           ClipboardData data =
                               new ClipboardData(text: serverUrl);
-                          Clipboard.setData(data).then((onValue){
+                          Clipboard.setData(data).then((onValue) {
                             print("copy that");
                           });
 

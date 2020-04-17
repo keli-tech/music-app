@@ -1,15 +1,21 @@
 import 'dart:convert';
 
 import 'package:hello_world/models/ProfileChangeNotifier.dart';
+import 'package:hello_world/services/Database.dart';
 
 class MusicInfoData extends ProfileChangeNotifier {
   int _playIndex = 0;
+  List<MusicInfoModel> _musicInfoList = [];
+  Set<int> _musicInfoFavIDSet = Set<int>();
 
-  List<MusicInfoModel> _musicInfoModels = [];
+//  MusicInfoModel get musicInfoModel => cnprofile.musicInfoModel;
+  MusicInfoModel get musicInfoModel => _musicInfoList.length > _playIndex
+      ? _musicInfoList[_playIndex]
+      : MusicInfoModel();
 
-  MusicInfoModel get musicInfoModel => cnprofile.musicInfoModel;
+  List<MusicInfoModel> get musicInfoList => _musicInfoList;
 
-  List<MusicInfoModel> get musicInfoModels => _musicInfoModels;
+  Set<int> get musicInfoFavIDSet => _musicInfoFavIDSet;
 
   int get playIndex => _playIndex;
 
@@ -18,14 +24,28 @@ class MusicInfoData extends ProfileChangeNotifier {
     notifyListeners();
   }
 
-  setMusicInfoModel(MusicInfoModel musicInfoModel) {
-    cnprofile.musicInfoModel = musicInfoModel;
+  setMusicInfoList(List<MusicInfoModel> musicInfoModels) {
+    _musicInfoList = musicInfoModels;
     notifyListeners();
   }
 
-  setMusicInfoModels(List<MusicInfoModel> musicInfoModels) {
-    _musicInfoModels = musicInfoModels;
+  setMusicInfoFavIDSet(Set<int> musicInfoFavIDSet) {
+    _musicInfoFavIDSet = musicInfoFavIDSet;
     notifyListeners();
+  }
+
+  addMusicInfoFavIDSet(int mid) {
+    DBProvider.db.addMusicToFavPlayList(mid).then((res) {
+      _musicInfoFavIDSet.add(mid);
+      notifyListeners();
+    });
+  }
+
+  removeMusicInfoFavIDSet(int mid) {
+    DBProvider.db.deleteMusicFromFavPlayList(mid).then((res) {
+      _musicInfoFavIDSet.remove(mid);
+      notifyListeners();
+    });
   }
 }
 
@@ -35,7 +55,7 @@ class MusicInfoModel {
   String path = "";
   String fullpath = "";
   String type = "";
-  int rank = 0;
+  int sort = 0;
   bool syncstatus = true;
   String title = "";
   String artist = "";
@@ -47,7 +67,7 @@ class MusicInfoModel {
     this.path,
     this.fullpath,
     this.type,
-    this.rank,
+    this.sort,
     this.syncstatus,
     this.title,
     this.artist,
@@ -65,6 +85,7 @@ class MusicInfoModel {
         title: json["title"],
         artist: json["artist"],
         album: json["album"],
+        sort: json["sort"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -77,6 +98,7 @@ class MusicInfoModel {
         "title": title,
         "artist": artist,
         "album": album,
+        "sort": sort,
       };
 
   Map toJson() {
@@ -90,6 +112,7 @@ class MusicInfoModel {
     map["title"] = this.title;
     map["artist"] = this.artist;
     map["album"] = this.album;
+    map["sort"] = this.sort;
     return map;
   }
 

@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_world/models/MusicInfoModel.dart';
+import 'package:hello_world/models/MusicPlayListModel.dart';
+import 'package:hello_world/services/FileManager.dart';
 
-import '../models/MusicInfoModel.dart';
+import '../components/PlayListCreateComp.dart';
 import '../services/Database.dart';
-import 'MyHttpServer.dart';
 import 'PlayListDetailScreen.dart';
 
 const int _kChildCount = 50;
@@ -17,31 +17,43 @@ class PlayListScreen extends StatefulWidget {
 }
 
 class _PlayListScreen extends State<PlayListScreen> {
-  _PlayListScreen()
-      : colorItems = List<Color>.generate(_kChildCount, (int index) {
-          return Colors.deepPurple;
-        }),
-        colorNameItems = List<String>.generate(_kChildCount, (int index) {
-          return "helloworld";
-        });
-
-  final List<Color> colorItems;
-  final List<String> colorNameItems;
-
-  List<MusicInfoModel> _musicInfoModels = [];
+  List<MusicPlayListModel> _musicPlayListModels = [];
   TextEditingController _chatTextController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _refreshList();
+  }
+
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    print("play list did updte widget");
+
+    _refreshList();
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    print("play list did deactivate");
+
+    _refreshList();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    print("play list did didChangeDependencies");
 
     _refreshList();
   }
 
   _refreshList() async {
-    DBProvider.db.getMusicInfoByPath("/").then((onValue) {
+    DBProvider.db.getMusicPlayList().then((onValue) {
       setState(() {
-        _musicInfoModels = onValue;
+        _musicPlayListModels = onValue;
       });
     });
   }
@@ -49,11 +61,12 @@ class _PlayListScreen extends State<PlayListScreen> {
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
+    var windowHeight = MediaQuery.of(context).size.height;
 
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
       child: CustomScrollView(
-        semanticChildCount: _musicInfoModels.length,
+        semanticChildCount: _musicPlayListModels.length,
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
             largeTitle: Text(
@@ -61,44 +74,24 @@ class _PlayListScreen extends State<PlayListScreen> {
               style: themeData.primaryTextTheme.headline,
             ),
             backgroundColor: themeData.backgroundColor,
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              //返回组件集合
-              List.generate(1, (int index) {
-                //返回 组件
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(CupertinoPageRoute<void>(
-                      title: "文件同步",
-                      builder: (BuildContext context) => MyHttpServer(
-                          // color: color,
-                          // colorName: colorName,
-                          // index: index,
-                          ),
-                    ));
-                  },
-                  child: Card(
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.only(
-                          left: 30, top: 20, right: 30, bottom: 20),
-                      child: Row(children: <Widget>[
-                        Icon(
-                          Icons.add,
-                          size: 30,
-                          color: CupertinoColors.activeGreen,
-                        ),
-                        const Padding(padding: EdgeInsets.only(right: 20.0)),
-                        Text(
-                          "新建歌单",
-                          style: themeData.textTheme.title,
-                        ),
-                      ]),
-                    ),
-                  ),
-                );
-              }),
+            trailing: Container(
+              width: 50,
+              height: 50,
+              child: FlatButton(
+                padding: EdgeInsets.only(left: 0, right: 0),
+                child: Icon(
+                  Icons.more_vert,
+                  color: themeData.primaryColor,
+                ),
+                onPressed: () {
+                  showCupertinoModalPopup(
+                    context: context,
+                    builder: (BuildContext context1) {
+                      return actionSheet(context1, context);
+                    },
+                  );
+                },
+              ),
             ),
           ),
           SliverPadding(
@@ -110,13 +103,11 @@ class _PlayListScreen extends State<PlayListScreen> {
                 (BuildContext context, int index) {
                   return Tab1RowItem(
                     index: index,
-                    lastItem: index == _musicInfoModels.length - 1,
-                    color: colorItems[index],
-                    colorName: colorNameItems[index],
-                    musicInfoModel: _musicInfoModels[index],
+                    lastItem: index == _musicPlayListModels.length - 1,
+                    musicPlayListModel: _musicPlayListModels[index],
                   );
                 },
-                childCount: _musicInfoModels.length,
+                childCount: _musicPlayListModels.length,
               ),
             ),
           ),
@@ -124,21 +115,74 @@ class _PlayListScreen extends State<PlayListScreen> {
       ),
     );
   }
+
+  // 底部弹出菜单actionSheet
+  Widget actionSheet(BuildContext context1, BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+    var windowHeight = MediaQuery.of(context).size.height;
+
+    return new CupertinoActionSheet(
+      actions: <Widget>[
+        CupertinoActionSheetAction(
+          child: Text(
+            '新建歌单',
+            style: themeData.textTheme.display1,
+          ),
+          onPressed: () {
+            Navigator.of(context1).pop();
+
+            showModalBottomSheet<void>(
+                context: context,
+                useRootNavigator: true,
+                isScrollControlled: true,
+                builder: (BuildContext context) {
+                  return Container(
+                    height: windowHeight,
+                    child: PlayListCreateComp(),
+                  );
+                });
+          },
+        ),
+        CupertinoActionSheetAction(
+          child: Text(
+            '歌单排序',
+            style: themeData.textTheme.display1,
+          ),
+          onPressed: () {
+            Navigator.pop(context1);
+
+            showModalBottomSheet<void>(
+                context: context,
+                useRootNavigator: true,
+                isScrollControlled: true,
+                builder: (BuildContext context) {
+                  return Container(
+                    height: windowHeight,
+                    child: PlayListCreateComp(),
+                  );
+                });
+          },
+        ),
+      ],
+      cancelButton: CupertinoActionSheetAction(
+        child: Text(
+          '取消',
+          style: themeData.textTheme.display1,
+        ),
+        onPressed: () {
+          Navigator.of(context1).pop();
+        },
+      ),
+    );
+  }
 }
 
 class Tab1RowItem extends StatelessWidget {
-  const Tab1RowItem(
-      {this.index,
-      this.lastItem,
-      this.color,
-      this.colorName,
-      this.musicInfoModel});
+  const Tab1RowItem({this.index, this.lastItem, this.musicPlayListModel});
 
   final int index;
   final bool lastItem;
-  final Color color;
-  final String colorName;
-  final MusicInfoModel musicInfoModel;
+  final MusicPlayListModel musicPlayListModel;
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +191,11 @@ class Tab1RowItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         Navigator.of(context).push(CupertinoPageRoute<void>(
-          title: colorName,
-          builder: (BuildContext context) => PlayListDetailScreen(),
+          title: musicPlayListModel.name,
+          builder: (BuildContext context) => PlayListDetailScreen(
+            musicPlayListModel: musicPlayListModel,
+            statusBarHeight: MediaQuery.of(context).padding.top,
+          ),
         ));
       },
       child: Container(
@@ -162,16 +209,18 @@ class Tab1RowItem extends StatelessWidget {
                 left: 16.0, top: 8.0, bottom: 8.0, right: 8.0),
             child: Row(
               children: <Widget>[
-                Container(
-                  height: 76.0,
-                  width: 114.0,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(8.0),
-                    image: DecorationImage(
-                      fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
-                      image: NetworkImage(
-                          'http://p2.music.126.net/VA3kAvrg2YRrxCgDMJzHnw==/3265549618941178.jpg'),
+                Hero(
+                  tag: musicPlayListModel.id,
+                  child: Container(
+                    height: 76.0,
+                    width: 114.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      image: DecorationImage(
+                        fit: BoxFit.cover, //这个地方很重要，需要设置才能充满
+                        image: FileManager.musicAlbumPictureImage(
+                            musicPlayListModel.artist, musicPlayListModel.name),
+                      ),
                     ),
                   ),
                 ),
@@ -185,7 +234,7 @@ class Tab1RowItem extends StatelessWidget {
                           children: <Widget>[
                             Expanded(
                               child: Text(
-                                musicInfoModel.name,
+                                musicPlayListModel.name,
                                 maxLines: 1,
                                 style: themeData.primaryTextTheme.title,
                                 overflow: TextOverflow.ellipsis,
@@ -206,18 +255,10 @@ class Tab1RowItem extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   child: const Icon(
                     Icons.play_circle_outline,
+                    size: 35,
                     semanticLabel: 'Add',
                   ),
-                  onPressed: () {
-                    Navigator.of(context).push(CupertinoPageRoute<void>(
-                      title: colorName,
-                      builder: (BuildContext context) => MyHttpServer(
-                          // color: color,
-                          // colorName: colorName,
-                          // index: index,
-                          ),
-                    ));
-                  },
+                  onPressed: () {},
                 ),
               ],
             ),
@@ -226,21 +267,6 @@ class Tab1RowItem extends StatelessWidget {
       ),
     );
 
-//    if (lastItem) {
-//      return row;
-//    }
-
     return row;
-
-//    return Column(
-//      children: <Widget>[
-//        row,
-//        Container(
-//          height: 1.0,
-//          color:
-//              CupertinoDynamicColor.resolve(CupertinoColors.separator, context),
-//        ),
-//      ],
-//    );
   }
 }

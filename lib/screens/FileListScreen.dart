@@ -14,11 +14,13 @@ import 'MyHttpServer.dart';
 class FileListScreen extends StatefulWidget {
   @override
   _FileListScreen createState() => _FileListScreen();
+  static const String routeName = '/filelist';
 }
 
 class _FileListScreen extends State<FileListScreen>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
+  Set<int> _musicInfoFavIDSet = Set();
   Animation<double> animation;
   AnimationController controller;
   String path = "/";
@@ -61,6 +63,11 @@ class _FileListScreen extends State<FileListScreen>
     });
   }
 
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
+
   //销毁
   @override
   void dispose() {
@@ -81,9 +88,6 @@ class _FileListScreen extends State<FileListScreen>
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-
-    var dataInfo = Provider.of<MusicInfoData>(context, listen: false);
-    print(dataInfo.musicInfoModel.toJson().toString());
 
     return CupertinoPageScaffold(
         backgroundColor: themeData.backgroundColor,
@@ -130,12 +134,10 @@ class _FileListScreen extends State<FileListScreen>
                       (BuildContext context, int index) {
                         return Tab1RowItem(
                           index: index,
-                          lastItem: index == _musicInfoModels.length - 1,
-                          color: Colors.deepPurple,
-                          colorName: "colorName",
                           musicInfoModels: _musicInfoModels,
+                          musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,
+                          playId: musicInfoData.musicInfoModel.id,
                           animation: animation,
-                          playIndex: musicInfoData.playIndex,
                           controller: controller,
                         );
                       },
@@ -190,38 +192,25 @@ _buttonFunction(int index, BuildContext context) {
       break;
     case 1:
       return new Center(
-          child: FlatButton(
-              onPressed: () {
-                print(111);
-              },
-              padding: const EdgeInsets.only(
-                  left: 16.0, top: 8.0, bottom: 8.0, right: 8.0),
-              child: Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.search,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  SizedBox(width: 10),
-                  new Text(
-                    "搜索",
-                    style: Theme.of(context).textTheme.button,
-                  ),
-                ],
-              )));
+        child: Container(),
+      );
       break;
     case 2:
       return new Center(
-          child: FlatButton(
+          child: CupertinoButton(
+              pressedOpacity: 0.8,
               onPressed: () {
-                Navigator.of(context).push(CupertinoPageRoute<void>(
-                  title: "文件同步",
-                  builder: (BuildContext context) => CloudServiceScreen(
-                      // color: color,
-                      // colorName: colorName,
-                      // index: index,
-                      ),
-                ));
+                showModalBottomSheet<void>(
+                    context: context,
+                    useRootNavigator: true,
+                    isScrollControlled: true,
+                    builder: (BuildContext context) {
+                      return CloudServiceScreen(
+                        statusBarHeight: MediaQuery.of(context).padding.top.toInt(),
+                      );
+                    });
+                return;
+
               },
               padding: const EdgeInsets.only(
                   left: 16.0, top: 8.0, bottom: 8.0, right: 8.0),
@@ -248,24 +237,20 @@ _buttonFunction(int index, BuildContext context) {
 class Tab1RowItem extends StatelessWidget {
   const Tab1RowItem({
     this.index,
-    this.lastItem,
-    this.color,
-    this.colorName,
     this.musicInfoModels,
     this.animation,
     this.controller,
-    this.playIndex,
+    this.musicInfoFavIDSet,
+    this.playId,
   });
 
   final int index;
-  final bool lastItem;
-  final Color color;
-  final String colorName;
   final List<MusicInfoModel> musicInfoModels;
   final Animation<double> animation;
   final AnimationController controller;
+  final Set<int> musicInfoFavIDSet;
 
-  final int playIndex;
+  final int playId;
 
   @override
   Widget build(BuildContext context) {
@@ -347,7 +332,7 @@ class Tab1RowItem extends StatelessWidget {
                   ),
                   onPressed: () {
                     Navigator.of(context).push(CupertinoPageRoute<void>(
-                      title: colorName,
+                      title: "hehe2",
                       builder: (BuildContext context) => MyHttpServer(
                           // color: color,
                           // colorName: colorName,
@@ -368,20 +353,22 @@ class Tab1RowItem extends StatelessWidget {
 
   Widget builder(BuildContext context) {
     ThemeData themeData = Theme.of(context);
+    MusicInfoModel _musicInfoModel = musicInfoModels[index];
+    List<MusicInfoModel> mims =
+        musicInfoModels.getRange(0, musicInfoModels.length).toList();
+    mims.removeWhere((music) {
+      return music.type == "fold";
+    });
+    int offset = musicInfoModels.length - mims.length;
 
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         // todo 2 to 1
-        List<MusicInfoModel> mims =
-        musicInfoModels.getRange(0, musicInfoModels.length - 1).toList();
-        mims.removeWhere((music) {
-          return music.type == "fold";
-        });
         Provider.of<MusicInfoData>(context, listen: false)
-            .setMusicInfoModels(mims);
+            .setMusicInfoList(mims);
         Provider.of<MusicInfoData>(context, listen: false)
-            .setPlayIndex(index);
+            .setPlayIndex(index - offset);
 
         controller.reset();
 
@@ -406,9 +393,7 @@ class Tab1RowItem extends StatelessWidget {
                   switchInCurve: Curves.fastLinearToSlowEaseIn,
                   switchOutCurve: Curves.fastOutSlowIn,
                   duration: Duration(milliseconds: 300),
-                  child: musicInfoModels.length > 0
-                      && musicInfoModels[playIndex].id == musicInfoModels[index].id
-
+                  child: playId == musicInfoModels[index].id
                       ? RotateTransform(
                           animation: animation,
                           //将要执行动画的子view
@@ -416,7 +401,6 @@ class Tab1RowItem extends StatelessWidget {
                             height: 60.0,
                             width: 60.0,
                             decoration: BoxDecoration(
-                              color: color,
                               borderRadius: BorderRadius.circular(30.0),
                               image: DecorationImage(
                                 fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
@@ -431,12 +415,12 @@ class Tab1RowItem extends StatelessWidget {
                           height: 60.0,
                           width: 60.0,
                           decoration: BoxDecoration(
-                            color: color,
                             borderRadius: BorderRadius.circular(8.0),
                             image: DecorationImage(
                               fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
                               image: FileManager.musicAlbumPictureImage(
-                                  musicInfoModels[index].artist, musicInfoModels[index].album),
+                                  musicInfoModels[index].artist,
+                                  musicInfoModels[index].album),
                             ),
                           ),
                         ),
@@ -449,22 +433,24 @@ class Tab1RowItem extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            Flex(
-                              direction: Axis.horizontal,
-                              children: <Widget>[
-                                Icon(
-                                  CupertinoIcons.heart_solid,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                              ],
-                            ),
+                            !musicInfoFavIDSet.contains(_musicInfoModel.id)
+                                ? Text("")
+                                : Flex(
+                                    direction: Axis.horizontal,
+                                    children: <Widget>[
+                                      Icon(
+                                        CupertinoIcons.heart_solid,
+                                        color: Colors.red,
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ),
                             const Padding(padding: EdgeInsets.only(right: 5.0)),
                             Expanded(
                               child: Text(
                                 musicInfoModels[index].name,
                                 maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
+                                style: themeData.textTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -473,7 +459,7 @@ class Tab1RowItem extends StatelessWidget {
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
                           musicInfoModels[index].fullpath,
-                          style: themeData.primaryTextTheme.subtitle,
+                          style: themeData.textTheme.subtitle,
                         ),
                       ],
                     ),
@@ -487,7 +473,7 @@ class Tab1RowItem extends StatelessWidget {
                   ),
                   onPressed: () {
                     Navigator.of(context).push(CupertinoPageRoute<void>(
-                      title: colorName,
+                      title: "hehe",
                       builder: (BuildContext context) => MyHttpServer(
                           // color: color,
                           // colorName: colorName,
