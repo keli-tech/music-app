@@ -7,11 +7,7 @@ import '../components/PlayListCreateComp.dart';
 import '../services/Database.dart';
 import 'PlayListDetailScreen.dart';
 
-const int _kChildCount = 50;
-
 class PlayListScreen extends StatefulWidget {
-  // const PlayListScreen({this.colorItems, this.colorNameItems});
-
   @override
   _PlayListScreen createState() => _PlayListScreen();
 }
@@ -69,10 +65,6 @@ class _PlayListScreen extends State<PlayListScreen> {
         semanticChildCount: _musicPlayListModels.length,
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
-            largeTitle: Text(
-              "歌单",
-              style: themeData.primaryTextTheme.headline,
-            ),
             backgroundColor: themeData.backgroundColor,
             trailing: Container(
               width: 50,
@@ -124,10 +116,6 @@ class _PlayListScreen extends State<PlayListScreen> {
     return new CupertinoActionSheet(
       actions: <Widget>[
         CupertinoActionSheetAction(
-          child: Text(
-            '新建歌单',
-            style: themeData.textTheme.display1,
-          ),
           onPressed: () {
             Navigator.of(context1).pop();
 

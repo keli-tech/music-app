@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:hello_world/models/ProfileChangeNotifier.dart';
 import 'package:hello_world/services/Database.dart';
 
 class MusicInfoData extends ProfileChangeNotifier {
   int _playIndex = 0;
+  AudioPlayerState _audioPlayerState = AudioPlayerState.STOPPED;
   List<MusicInfoModel> _musicInfoList = [];
   Set<int> _musicInfoFavIDSet = Set<int>();
 
@@ -18,6 +20,13 @@ class MusicInfoData extends ProfileChangeNotifier {
   Set<int> get musicInfoFavIDSet => _musicInfoFavIDSet;
 
   int get playIndex => _playIndex;
+
+  AudioPlayerState get audioPlayerState => _audioPlayerState;
+
+  setAudioPlayerState(AudioPlayerState audioPlayerState) {
+    _audioPlayerState= audioPlayerState;
+    notifyListeners();
+  }
 
   setPlayIndex(int playIndex) {
     _playIndex = playIndex;

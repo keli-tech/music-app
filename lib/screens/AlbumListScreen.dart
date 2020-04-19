@@ -6,10 +6,10 @@ import 'package:hello_world/services/FileManager.dart';
 import '../services/Database.dart';
 import 'PlayListDetailScreen.dart';
 
-const int _kChildCount = 50;
-
 class AlbumListScreen extends StatefulWidget {
-  // const AlbumListScreen({this.colorItems, this.colorNameItems});
+  AlbumListScreen({
+    Key key,
+  }) : super(key: key);
 
   @override
   _AlbumListScreen createState() => _AlbumListScreen();
@@ -17,7 +17,6 @@ class AlbumListScreen extends StatefulWidget {
 
 class _AlbumListScreen extends State<AlbumListScreen> {
   List<MusicPlayListModel> _musicPlayListModels = [];
-  TextEditingController _chatTextController = TextEditingController();
 
   @override
   void initState() {
@@ -60,10 +59,6 @@ class _AlbumListScreen extends State<AlbumListScreen> {
         semanticChildCount: _musicPlayListModels.length,
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
-            largeTitle: Text(
-              "专辑",
-              style: themeData.primaryTextTheme.headline,
-            ),
             backgroundColor: themeData.backgroundColor,
             trailing: Container(
               width: 50,

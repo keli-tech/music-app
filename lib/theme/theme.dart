@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 final ThemeData lightThemeData = new ThemeData(
-  primarySwatch: Colors.brown,
-  primaryColor: Colors.brown,
-  primaryColorBrightness: Brightness.dark,
+  primarySwatch: Colors.blue,
+  primaryColor: Colors.blue,
+  primaryColorBrightness: Brightness.light,
   accentColor: Color.fromARGB(255, 225, 235, 250),
   cardColor: Color.fromARGB(255, 230, 230, 230),
   dividerColor: Color.fromARGB(255, 150, 150, 150),
@@ -170,10 +170,13 @@ final ThemeData darkThemeData = new ThemeData(
 );
 
 final ThemeData testThemeData = new ThemeData(
+  backgroundColor: Color.fromARGB(255, 244, 244, 244),
+  accentColor: Color.fromARGB(255, 225, 225, 225),
   primarySwatch: Colors.brown,
   primaryColor: Colors.brown,
+  brightness: Brightness.dark,
+  accentColorBrightness: Brightness.dark,
   primaryColorBrightness: Brightness.dark,
-  accentColor: Color.fromARGB(255, 225, 235, 250),
   cardColor: Color.fromARGB(255, 230, 230, 230),
   dividerColor: Color.fromARGB(255, 150, 150, 150),
   buttonColor: Color.fromARGB(255, 117, 155, 255),
@@ -186,15 +189,6 @@ final ThemeData testThemeData = new ThemeData(
       borderRadius: BorderRadius.circular(4.0),
     ),
   ),
-  // buttonBarTheme: ButtonBarThemeData(
-  //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-  //   minWidth: 64.0,
-  //   height: 30.0,
-  //   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-  //   shape: RoundedRectangleBorder(
-  //     borderRadius: BorderRadius.circular(4.0),
-  //   ),
-  // ),
   iconTheme: IconThemeData(
     color: Colors.green,
   ),
@@ -257,9 +251,16 @@ final ThemeData testThemeData = new ThemeData(
       color: Colors.white,
       fontSize: 13.0,
     ),
+    headline: TextStyle(
+      color: Colors.white,
+      fontSize: 16.0,
+    ),
+    subhead: TextStyle(
+      color: Colors.white,
+      fontSize: 13.0,
+    ),
   ),
   dividerTheme: DividerThemeData(
     thickness: 0.20,
   ),
-  backgroundColor: Color.fromARGB(255, 244, 244, 244),
 );

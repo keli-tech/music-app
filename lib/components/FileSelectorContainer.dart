@@ -6,11 +6,14 @@ import 'package:hello_world/services/FileManager.dart';
 
 import '../models/MusicInfoModel.dart';
 import '../services/Database.dart';
-import '../services/EventBus.dart';
 
 class FileSelectorContainer extends StatefulWidget {
   FileSelectorContainer(
-      {Key key, this.title, this.musicInfoModel, this.playListId, this.statusBarHeight})
+      {Key key,
+      this.title,
+      this.musicInfoModel,
+      this.playListId,
+      this.statusBarHeight})
       : super(key: key);
 
   MusicInfoModel musicInfoModel;
@@ -25,10 +28,7 @@ class FileSelectorContainer extends StatefulWidget {
 class _FileSelectorContainer extends State<FileSelectorContainer>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModelsUnderPlayList = [];
-  Animation<double> animation;
-  AnimationController controller;
 
-  var _eventBusOn;
   List<_ListItem> listItems = [];
 
   @override
@@ -36,40 +36,11 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
     super.initState();
 
     _refreshList();
-    controller = new AnimationController(
-        duration: const Duration(seconds: 10), vsync: this);
-    //图片宽高从0变到300
-    animation = new Tween(begin: 0.0, end: 720.0).animate(controller);
-    animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        //动画执行结束时反向执行动画
-        controller.reset();
-
-        controller.forward();
-      } else if (status == AnimationStatus.dismissed) {
-        //动画恢复到初始状态时执行动画（正向）
-        controller.forward();
-      }
-    });
-
-    //启动动画（正向）
-    controller.stop();
-
-    _eventBusOn = eventBus.on<MusicPlayEvent>().listen((event) {
-      if (event.musicPlayAction == MusicPlayAction.play) {
-        controller.forward();
-      } else if (event.musicPlayAction == MusicPlayAction.stop) {
-        controller.stop();
-      }
-      setState(() {});
-    });
   }
 
   //销毁
   @override
   void dispose() {
-    this._eventBusOn.cancel();
-    controller.stop(canceled: true);
     super.dispose();
   }
 

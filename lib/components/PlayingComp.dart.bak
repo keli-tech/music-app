@@ -13,15 +13,15 @@ import '../services/EventBus.dart';
  * 播放页
  */
 
-class MusicPlayScreen extends StatefulWidget {
-  MusicPlayScreen({Key key, this.title, this.showMusicScreen})
+class PlayingComp extends StatefulWidget {
+  PlayingComp({Key key, this.title, this.showMusicScreen})
       : super(key: key);
 
   final String title;
   int showMusicScreen;
 
   @override
-  _MusicPlayScreenState createState() => _MusicPlayScreenState();
+  _PlayingCompState createState() => _PlayingCompState();
 }
 
 class MusicInfo {
@@ -32,7 +32,7 @@ class MusicInfo {
   String imgUrl;
 }
 
-class _MusicPlayScreenState extends State<MusicPlayScreen>
+class _PlayingCompState extends State<PlayingComp>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
@@ -117,7 +117,7 @@ class _MusicPlayScreenState extends State<MusicPlayScreen>
 
   // 初始化监听事件
   void _initEvent() {
-    _eventBusOn = eventBus.on<MusicPlayEvent>().listen((event) {
+    _eventBusOn = eventBus.on<AudioPlayerEvent>().listen((event) {
       var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
 
       if (musicInfoData != null &&
@@ -135,10 +135,10 @@ class _MusicPlayScreenState extends State<MusicPlayScreen>
         controller.forward();
       } else {}
 
-      if (event.musicPlayAction == MusicPlayAction.play) {
+      if (event.musicPlayAction == AudioPlayerEvent.play) {
         audioPlayer.resume();
         controller.forward();
-      } else if (event.musicPlayAction == MusicPlayAction.stop) {
+      } else if (event.musicPlayAction == AudioPlayerEvent.stop) {
         audioPlayer.pause();
         controller.stop();
       }
@@ -236,6 +236,7 @@ class _MusicPlayScreenState extends State<MusicPlayScreen>
       color: themeData.backgroundColor,
       child: CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
+
 //          backgroundColor: themeData.backgroundColor,
           backgroundColor: themeData.backgroundColor,
 
@@ -253,7 +254,7 @@ class _MusicPlayScreenState extends State<MusicPlayScreen>
                   color: themeData.primaryColor,
                 ),
                 onPressed: () {
-                  eventBus.fire(MusicPlayEvent(MusicPlayAction.hide));
+//                  eventBus.fire(MusicPlayEvent(AudioPlayerEvent.hide));
                 },
               )),
           middle: Text(
@@ -468,16 +469,16 @@ class _MusicPlayScreenState extends State<MusicPlayScreen>
 
   _playPauseAction() {
     if (_audioPlayerState == AudioPlayerState.PLAYING) {
-      eventBus.fire(MusicPlayEvent(MusicPlayAction.stop));
+      eventBus.fire(AudioPlayerEvent(AudioPlayerEvent.stop));
     } else {
       if (_audioPlayerState == AudioPlayerState.PLAYING) {
 //              audioPlayer.pause();
-        eventBus.fire(MusicPlayEvent(MusicPlayAction.stop));
+        eventBus.fire(AudioPlayerEvent(AudioPlayerEvent.stop));
       } else if (_audioPlayerState == AudioPlayerState.PAUSED) {
-        eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+        eventBus.fire(AudioPlayerEvent(AudioPlayerEvent.play));
       } else if (_audioPlayerState == AudioPlayerState.STOPPED) {
       } else if (_audioPlayerState == AudioPlayerState.COMPLETED) {
-        eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+        eventBus.fire(AudioPlayerEvent(AudioPlayerEvent.play));
         playFile();
       }
     }
@@ -538,7 +539,7 @@ class _MusicPlayScreenState extends State<MusicPlayScreen>
 
     controller.reset();
     controller.forward();
-    eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+    eventBus.fire(AudioPlayerEvent(AudioPlayerEvent.play));
   }
 
   void playNext(BuildContext context) {
@@ -556,7 +557,7 @@ class _MusicPlayScreenState extends State<MusicPlayScreen>
 
     controller.reset();
     controller.forward();
-    eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+    eventBus.fire(AudioPlayerEvent(AudioPlayerEvent.play));
   }
 
   Widget buildCarouselControl(
@@ -586,7 +587,7 @@ class _MusicPlayScreenState extends State<MusicPlayScreen>
         controller.reset();
         controller.forward();
 
-        eventBus.fire(MusicPlayEvent(MusicPlayAction.play));
+        eventBus.fire(AudioPlayerEvent(AudioPlayerEvent.play));
       },
       items: musicInfoData.musicInfoList.map((musicInfoModel) {
         return Builder(

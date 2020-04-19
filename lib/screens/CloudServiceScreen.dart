@@ -5,7 +5,6 @@ import 'package:hello_world/screens/MyHttpServer.dart';
 
 import '../models/MusicInfoModel.dart';
 import '../services/Database.dart';
-import '../services/EventBus.dart';
 
 class CloudServiceScreen extends StatefulWidget {
   @override
@@ -19,9 +18,6 @@ class CloudServiceScreen extends StatefulWidget {
 class _CloudServiceScreen extends State<CloudServiceScreen>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
-  TextEditingController _chatTextController = TextEditingController();
-  Animation<double> animation;
-  AnimationController controller;
 
   var _eventBusOn;
 
@@ -30,34 +26,6 @@ class _CloudServiceScreen extends State<CloudServiceScreen>
     super.initState();
 
     _refreshList();
-
-    controller = new AnimationController(
-        duration: const Duration(seconds: 10), vsync: this);
-    //图片宽高从0变到300
-    animation = new Tween(begin: 0.0, end: 720.0).animate(controller);
-    animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        //动画执行结束时反向执行动画
-        controller.reset();
-
-        controller.forward();
-      } else if (status == AnimationStatus.dismissed) {
-        //动画恢复到初始状态时执行动画（正向）
-        controller.forward();
-      }
-    });
-
-    //启动动画（正向）
-    controller.stop();
-
-    _eventBusOn = eventBus.on<MusicPlayEvent>().listen((event) {
-      if (event.musicPlayAction == MusicPlayAction.play) {
-        controller.forward();
-      } else if (event.musicPlayAction == MusicPlayAction.stop) {
-        controller.stop();
-      }
-      setState(() {});
-    });
   }
 
   //销毁

@@ -9,6 +9,7 @@ class AlbumImageAnimation extends StatelessWidget {
   final MusicInfoModel musicInfoModel;
   final double windowWidth;
   final double windowHeight;
+  final double bottomBarHeight;
 
   Animation<EdgeInsets> padding1;
   Animation<EdgeInsets> padding2;
@@ -22,13 +23,14 @@ class AlbumImageAnimation extends StatelessWidget {
   Animation<double> angle2;
   Animation<double> angle3;
 
-  AlbumImageAnimation(
-      {Key key,
-      this.controller,
-      this.musicInfoModel,
-      this.windowWidth,
-      this.windowHeight})
-      : super(key: key) {
+  AlbumImageAnimation({
+    Key key,
+    this.controller,
+    this.musicInfoModel,
+    this.windowWidth,
+    this.windowHeight,
+    this.bottomBarHeight,
+  }) : super(key: key) {
     angle1 = Tween<double>(
       begin: 0.0,
       end: 3.0,
@@ -125,7 +127,7 @@ class AlbumImageAnimation extends StatelessWidget {
 
     padding2 = Tween<EdgeInsets>(
       begin: EdgeInsets.only(bottom: 0.0),
-      end: EdgeInsets.only(bottom: 320 - windowHeight),
+      end: EdgeInsets.only(bottom: 350 - windowHeight),
     ).animate(
       CurvedAnimation(
         parent: controller,
@@ -135,9 +137,12 @@ class AlbumImageAnimation extends StatelessWidget {
         ),
       ),
     );
+
+    print(bottomBarHeight);
+
     padding3 = Tween<EdgeInsets>(
       begin: EdgeInsets.only(bottom: 0.0),
-      end: EdgeInsets.only(bottom: -60),
+      end: EdgeInsets.only(bottom: - 100 - bottomBarHeight),
     ).animate(
       CurvedAnimation(
         parent: controller,

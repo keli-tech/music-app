@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
+import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -61,7 +62,8 @@ class Global {
         ..syncstatus = true;
     }
 
-    print(profile.toJson().toString());
+    Logger logger = new Logger("Global");
+    logger.info(profile.toJson().toString());
   }
 
   // 持久化Profile信息

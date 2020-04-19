@@ -28,7 +28,7 @@ packages:
       name: audioplayers
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.15.0"
+    version: "0.15.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -85,13 +85,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.3"
-  dart_web_audio:
-    dependency: transitive
-    description:
-      name: dart_web_audio
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2"
   event_bus:
     dependency: "direct main"
     description:
@@ -149,13 +142,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.5"
-  js:
-    dependency: transitive
+  logging:
+    dependency: "direct main"
     description:
-      name: js
+      name: logging
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.1+1"
+    version: "0.11.4"
   matcher:
     dependency: transitive
     description:
