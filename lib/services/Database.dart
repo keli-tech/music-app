@@ -29,7 +29,6 @@ class DBProvider {
     String path = join(documentsDirectory.path, "keli_music4.db");
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
-
       final path = Global.profile.documentDirectory;
 
       await db.execute("CREATE TABLE IF NOT EXISTS music_info ("
@@ -109,19 +108,38 @@ class DBProvider {
 
   Future<int> newMusicPlayList(MusicPlayListModel newMusicPlayListModel) async {
     final db = await database;
+    int retID;
 
-    int res = await db.rawInsert(
-        "INSERT Into music_play_list (name,artist,year,type,sort,imgpath)"
-        " VALUES (?,?,?,?,?,?) ON CONFLICT(name, type, artist) DO UPDATE SET name = name",
-        [
-          newMusicPlayListModel.name,
-          newMusicPlayListModel.artist,
-          newMusicPlayListModel.year,
-          newMusicPlayListModel.type,
-          newMusicPlayListModel.sort,
-          newMusicPlayListModel.imgpath,
-        ]);
-    return res;
+    await db.transaction((txn) async {
+      var res = await txn.query("music_play_list",
+          where: " name = ? and artist = ? ",
+          orderBy: "sort desc",
+          whereArgs: [
+            newMusicPlayListModel.name,
+            newMusicPlayListModel.artist,
+          ]);
+
+      List<MusicInfoModel> list = res.isNotEmpty
+          ? res.map((c) => MusicInfoModel.fromMap(c)).toList()
+          : [];
+
+      if (list.length > 0) {
+        retID = list.first.id;
+      } else {
+        retID = await txn.rawInsert(
+            "INSERT Into music_play_list (name,artist,year,type,sort,imgpath)"
+            " VALUES (?,?,?,?,?,?) ON CONFLICT(name, type, artist) DO UPDATE SET name = name",
+            [
+              newMusicPlayListModel.name,
+              newMusicPlayListModel.artist,
+              newMusicPlayListModel.year,
+              newMusicPlayListModel.type,
+              newMusicPlayListModel.sort,
+              newMusicPlayListModel.imgpath,
+            ]);
+      }
+    });
+    return retID;
   }
 
   deleteMusicPlayList(int id) async {

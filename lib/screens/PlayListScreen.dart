@@ -116,6 +116,10 @@ class _PlayListScreen extends State<PlayListScreen> {
     return new CupertinoActionSheet(
       actions: <Widget>[
         CupertinoActionSheetAction(
+          child: Text(
+            '新建歌单',
+            style: themeData.textTheme.display1,
+          ),
           onPressed: () {
             Navigator.of(context1).pop();
 

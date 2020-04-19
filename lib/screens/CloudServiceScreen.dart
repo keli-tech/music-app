@@ -19,8 +19,6 @@ class _CloudServiceScreen extends State<CloudServiceScreen>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
 
-  var _eventBusOn;
-
   @override
   void initState() {
     super.initState();
@@ -31,8 +29,6 @@ class _CloudServiceScreen extends State<CloudServiceScreen>
   //销毁
   @override
   void dispose() {
-    this._eventBusOn.cancel();
-
     print("play screen disposed!!");
     super.dispose();
   }

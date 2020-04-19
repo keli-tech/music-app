@@ -142,7 +142,7 @@ class AlbumImageAnimation extends StatelessWidget {
 
     padding3 = Tween<EdgeInsets>(
       begin: EdgeInsets.only(bottom: 0.0),
-      end: EdgeInsets.only(bottom: - 100 - bottomBarHeight),
+      end: EdgeInsets.only(bottom: - 100 + bottomBarHeight),
     ).animate(
       CurvedAnimation(
         parent: controller,
