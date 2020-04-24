@@ -213,10 +213,8 @@ class _PlayingScreenState extends State<PlayingScreen>
                                     color: Colors.transparent,
                                     onPressed: _playPauseAction,
                                     child: CircleAvatar(
-                                      backgroundColor: Theme.of(context)
-                                          .textTheme
-                                          .body2
-                                          .color,
+                                      backgroundColor:
+                                          Theme.of(context).primaryColor,
                                       radius: _windowWidth * 0.35,
                                       child: Center(
                                         child: Container(
@@ -254,7 +252,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                     musicInfoData.musicInfoList.length > 0
                         ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].title} - ${musicInfoData.musicInfoList[musicInfoData.playIndex].artist}'
                         : "",
-                    style: themeData.textTheme.headline,
+                    style: themeData.primaryTextTheme.headline,
                   ),
                   SizedBox(
                     height: 10,
@@ -263,65 +261,63 @@ class _PlayingScreenState extends State<PlayingScreen>
                     musicInfoData.musicInfoList.length > 0
                         ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].album}'
                         : "",
-                    style: themeData.textTheme.subhead,
+                    style: themeData.primaryTextTheme.subhead,
                   ),
                   // 进度条
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          width: 40,
-                          child: Text(
-                            _currentDurationTime,
-                            style: themeData.textTheme.subhead,
-                          ),
-                        ),
-                        Container(
-                          width: _windowWidth - 100,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: new CupertinoSlider(
-                            activeColor: themeData.textTheme.body2.color,
-                            value: _position.inSeconds.toDouble(),
-                            min: 0.0,
-                            max: _maxDuration.inSeconds.toDouble(),
-                            onChanged: (double value) {
-                              Duration curPosition =
-                                  new Duration(seconds: value.toInt());
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: <
+                      Widget>[
+                    Container(
+                      width: 55,
+                      child: Text(
+                        _currentDurationTime,
+                        style: themeData.primaryTextTheme.subhead,
+                      ),
+                    ),
+                    Container(
+                      width: _windowWidth - 130,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: new CupertinoSlider(
+                        activeColor: themeData.primaryTextTheme.headline.color,
+                        value: _position.inSeconds.toDouble(),
+                        min: 0.0,
+                        max: _maxDuration.inSeconds.toDouble(),
+                        onChanged: (double value) {
+                          Duration curPosition =
+                              new Duration(seconds: value.toInt());
 //                    logger.info(value.toInt());
-                              setState(() {
-                                _position = curPosition;
-                              });
-                            },
-                            onChangeStart: (double val) {
-                              logger.info("change start");
-                              setState(() {
-                                _syncSlide = false;
-                              });
-                            },
-                            onChangeEnd: (double val) {
-                              logger.info(
-                                  "change end :" + val.toInt().toString());
-                              Duration curPosition =
-                                  new Duration(milliseconds: val.toInt());
-                              print(curPosition);
+                          setState(() {
+                            _position = curPosition;
+                          });
+                        },
+                        onChangeStart: (double val) {
+                          logger.info("change start");
+                          setState(() {
+                            _syncSlide = false;
+                          });
+                        },
+                        onChangeEnd: (double val) {
+                          logger.info("change end :" + val.toInt().toString());
+                          Duration curPosition =
+                              new Duration(milliseconds: val.toInt());
+                          print(curPosition);
 
-                              widget.seekAction(curPosition);
-                              widget.audioplayer.resume();
-                              setState(() {
+                          widget.seekAction(curPosition);
+                          widget.audioplayer.resume();
+                          setState(() {
 //                      _position = curPosition;
-                                _syncSlide = true;
-                              });
-                            },
-                          ),
-                        ),
-                        Container(
-                          width: 40,
-                          child: Text(
-                            _durationTime,
-                            style: themeData.textTheme.subhead,
-                          ),
-                        ),
-                      ]),
+                            _syncSlide = true;
+                          });
+                        },
+                      ),
+                    ),
+                    Container(
+                      width: 55,
+                      child: Text(
+                        _durationTime,
+                        style: themeData.primaryTextTheme.subhead,
+                      ),
+                    ),
+                  ]),
 
                   // 控制器
                   Row(
@@ -335,7 +331,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                           padding: EdgeInsets.only(left: 0, right: 0),
                           child: Icon(
                             Icons.repeat,
-                            color: themeData.textTheme.body2.color,
+                            color: themeData.primaryTextTheme.headline.color,
                           ),
                           onPressed: () {
                             widget.hideAction();
@@ -430,7 +426,7 @@ class _PlayingScreenState extends State<PlayingScreen>
             key: Key("play"),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: themeData.textTheme.body2.color,
+              color: themeData.primaryTextTheme.headline.color,
             ),
             width: 70,
             height: 70,
@@ -438,12 +434,12 @@ class _PlayingScreenState extends State<PlayingScreen>
                 ? Icon(
                     Icons.pause,
                     size: 40,
-                    color: themeData.textTheme.body1.color,
+                    color: themeData.primaryColor,
                   )
                 : Icon(
                     Icons.play_arrow,
                     size: 40,
-                    color: themeData.textTheme.body1.color,
+                    color: themeData.primaryColor,
                   ),
           ),
         ));
@@ -458,7 +454,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         child: Icon(
           Icons.skip_previous,
           size: 45,
-          color: themeData.textTheme.body2.color,
+          color: themeData.primaryTextTheme.headline.color,
         ),
         onPressed: () {
           _playPrev(context);
@@ -476,7 +472,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         child: Icon(
           Icons.skip_next,
           size: 45,
-          color: themeData.textTheme.body2.color,
+          color: themeData.primaryTextTheme.headline.color,
         ),
         onPressed: () {
           _playNext(context);

@@ -121,6 +121,7 @@ class MusicRowItem extends StatelessWidget {
                                 _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                                     ? '${_musicInfoModel.title} - ${_musicInfoModel.artist}'
                                     : "",
+                                style: themeData.textTheme.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -129,9 +130,10 @@ class MusicRowItem extends StatelessWidget {
                         ),
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
-                          _musicInfoModel.type !=  MusicInfoModel.TYPE_FOLD
+                          _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                               ? '${_musicInfoModel.album}'
                               : "",
+                          style: themeData.textTheme.subtitle,
                         ),
                       ],
                     ),

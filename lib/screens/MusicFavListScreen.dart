@@ -201,6 +201,7 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                     new Divider(),
                     _musicSceenListModels.length > 0
                         ? Card(
+                            color: themeData.backgroundColor,
                             elevation: 0,
                             child: ListTile(
                               title: Text(
@@ -220,6 +221,7 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                 delegate: SliverChildListDelegate([
                   _musicSceenListModels.length > 0
                       ? Card(
+                          color: themeData.backgroundColor,
                           elevation: 0,
                           child: Padding(
                             padding: EdgeInsets.only(bottom: 70.0),
@@ -343,7 +345,10 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                   image: DecorationImage(
                     fit: BoxFit.cover,
                     image: FileManager.musicAlbumPictureImage(
-                        "-", _favPlayListInfo.imgpath),
+                        "-",
+                        _favPlayListInfo != null
+                            ? _favPlayListInfo.imgpath
+                            : ""),
                   ),
                 ),
                 child: Container(

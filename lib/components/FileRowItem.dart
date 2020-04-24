@@ -76,10 +76,10 @@ class FileRowItem extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            const Padding(padding: EdgeInsets.only(right: 5.0)),
                             Expanded(
                               child: Text(
                                 musicInfoModels[index].name,
+                                style: themeData.textTheme.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -217,6 +217,7 @@ class FileRowItem extends StatelessWidget {
                               child: Text(
                                 musicInfoModels[index].name,
                                 maxLines: 1,
+                                style: themeData.textTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),

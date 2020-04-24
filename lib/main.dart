@@ -22,7 +22,6 @@ void main() {
         '${record.loggerName}: ${record.level.name}: ${record.time}: ${record.message}');
   });
 
-
   Global.init().then((onValue) {
     runApp(
       // providers

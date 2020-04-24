@@ -59,6 +59,7 @@ class PlayListRowItem extends StatelessWidget {
                             child: Text(
                               musicPlayListModel.name,
                               maxLines: 1,
+                              style: themeData.textTheme.title,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -67,7 +68,7 @@ class PlayListRowItem extends StatelessWidget {
                       const Padding(padding: EdgeInsets.only(top: 8.0)),
                       Text(
                         "18首",
-                        style: themeData.primaryTextTheme.subtitle,
+                        style: themeData.textTheme.subtitle,
                       ),
                     ],
                   ),
