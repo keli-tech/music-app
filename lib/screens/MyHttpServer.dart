@@ -178,24 +178,29 @@ class _MyHttpServerState extends State<MyHttpServer> {
 
       var musicInfoJson = "";
 
-      MusicInfoModel musicInfoModel =
-          await DBProvider.db.getFoldByPathName(foldPath, foldName);
-      if (musicInfoModel != null && musicInfoModel.id > 0) {
-      } else {
-        MusicInfoModel newMusicInfo = MusicInfoModel(
-            name: foldName,
-            path: foldPath,
-            fullpath: foldPath + foldName + "/",
-            type: 'fold',
-            sort: 100,
-            syncstatus: true);
+      try {
+        MusicInfoModel musicInfoModel =
+            await DBProvider.db.getFoldByPathName(foldPath, foldName);
+        if (musicInfoModel != null && musicInfoModel.id > 0) {
+        } else {
+          MusicInfoModel newMusicInfo = MusicInfoModel(
+              name: foldName,
+              path: foldPath,
+              fullpath: foldPath + foldName + "/",
+              type:  MusicInfoModel.TYPE_FOLD,
+              sort: 1,
+              updatetime: new DateTime.now().millisecondsSinceEpoch,
+              syncstatus: true);
 
-        await DBProvider.db.newMusicInfo(newMusicInfo);
+          await DBProvider.db.newMusicInfo(newMusicInfo);
 
-        final path = await _localPath;
+          final path = await _localPath;
 
-        var dir = await new Directory(path + foldPath + foldName + "/")
-            .create(recursive: true);
+          var dir = await new Directory(path + foldPath + foldName + "/")
+              .create(recursive: true);
+        }
+      } catch (e) {
+        print(e);
       }
 
       Responses response =
@@ -250,6 +255,8 @@ class _MyHttpServerState extends State<MyHttpServer> {
                 title: title,
                 artist: artist,
                 album: album,
+                sort: 100,
+                updatetime: new DateTime.now().millisecondsSinceEpoch,
               );
               int newMid = await DBProvider.db.newMusicInfo(newMusicInfo);
 

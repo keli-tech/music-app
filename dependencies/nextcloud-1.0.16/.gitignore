@@ -1,0 +1,11 @@
+*.iml
+.DS_Store
+.dart_tool/
+.pub/
+.idea/
+.packages
+pubspec.lock
+/doc/
+.vscode/
+example/*.txt
+example/*.png

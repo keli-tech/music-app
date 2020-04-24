@@ -118,40 +118,36 @@ class _StructScreenState extends State<StructScreen>
             child: CupertinoTabScaffold(
               backgroundColor: themeData.backgroundColor,
               tabBar: CupertinoTabBar(
-                currentIndex: 2,
+                currentIndex: 0,
                 iconSize: 30,
                 backgroundColor: themeData.backgroundColor,
                 items: const <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.view_list),
-                    title: Text("专辑"),
+                    icon: Icon(CupertinoIcons.music_note),
+                    title: Text("收藏"),
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.album),
+                    icon: Icon(Icons.featured_play_list),
                     title: Text("歌单"),
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.heart_solid),
-                    title: Text("收藏"),
+                    icon: Icon(Icons.album),
+                    title: Text("专辑"),
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.insert_drive_file),
                     title: Text("文件"),
                   ),
-                  BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.settings_solid),
-                    title: Text("设置"),
-                  ),
                 ],
               ),
               tabBuilder: (BuildContext context, int index) {
-                assert(index >= 0 && index <= 4);
+                assert(index >= 0 && index <= 3);
                 switch (index) {
                   case 0:
                     return CupertinoTabView(
-                      builder: (BuildContext context) => AlbumListScreen(),
+                      builder: (BuildContext context) => MusicFavListScreen(),
                       routes: routes,
-                      defaultTitle: '专辑',
+                      defaultTitle: '收藏',
                     );
                     break;
                   case 1:
@@ -163,9 +159,9 @@ class _StructScreenState extends State<StructScreen>
                     break;
                   case 2:
                     return CupertinoTabView(
-                      builder: (BuildContext context) => MusicFavListScreen(),
+                      builder: (BuildContext context) => AlbumListScreen(),
                       routes: routes,
-                      defaultTitle: '收藏',
+                      defaultTitle: '专辑',
                     );
                     break;
                   case 3:
@@ -173,13 +169,6 @@ class _StructScreenState extends State<StructScreen>
                       builder: (BuildContext context) => FileListScreen(),
                       routes: routes,
                       defaultTitle: '文件',
-                    );
-                    break;
-                  case 4:
-                    return CupertinoTabView(
-                      builder: (BuildContext context) => PlayListScreen(),
-                      routes: routes,
-                      defaultTitle: '设置',
                     );
                     break;
                 }

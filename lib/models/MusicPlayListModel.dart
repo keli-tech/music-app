@@ -14,10 +14,12 @@ class MusicPlayListModel {
   String year = "";
   int sort = 0;
   String imgpath = "";
+  int updatetime = 0;
 
   static int FAVOURITE_PLAY_LIST_ID = 1;
 
   static String TYPE_PLAY_LIST = 'playlist';
+  static String TYPE_SCEEN = 'sceen';
   static String TYPE_ALBUM = 'album';
   static String TYPE_FAV = 'fav';
 
@@ -29,6 +31,7 @@ class MusicPlayListModel {
     this.type,
     this.sort,
     this.imgpath,
+    this.updatetime,
   });
 
   factory MusicPlayListModel.fromMap(Map<String, dynamic> json) =>
@@ -40,6 +43,7 @@ class MusicPlayListModel {
         type: json["type"],
         sort: json["sort"],
         imgpath: json["imgpath"],
+        updatetime: json["updatetime"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -50,6 +54,7 @@ class MusicPlayListModel {
         "type": type,
         "sort": sort,
         "imgpath": imgpath,
+        "updatetime": updatetime,
       };
 
   Map toJson() {
@@ -59,6 +64,7 @@ class MusicPlayListModel {
     map["type"] = this.type;
     map["sort"] = this.sort;
     map["imgpath"] = this.imgpath;
+    map["updatetime"] = this.updatetime;
     return map;
   }
 

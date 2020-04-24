@@ -26,7 +26,7 @@ class FileRowItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (musicInfoModels[index].type == "fold") {
+    if (musicInfoModels[index].type == MusicInfoModel.TYPE_FOLD) {
       return builderFold(context);
     } else {
       return builder(context);
@@ -129,7 +129,7 @@ class FileRowItem extends StatelessWidget {
     List<MusicInfoModel> mims =
         musicInfoModels.getRange(0, musicInfoModels.length).toList();
     mims.removeWhere((music) {
-      return music.type == "fold";
+      return music.type ==  MusicInfoModel.TYPE_FOLD;
     });
     int offset = musicInfoModels.length - mims.length;
 

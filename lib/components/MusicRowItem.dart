@@ -30,7 +30,7 @@ class MusicRowItem extends StatelessWidget {
     List<MusicInfoModel> mims =
         musicInfoModels.getRange(0, musicInfoModels.length).toList();
     mims.removeWhere((music) {
-      return music.type == "fold";
+      return music.type == MusicInfoModel.TYPE_FOLD;
     });
     int offset = musicInfoModels.length - mims.length;
 
@@ -119,7 +119,7 @@ class MusicRowItem extends StatelessWidget {
                             const Padding(padding: EdgeInsets.only(right: 5.0)),
                             Expanded(
                               child: Text(
-                                _musicInfoModel.type != "fold"
+                                _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                                     ? '${_musicInfoModel.title} - ${_musicInfoModel.artist}'
                                     : "",
                                 maxLines: 1,
@@ -131,7 +131,7 @@ class MusicRowItem extends StatelessWidget {
                         ),
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
-                          _musicInfoModel.type != "fold"
+                          _musicInfoModel.type !=  MusicInfoModel.TYPE_FOLD
                               ? '${_musicInfoModel.album}'
                               : "",
                           style: themeData.primaryTextTheme.subtitle,

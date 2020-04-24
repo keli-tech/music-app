@@ -202,7 +202,7 @@ class Tab1RowItem extends StatelessWidget {
             child: Row(
               children: <Widget>[
                 Hero(
-                  tag: musicPlayListModel.id,
+                  tag: 'PlayListScreen' + musicPlayListModel.id.toString(),
                   child: Container(
                     height: 76.0,
                     width: 114.0,

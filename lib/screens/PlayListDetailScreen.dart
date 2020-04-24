@@ -217,7 +217,9 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
           showCupertinoDialog<String>(
             context: context1,
             builder: (BuildContext context1) => CupertinoAlertDialog(
-              title: const Text('是否删除歌单?'),
+              title: const Text('删除确认'),
+              content:
+                  Text('是否删除' + widget.musicPlayListModel.name + '? 8    7'),
               actions: <Widget>[
                 CupertinoDialogAction(
                   child: Text(

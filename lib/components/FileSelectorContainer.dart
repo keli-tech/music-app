@@ -135,7 +135,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
           scrollDirection: Axis.vertical,
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           children: listItems.map<Widget>((item) {
-            if (item.musicInfoModel.type == "fold") {
+            if (item.musicInfoModel.type ==  MusicInfoModel.TYPE_FOLD) {
               return buildFoldListTile(item);
             } else {
               return buildListTile(item);
@@ -250,7 +250,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
         children: <Widget>[
           Expanded(
             child: Text(
-              _listItem.musicInfoModel.type != "fold"
+              _listItem.musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                   ? '${_listItem.musicInfoModel.name}'
                   : "sdsdff",
               maxLines: 1,

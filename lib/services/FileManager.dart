@@ -6,6 +6,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:hello_world/common/Global.dart';
 
 class FileManager {
+  static File localCloudFile(String service, String fileName) {
+    final path = Global.profile.documentDirectory;
+
+    Directory('$path/$service').createSync(recursive: true);
+
+    return File('$path/$service/$fileName');
+  }
+
   static File localFile(String fileName) {
     final path = Global.profile.documentDirectory;
 
@@ -46,7 +54,9 @@ class FileManager {
     final path = Global.profile.documentDirectory;
     album = md5.convert(utf8.encode(album)).toString();
 
-    return File('$path/picture/$artist/$album.bmp');
+    var file = File('$path/picture/$artist/$album.bmp');
+
+    return file;
   }
 
   static ImageProvider musicAlbumPictureImage(String artist, String album) {
@@ -63,7 +73,14 @@ class FileManager {
 
     return file.existsSync()
         ? FileImage(file)
-        : NetworkImage(
-            'http://p2.music.126.net/VA3kAvrg2YRrxCgDMJzHnw==/3265549618941178.jpg');
+        : AssetImage('assets/images/logo.png');
+  }
+
+  // === NEXTCLOUD ===
+
+  static String getNextcloudPath(String fullpath) {
+    final path = Global.profile.documentDirectory;
+
+    return '$path/' + fullpath;
   }
 }

@@ -34,8 +34,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   Duration _position = new Duration();
   Duration _duration = new Duration(seconds: 1);
   CarouselSlider _carouselControl;
-  String _currentDurationTime = "";
-  String _durationTime = "";
   AudioPlayerState _musicPlayAction = AudioPlayerState.STOPPED;
 
   List<MusicInfoModel> musicInfoModels = [];
@@ -151,9 +149,15 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   void _initPlayer() {
     audioPlayer = new AudioPlayer();
 
-    audioPlayer.monitorNotificationStateChanges((callback) {
-      _logger.info(callback);
-    });
+//    audioPlayer.onPlayerCommand.listen((onData) {
+//      if (onData == PlayerControlCommand.NEXT_TRACK) {
+//        _playNext(context);
+//      } else if (onData == PlayerControlCommand.PREVIOUS_TRACK) {
+//        _playPrevious(context);
+//      } else {
+//        _logger.warning("onPlayerCommand" + onData.toString());
+//      }
+//    });
 
     // 获取音乐时长
     audioPlayer.onDurationChanged.listen((Duration d) {
@@ -167,7 +171,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
 
       setState(() {
         _duration = d;
-        _durationTime = '$minuteStr:$secondStr';
       });
     });
 
@@ -183,7 +186,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
 //        print('current: $minuteStr:$secondStr');
         setState(() {
           _position = d;
-          _currentDurationTime = '$minuteStr:$secondStr';
         });
       }
     });
@@ -194,7 +196,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
     });
 
     audioPlayer.onPlayerCompletion.listen((onData) {
-      playNext(context);
+      _playNext(context);
     });
   }
 
@@ -214,18 +216,18 @@ class _PlayingControlCompState extends State<PlayingControlComp>
 
     audioPlayer
         .setNotification(
-      title: musicInfoModel.title,
-      artist: musicInfoModel.artist,
-      albumTitle: musicInfoModel.album,
-      duration: _duration,
-//      imageUrl: 'http://p2.music.126.net/VA3kAvrg2YRrxCgDMJzHnw==/3265549618941178.jpg',
-      imageUrl: FileManager.musicAlbumPictureFullPath(
-              musicInfoModel.artist, musicInfoModel.album)
-          .path,
-    )
-        .then((v) {
-      print('Notification ok');
-    }).catchError((e) {
+          title: musicInfoModel.title,
+          artist: musicInfoModel.artist,
+          albumTitle: musicInfoModel.album,
+//          hasNextTrack: true,
+//          hasPreviousTrack: true,
+          duration: _duration,
+          imageUrl: FileManager.musicAlbumPictureFullPath(
+                  musicInfoModel.artist, musicInfoModel.album)
+              .path,
+        )
+        .then((v) {})
+        .catchError((e) {
       print('error with setNotification $e');
     });
 
@@ -299,48 +301,61 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                   ),
                 ),
                 trailing: Container(
-                  width: 40,
-                  height: 40,
-                  child: CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    pressedOpacity: 1,
-                    child: AnimatedSwitcher(
-                        transitionBuilder: (child, anim) {
-                          return ScaleTransition(child: child, scale: anim);
+                  height: 80,
+                  width: 90,
+                  child: Row(
+                    children: <Widget>[
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        pressedOpacity: 1,
+                        child: AnimatedSwitcher(
+                            transitionBuilder: (child, anim) {
+                              return ScaleTransition(child: child, scale: anim);
+                            },
+                            switchInCurve: Curves.fastLinearToSlowEaseIn,
+                            switchOutCurve: Curves.fastLinearToSlowEaseIn,
+                            duration: Duration(milliseconds: 300),
+                            child: musicInfoData.musicInfoFavIDSet
+                                    .contains(musicInfoData.musicInfoModel.id)
+                                ? Container(
+                                    key: Key("play"),
+                                    child: Icon(
+                                      CupertinoIcons.heart_solid,
+                                      color: Colors.red,
+                                      size: 35,
+                                    ),
+                                  )
+                                : Container(
+                                    key: Key("pause"),
+                                    child: Icon(
+                                      CupertinoIcons.heart,
+                                      color: Colors.red,
+                                      size: 35,
+                                    ),
+                                  )),
+                        onPressed: () {
+                          if (musicInfoData.musicInfoFavIDSet
+                              .contains(musicInfoData.musicInfoModel.id)) {
+                            Provider.of<MusicInfoData>(context, listen: false)
+                                .removeMusicInfoFavIDSet(
+                                    musicInfoData.musicInfoModel.id);
+                          } else {
+                            Provider.of<MusicInfoData>(context, listen: false)
+                                .addMusicInfoFavIDSet(
+                                    musicInfoData.musicInfoModel.id);
+                          }
                         },
-                        switchInCurve: Curves.fastLinearToSlowEaseIn,
-                        switchOutCurve: Curves.fastLinearToSlowEaseIn,
-                        duration: Duration(milliseconds: 300),
-                        child: musicInfoData.musicInfoFavIDSet
-                                .contains(musicInfoData.musicInfoModel.id)
-                            ? Container(
-                                key: Key("play"),
-                                child: Icon(
-                                  CupertinoIcons.heart_solid,
-                                  color: Colors.red,
-                                  size: 35,
-                                ),
-                              )
-                            : Container(
-                                key: Key("pause"),
-                                child: Icon(
-                                  CupertinoIcons.heart,
-                                  color: Colors.red,
-                                  size: 35,
-                                ),
-                              )),
-                    onPressed: () {
-                      if (musicInfoData.musicInfoFavIDSet
-                          .contains(musicInfoData.musicInfoModel.id)) {
-                        Provider.of<MusicInfoData>(context, listen: false)
-                            .removeMusicInfoFavIDSet(
-                                musicInfoData.musicInfoModel.id);
-                      } else {
-                        Provider.of<MusicInfoData>(context, listen: false)
-                            .addMusicInfoFavIDSet(
-                                musicInfoData.musicInfoModel.id);
-                      }
-                    },
+                      ),
+                      CupertinoButton(
+                        onPressed: () {},
+                        padding: EdgeInsets.zero,
+                        child: Icon(
+                          Icons.format_list_bulleted,
+                          color: themeData.primaryColor,
+                          size: 30,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -415,12 +430,29 @@ class _PlayingControlCompState extends State<PlayingControlComp>
     return _carouselControl;
   }
 
-  void playNext(BuildContext context) {
+  void _playNext(BuildContext context) {
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
     int newIndex =
         musicInfoData.playIndex < musicInfoData.musicInfoList.length - 1
             ? musicInfoData.playIndex + 1
             : 0;
+    if (newIndex == musicInfoData.playIndex) {
+      audioPlayer.seek(Duration(microseconds: 0));
+      setState(() => _position = Duration(microseconds: 0));
+    }
+
+    Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
+
+    controller.reset();
+    controller.forward();
+    eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
+  }
+
+  void _playPrevious(BuildContext context) {
+    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
+    int newIndex = musicInfoData.playIndex == 0
+        ? musicInfoData.musicInfoList.length - 1
+        : musicInfoData.playIndex - 1;
     if (newIndex == musicInfoData.playIndex) {
       audioPlayer.seek(Duration(microseconds: 0));
       setState(() => _position = Duration(microseconds: 0));

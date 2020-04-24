@@ -24,7 +24,7 @@ class MusicInfoData extends ProfileChangeNotifier {
   AudioPlayerState get audioPlayerState => _audioPlayerState;
 
   setAudioPlayerState(AudioPlayerState audioPlayerState) {
-    _audioPlayerState= audioPlayerState;
+    _audioPlayerState = audioPlayerState;
     notifyListeners();
   }
 
@@ -69,6 +69,15 @@ class MusicInfoModel {
   String title = "";
   String artist = "";
   String album = "";
+  String filesize = "";
+  String sourcepath = "";
+  String extra = "";
+  int updatetime = 0;
+
+  static String TYPE_FOLD = 'fold';
+  static String TYPE_MP3 = 'mp3';
+  static String TYPE_FLAC = 'flac';
+  static String TYPE_WAV = 'wav';
 
   MusicInfoModel({
     this.id,
@@ -81,6 +90,10 @@ class MusicInfoModel {
     this.title,
     this.artist,
     this.album,
+    this.filesize,
+    this.sourcepath,
+    this.extra,
+    this.updatetime,
   });
 
   factory MusicInfoModel.fromMap(Map<String, dynamic> json) =>
@@ -95,6 +108,10 @@ class MusicInfoModel {
         artist: json["artist"],
         album: json["album"],
         sort: json["sort"],
+        filesize: json["filesize"],
+        sourcepath: json["sourcepath"],
+        extra: json["extra"],
+        updatetime: json["updatetime"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -108,6 +125,10 @@ class MusicInfoModel {
         "artist": artist,
         "album": album,
         "sort": sort,
+        "filesize": filesize,
+        "sourcepath": sourcepath,
+        "extra": extra,
+        "updatetime": updatetime,
       };
 
   Map toJson() {
@@ -122,6 +143,10 @@ class MusicInfoModel {
     map["artist"] = this.artist;
     map["album"] = this.album;
     map["sort"] = this.sort;
+    map["filesize"] = this.filesize;
+    map["sourcepath"] = this.sourcepath;
+    map["extra"] = this.extra;
+    map["updatetime"] = this.updatetime;
     return map;
   }
 

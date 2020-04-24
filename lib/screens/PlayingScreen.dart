@@ -156,12 +156,25 @@ class _PlayingScreenState extends State<PlayingScreen>
       child: Stack(
         children: [
           Consumer<MusicInfoData>(
-            builder: (context, musicInfoData, _) => Image(
-              height: _windowHeight,
-              fit: BoxFit.cover,
-              image: FileManager.musicAlbumPictureImage(
-                  musicInfoData.musicInfoModel.artist,
-                  musicInfoData.musicInfoModel.album),
+            builder: (context, musicInfoData, _) => AnimatedSwitcher(
+              transitionBuilder: (child, anim) {
+//                return ScaleTransition(child: child, scale: anim);
+                return FadeTransition(
+                  opacity: anim,
+                  child: child,
+                );
+              },
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeOut,
+              duration: Duration(milliseconds: 800),
+              child: Image(
+                key: Key(musicInfoData.musicInfoModel.name.toString()),
+                height: _windowHeight,
+                fit: BoxFit.cover,
+                image: FileManager.musicAlbumPictureImage(
+                    musicInfoData.musicInfoModel.artist,
+                    musicInfoData.musicInfoModel.album),
+              ),
             ),
           ),
           BackdropFilter(
