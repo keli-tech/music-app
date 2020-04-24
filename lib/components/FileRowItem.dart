@@ -81,7 +81,6 @@ class FileRowItem extends StatelessWidget {
                               child: Text(
                                 musicInfoModels[index].name,
                                 maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -90,7 +89,6 @@ class FileRowItem extends StatelessWidget {
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
                           musicInfoModels[index].fullpath,
-                          style: themeData.primaryTextTheme.subtitle,
                         ),
                       ],
                     ),
@@ -129,7 +127,7 @@ class FileRowItem extends StatelessWidget {
     List<MusicInfoModel> mims =
         musicInfoModels.getRange(0, musicInfoModels.length).toList();
     mims.removeWhere((music) {
-      return music.type ==  MusicInfoModel.TYPE_FOLD;
+      return music.type == MusicInfoModel.TYPE_FOLD;
     });
     int offset = musicInfoModels.length - mims.length;
 
@@ -147,7 +145,7 @@ class FileRowItem extends StatelessWidget {
       child: Container(
         color: playId == musicInfoModels[index].id &&
                 audioPlayerState == AudioPlayerState.PLAYING
-            ? themeData.accentColor
+            ? themeData.textSelectionColor
             : themeData.backgroundColor,
         child: SafeArea(
           top: false,
@@ -215,12 +213,10 @@ class FileRowItem extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                            const Padding(padding: EdgeInsets.only(right: 5.0)),
                             Expanded(
                               child: Text(
                                 musicInfoModels[index].name,
                                 maxLines: 1,
-                                style: themeData.textTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -229,7 +225,6 @@ class FileRowItem extends StatelessWidget {
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
                           musicInfoModels[index].fullpath,
-                          style: themeData.textTheme.subtitle,
                         ),
                       ],
                     ),

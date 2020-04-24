@@ -98,7 +98,8 @@ class _FileSelectorComp extends State<FileSelectorComp>
         backgroundColor: themeData.backgroundColor,
         appBar: CupertinoNavigationBar(
           backgroundColor: themeData.backgroundColor,
-          leading: FlatButton(
+          leading: CupertinoButton(
+            padding: EdgeInsets.only(left: 0, right: 0),
             child: Icon(
               Icons.keyboard_arrow_left,
               size: 40,
@@ -111,7 +112,6 @@ class _FileSelectorComp extends State<FileSelectorComp>
           ),
           middle: Text(
             widget.title,
-            style: themeData.primaryTextTheme.headline,
           ),
           trailing: FlatButton(
               onPressed: () {
@@ -122,7 +122,6 @@ class _FileSelectorComp extends State<FileSelectorComp>
               },
               child: Text(
                 "完成",
-                style: themeData.primaryTextTheme.title,
               )),
         ),
         body: Scrollbar(
@@ -171,7 +170,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
         ));
       },
       key: Key(_listItem.musicInfoModel.id.toString()),
-      isThreeLine: true,
+      isThreeLine: false,
 //      value: _listItem.checkState ?? false,
       title: Text(""),
       subtitle: Row(
@@ -180,7 +179,6 @@ class _FileSelectorComp extends State<FileSelectorComp>
             child: Text(
               '${_listItem.musicInfoModel.name}',
               maxLines: 1,
-              style: themeData.textTheme.title,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -192,7 +190,6 @@ class _FileSelectorComp extends State<FileSelectorComp>
         child: Icon(
           Icons.folder,
           size: 60,
-          color: themeData.primaryColor,
         ),
       ),
     );
@@ -203,14 +200,11 @@ class _FileSelectorComp extends State<FileSelectorComp>
   Widget buildListTile(_ListItem _listItem) {
     ThemeData themeData = Theme.of(context);
 
-    const Widget secondary = Text(
-      'Even more additional list item information appears on line three.',
-    );
     Widget listTile;
 
     listTile = CheckboxListTile(
       key: Key(_listItem.musicInfoModel.id.toString()),
-      isThreeLine: true,
+      isThreeLine: false,
       activeColor: themeData.primaryColor,
       value: _listItem.checkState ?? false,
       onChanged: (bool newChecked) {
@@ -270,7 +264,6 @@ class _FileSelectorComp extends State<FileSelectorComp>
                   ? '${_listItem.musicInfoModel.name}'
                   : "sdsdff",
               maxLines: 1,
-              style: themeData.textTheme.title,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -278,7 +271,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
       ),
       subtitle: Text(
           '${_listItem.musicInfoModel.album} - ${_listItem.musicInfoModel.artist}',
-          style: themeData.textTheme.subtitle),
+      ),
       secondary: Container(
         key: Key("start"),
         height: 60.0,

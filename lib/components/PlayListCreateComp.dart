@@ -21,9 +21,12 @@ class PlayListCreateComp extends StatefulWidget {
 class _PlayListCreateComp extends State<PlayListCreateComp> {
   File _image;
   String _name = "";
+  TextEditingController _chatTextController;
 
   @override
   void initState() {
+    _chatTextController = TextEditingController();
+
     super.initState();
   }
 
@@ -74,35 +77,40 @@ class _PlayListCreateComp extends State<PlayListCreateComp> {
         child: Column(
           children: <Widget>[
             new ListTile(
-              title: TextField(
-                autofocus: false,
-                style: themeData.textTheme.title,
-                cursorColor: Colors.red,
-                onChanged: (onValue) {
-                  setState(() {
-                    _name = onValue;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelStyle: themeData.primaryTextTheme.title,
-                  hintText: "请输入名称",
-                  hintStyle: themeData.primaryTextTheme.subtitle,
-                ),
+              title: CupertinoTextField(
+                prefix: Text("名称："),
+                controller: _chatTextController,
+                suffixMode: OverlayVisibilityMode.editing,
+                textCapitalization: TextCapitalization.sentences,
+                clearButtonMode: OverlayVisibilityMode.editing,
+                keyboardType: TextInputType.text,
+                autocorrect: false,
+                autofocus: true,
               ),
-              leading: Text(
-                "名称",
-                style: themeData.textTheme.display1,
-              ),
+//
+//              TextField(
+//                autofocus: false,
+//                style: themeData.textTheme.title,
+//                cursorColor: Colors.red,
+//                onChanged: (onValue) {
+//                  setState(() {
+//                    _name = onValue;
+//                  });
+//                },
+//                decoration: InputDecoration(
+//                  labelStyle: themeData.primaryTextTheme.title,
+//                  hintText: "请输入名称",
+//                  hintStyle: themeData.primaryTextTheme.subtitle,
+//                ),
+//              ),
             ),
             new ListTile(
               onTap: getImage,
               title: new Text(
                 '请选择图片',
-                style: themeData.textTheme.subtitle,
               ),
               leading: Text(
                 "图片",
-                style: themeData.textTheme.display1,
               ),
               trailing: IconButton(
                 icon: Icon(Icons.clear),
@@ -136,7 +144,8 @@ class _PlayListCreateComp extends State<PlayListCreateComp> {
 
                       if (_image != null) {
                         _image.copySync(
-                            FileManager.musicAlbumPictureFullPath("-", name).path);
+                            FileManager.musicAlbumPictureFullPath("-", name)
+                                .path);
                       }
 
                       MusicPlayListModel newMusicPlayListModel =
@@ -154,7 +163,7 @@ class _PlayListCreateComp extends State<PlayListCreateComp> {
                           Fluttertoast.showToast(
                               msg: "创建成功",
                               toastLength: Toast.LENGTH_LONG,
-                              gravity: ToastGravity.TOP,
+                              gravity: ToastGravity.CENTER,
                               timeInSecForIosWeb: 1,
                               backgroundColor: Colors.black45,
                               textColor: Colors.white,

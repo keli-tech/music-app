@@ -26,8 +26,7 @@ class PlayListRowItem extends StatelessWidget {
         ));
       },
       child: Container(
-        color:
-            CupertinoDynamicColor.resolve(themeData.backgroundColor, context),
+        padding: const EdgeInsets.symmetric( vertical: 5.0),
         child: SafeArea(
           top: false,
           bottom: false,
@@ -43,7 +42,7 @@ class PlayListRowItem extends StatelessWidget {
                     image: DecorationImage(
                       fit: BoxFit.cover, //这个地方很重要，需要设置才能充满
                       image: FileManager.musicAlbumPictureImage(
-                          musicPlayListModel.artist, musicPlayListModel.name),
+                          musicPlayListModel.artist, musicPlayListModel.imgpath),
                     ),
                   ),
                 ),
@@ -60,7 +59,6 @@ class PlayListRowItem extends StatelessWidget {
                             child: Text(
                               musicPlayListModel.name,
                               maxLines: 1,
-                              style: themeData.primaryTextTheme.title,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),

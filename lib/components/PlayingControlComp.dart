@@ -149,15 +149,15 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   void _initPlayer() {
     audioPlayer = new AudioPlayer();
 
-//    audioPlayer.onPlayerCommand.listen((onData) {
-//      if (onData == PlayerControlCommand.NEXT_TRACK) {
-//        _playNext(context);
-//      } else if (onData == PlayerControlCommand.PREVIOUS_TRACK) {
-//        _playPrevious(context);
-//      } else {
-//        _logger.warning("onPlayerCommand" + onData.toString());
-//      }
-//    });
+    audioPlayer.onPlayerCommand.listen((onData) {
+      if (onData == PlayerControlCommand.NEXT_TRACK) {
+        _playNext(context);
+      } else if (onData == PlayerControlCommand.PREVIOUS_TRACK) {
+        _playPrevious(context);
+      } else {
+        _logger.warning("onPlayerCommand" + onData.toString());
+      }
+    });
 
     // 获取音乐时长
     audioPlayer.onDurationChanged.listen((Duration d) {
@@ -219,8 +219,8 @@ class _PlayingControlCompState extends State<PlayingControlComp>
           title: musicInfoModel.title,
           artist: musicInfoModel.artist,
           albumTitle: musicInfoModel.album,
-//          hasNextTrack: true,
-//          hasPreviousTrack: true,
+          hasNextTrack: true,
+          hasPreviousTrack: true,
           duration: _duration,
           imageUrl: FileManager.musicAlbumPictureFullPath(
                   musicInfoModel.artist, musicInfoModel.album)

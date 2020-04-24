@@ -1,6 +1,8 @@
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
+import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 
@@ -11,6 +13,7 @@ class AlbumListScreen extends StatefulWidget {
   AlbumListScreen({
     Key key,
   }) : super(key: key);
+  static const String className = 'MyHttpServer';
 
   @override
   _AlbumListScreen createState() => _AlbumListScreen();
@@ -44,7 +47,6 @@ class _AlbumListScreen extends State<AlbumListScreen> {
     });
 
     DBProvider.db.getArtists().then((onValue) {
-      print(onValue);
       setState(() {
         _artistListModels = onValue;
       });
@@ -72,6 +74,16 @@ class _AlbumListScreen extends State<AlbumListScreen> {
           child: Column(
             children: <Widget>[
               Container(
+                child: AdmobBanner(
+                  adUnitId:
+                      AdMobService.getBannerAdUnitId(AlbumListScreen.className),
+                  adSize: AdmobBannerSize.FULL_BANNER,
+                  listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+                    AdMobService.handleEvent(event, args, 'Banner');
+                  },
+                ),
+              ),
+              Container(
                 width: _windowWidth,
                 child: CupertinoSlidingSegmentedControl(
                   padding: EdgeInsets.all(4.0),
@@ -98,7 +110,11 @@ class _AlbumListScreen extends State<AlbumListScreen> {
               Container(
                 padding:
                     EdgeInsets.only(left: 5.0, right: 5.0, top: 0, bottom: 0.0),
-                height: _windowHeight - _bottomBarHeight - 50 - 160,
+                height: _windowHeight -
+                    _bottomBarHeight -
+                    50 -
+                    160 -
+                    AdmobBannerSize.FULL_BANNER.height,
                 width: _windowWidth,
                 child: CupertinoScrollbar(
                     child: CustomScrollView(
@@ -152,7 +168,7 @@ class _AlbumListScreen extends State<AlbumListScreen> {
                                           '${index + 1}. ' +
                                               _artistListModels[index]
                                                   ["artist"],
-                                          style: themeData.textTheme.title),
+                                      ),
                                     ),
                                   );
                                 },
@@ -191,7 +207,6 @@ class _AlbumListScreen extends State<AlbumListScreen> {
         CupertinoActionSheetAction(
           child: Text(
             '新建歌单',
-            style: themeData.textTheme.display1,
           ),
           onPressed: () {
             Navigator.of(context1).pop();
@@ -200,7 +215,6 @@ class _AlbumListScreen extends State<AlbumListScreen> {
         CupertinoActionSheetAction(
           child: Text(
             '歌单排序',
-            style: themeData.textTheme.display1,
           ),
           onPressed: () {
             Navigator.pop(context1);
@@ -210,7 +224,6 @@ class _AlbumListScreen extends State<AlbumListScreen> {
       cancelButton: CupertinoActionSheetAction(
         child: Text(
           '取消',
-          style: themeData.textTheme.display1,
         ),
         onPressed: () {
           Navigator.of(context1).pop();
@@ -280,13 +293,11 @@ class Tab1RowItem extends StatelessWidget {
                                   '${musicPlayListModel.name}',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: themeData.textTheme.title,
                                 ),
                                 Text(
                                   '${musicPlayListModel.artist}',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: themeData.textTheme.subtitle,
                                 ),
                               ],
                             ),
@@ -296,7 +307,6 @@ class Tab1RowItem extends StatelessWidget {
                             child: const Icon(
                               Icons.play_circle_outline,
                               size: 35,
-                              semanticLabel: 'Add',
                             ),
                             onPressed: () async {
                               var _musicInfoModels = await DBProvider.db

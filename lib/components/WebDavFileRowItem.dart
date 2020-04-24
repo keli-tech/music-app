@@ -56,8 +56,6 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
         ));
       },
       child: Container(
-        color:
-            CupertinoDynamicColor.resolve(themeData.backgroundColor, context),
         child: SafeArea(
           top: false,
           bottom: false,
@@ -73,12 +71,10 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                 SizedBox(
                   width: 5,
                 ),
-                Container(
-                  child: Icon(
-                    Icons.folder,
-                    size: 40,
-                    color: themeData.primaryColor,
-                  ),
+                Icon(
+                  Icons.folder,
+                  size: 40,
+                  color: themeData.primaryColor,
                 ),
                 Expanded(
                   child: Padding(
@@ -92,8 +88,8 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                             Expanded(
                               child: Text(
                                 widget.file.name,
+                                style: themeData.textTheme.subtitle,
                                 maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -161,8 +157,8 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                             Expanded(
                               child: Text(
                                 widget.file.name,
+                                style: themeData.textTheme.subtitle,
                                 maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -174,7 +170,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                                   .toStringAsFixed(2)
                                   .toString() +
                               "MB"),
-                          style: themeData.primaryTextTheme.subtitle,
+                          style: themeData.textTheme.subtitle,
                         ),
                       ],
                     ),
@@ -192,6 +188,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                           )
                         : Icon(
                             Icons.check_box,
+                            color: themeData.primaryColor,
                           )),
                 SizedBox(
                   width: 8,
@@ -216,7 +213,6 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
         CupertinoActionSheetAction(
           child: Text(
             '新建歌单',
-            style: themeData.textTheme.display1,
           ),
           onPressed: () {
             Navigator.of(context1).pop();
@@ -235,7 +231,6 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
         CupertinoActionSheetAction(
           child: Text(
             '歌单排序',
-            style: themeData.textTheme.display1,
           ),
           onPressed: () {
             Navigator.pop(context1);
@@ -255,7 +250,6 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
       cancelButton: CupertinoActionSheetAction(
         child: Text(
           '取消',
-          style: themeData.textTheme.display1,
         ),
         onPressed: () {
           Navigator.of(context1).pop();

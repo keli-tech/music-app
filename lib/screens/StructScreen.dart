@@ -122,13 +122,13 @@ class _StructScreenState extends State<StructScreen>
                 iconSize: 30,
                 backgroundColor: themeData.backgroundColor,
                 items: const <BottomNavigationBarItem>[
+//                  BottomNavigationBarItem(
+//                    icon: Icon(CupertinoIcons.music_note),
+//                    title: Text("收藏"),
+//                  ),
                   BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.music_note),
+                    icon: Icon(Icons.favorite),
                     title: Text("收藏"),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.featured_play_list),
-                    title: Text("歌单"),
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.album),
@@ -141,7 +141,7 @@ class _StructScreenState extends State<StructScreen>
                 ],
               ),
               tabBuilder: (BuildContext context, int index) {
-                assert(index >= 0 && index <= 3);
+                assert(index >= 0 && index <= 2);
                 switch (index) {
                   case 0:
                     return CupertinoTabView(
@@ -150,21 +150,21 @@ class _StructScreenState extends State<StructScreen>
                       defaultTitle: '收藏',
                     );
                     break;
+//                  case 1:
+//                    return CupertinoTabView(
+//                      builder: (BuildContext context) => PlayListScreen(),
+//                      routes: routes,
+//                      defaultTitle: '歌单',
+//                    );
+//                    break;
                   case 1:
-                    return CupertinoTabView(
-                      builder: (BuildContext context) => PlayListScreen(),
-                      routes: routes,
-                      defaultTitle: '歌单',
-                    );
-                    break;
-                  case 2:
                     return CupertinoTabView(
                       builder: (BuildContext context) => AlbumListScreen(),
                       routes: routes,
                       defaultTitle: '专辑',
                     );
                     break;
-                  case 3:
+                  case 2:
                     return CupertinoTabView(
                       builder: (BuildContext context) => FileListScreen(),
                       routes: routes,

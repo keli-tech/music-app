@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -6,10 +7,12 @@ import 'package:flutter/painting.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hello_world/components/FileSelectorContainer.dart';
 import 'package:hello_world/components/MusicRowItem.dart';
-import 'package:hello_world/components/PlayListCreateComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/services/FileManager.dart';
+import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 import '../models/MusicInfoModel.dart';
@@ -34,16 +37,24 @@ class PlayListDetailScreen extends StatefulWidget {
 class _PlayListDetailScreen extends State<PlayListDetailScreen>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
+  File _image;
+  Logger _logger = new Logger("PlayListDetailScreen");
+  TextEditingController _chatTextController;
 
   @override
   void initState() {
     super.initState();
+
+    _chatTextController = TextEditingController();
+    _chatTextController.text = widget.musicPlayListModel.name;
+
     _refreshList();
   }
 
   @override
-  void didUpdateWidget(Widget oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  void deactivate() {
+    super.deactivate();
+    _logger.info("deactivate");
 
     _refreshList();
   }
@@ -51,8 +62,12 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
   _refreshList() async {
     int plid = widget.musicPlayListModel.id;
     DBProvider.db.getMusicInfoByPlayListId(plid).then((onValue) {
+      File image = FileManager.musicAlbumPictureFile(
+          widget.musicPlayListModel.artist, widget.musicPlayListModel.imgpath);
+
       setState(() {
         _musicInfoModels = onValue;
+        _image = image;
       });
     });
   }
@@ -62,13 +77,12 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
     final size = MediaQuery.of(context).size;
     final width = size.width;
     final height = size.height;
+    final _statusBarHeight = MediaQuery.of(context).padding.top;
 
     ThemeData themeData = Theme.of(context);
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: Colors.transparent,
-        actionsForegroundColor: themeData.primaryColor,
         trailing: CupertinoButton(
           child: Icon(
             Icons.more_vert,
@@ -97,14 +111,17 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
             expandedHeight: width * 0.7,
             flexibleSpace: Hero(
               tag: widget.musicPlayListModel.id,
-              child: new Container(
-                decoration: new BoxDecoration(
-                  color: Colors.white.withOpacity(0.0),
-                  image: new DecorationImage(
-                    fit: BoxFit.cover,
-                    image: FileManager.musicAlbumPictureImage(
-                        widget.musicPlayListModel.artist,
-                        widget.musicPlayListModel.name),
+              child: Container(
+                padding: EdgeInsets.only(top: _statusBarHeight),
+                child: new Container(
+                  decoration: new BoxDecoration(
+                    color: Colors.white.withOpacity(0.0),
+                    image: new DecorationImage(
+                      fit: BoxFit.cover,
+                      image: _image == null
+                          ? FileManager.musicAlbumPictureImage("1", "1")
+                          : FileImage(_image),
+                    ),
                   ),
                 ),
               ),
@@ -145,7 +162,6 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
     actionSheets.add(CupertinoActionSheetAction(
       child: Text(
         '添加歌曲',
-        style: themeData.textTheme.display1,
       ),
       onPressed: () {
         Navigator.of(context1).pop();
@@ -163,44 +179,51 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
             });
       },
     ));
-    actionSheets.add(CupertinoActionSheetAction(
-      child: Text(
-        '批量操作',
-        style: themeData.textTheme.display1,
-      ),
-      onPressed: () {
-        Navigator.of(context1).pop();
 
-        showModalBottomSheet<void>(
-            context: context,
-            useRootNavigator: true,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              return FileSelectorContainer(
-                title: "添加歌曲",
-                playListId: widget.musicPlayListModel.id,
-              );
-            });
-      },
-    ));
+    if (widget.musicPlayListModel.id !=
+        MusicPlayListModel.FAVOURITE_PLAY_LIST_ID) {
+      actionSheets.add(CupertinoActionSheetAction(
+        child: Text(
+          '重新命名',
+        ),
+        onPressed: () {
+          Navigator.pop(context1);
+          _updatePlayListName();
+        },
+      ));
+    }
+
     actionSheets.add(CupertinoActionSheetAction(
       child: Text(
-        '编辑歌单',
-        style: themeData.textTheme.display1,
+        '更换封面',
       ),
-      onPressed: () {
+      onPressed: () async {
         Navigator.pop(context1);
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
-        showModalBottomSheet<void>(
-            context: context,
-            useRootNavigator: true,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              return Container(
-                height: windowHeight,
-                child: PlayListCreateComp(),
-              );
+        if (image != null) {
+          var updateValue = {
+            "imgpath": widget.musicPlayListModel.name +
+                (new DateTime.now().millisecondsSinceEpoch).toString(),
+          };
+          DBProvider.db
+              .updateMusicPlayList(widget.musicPlayListModel.id, updateValue)
+              .then((onValue) {
+            var oldFile = FileManager.musicAlbumPictureFile(
+                "-", widget.musicPlayListModel.imgpath);
+            if (oldFile != null) {
+              oldFile.deleteSync();
+            }
+
+            image.copySync(FileManager.musicAlbumPictureFullPath(
+                    "-", updateValue["imgpath"])
+                .path);
+
+            setState(() {
+              _image = image;
             });
+          });
+        }
       },
     ));
 
@@ -209,8 +232,8 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
       actionSheets.add(CupertinoActionSheetAction(
         child: Text(
           '删除歌单',
-          style: themeData.textTheme.display3,
         ),
+        isDestructiveAction: true,
         onPressed: () {
           Navigator.pop(context1, 'Discard');
 
@@ -218,13 +241,11 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
             context: context1,
             builder: (BuildContext context1) => CupertinoAlertDialog(
               title: const Text('删除确认'),
-              content:
-                  Text('是否删除' + widget.musicPlayListModel.name + '? 8    7'),
+              content: Text('是否删除\"' + widget.musicPlayListModel.name + '\"?'),
               actions: <Widget>[
                 CupertinoDialogAction(
                   child: Text(
                     '取消',
-                    style: themeData.textTheme.display1,
                   ),
                   isDefaultAction: true,
                   onPressed: () => Navigator.pop(context1, 'Cancel'),
@@ -232,7 +253,6 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                 CupertinoDialogAction(
                   child: Text(
                     '删除',
-                    style: themeData.textTheme.display3,
                   ),
                   isDestructiveAction: true,
                   onPressed: () {
@@ -244,7 +264,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                       Fluttertoast.showToast(
                           msg: "已删除歌单",
                           toastLength: Toast.LENGTH_LONG,
-                          gravity: ToastGravity.TOP,
+                          gravity: ToastGravity.CENTER,
                           timeInSecForIosWeb: 1,
                           backgroundColor: Colors.black45,
                           textColor: Colors.white,
@@ -268,12 +288,62 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
       cancelButton: CupertinoActionSheetAction(
         child: Text(
           '取消',
-          style: themeData.textTheme.display1,
         ),
         onPressed: () {
           Navigator.of(context1).pop();
         },
       ),
     );
+  }
+
+  _updatePlayListName() {
+    ThemeData themeData = Theme.of(context);
+
+    showCupertinoDialog<String>(
+        context: context,
+        builder: (BuildContext context1) => CupertinoAlertDialog(
+              title: const Text('请输入歌单名'),
+              content: CupertinoTextField(
+                controller: _chatTextController,
+                suffixMode: OverlayVisibilityMode.editing,
+                textCapitalization: TextCapitalization.sentences,
+                clearButtonMode: OverlayVisibilityMode.editing,
+                keyboardType: TextInputType.text,
+                autocorrect: false,
+                autofocus: true,
+              ),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text(
+                    '取消',
+                  ),
+                  isDefaultAction: true,
+                  onPressed: () => Navigator.pop(context1, 'Cancel'),
+                ),
+                CupertinoDialogAction(
+                    child: Text(
+                      '确定',
+                    ),
+                    isDefaultAction: true,
+                    onPressed: () async {
+                      if (_chatTextController.text.trim().length == 0) {
+                        return;
+                      }
+
+                      var updateValue = {
+                        "name": _chatTextController.text.trim(),
+                      };
+                      int newPlid = await DBProvider.db.updateMusicPlayList(
+                          widget.musicPlayListModel.id, updateValue);
+                      if (newPlid > 0) {
+                        ToastUtils.show("已完成");
+                        Navigator.pop(context1, 'Cancel');
+                        _refreshList();
+                      } else {
+                        Navigator.pop(context1, 'Cancel');
+                      }
+                    }),
+              ],
+            ));
   }
 }

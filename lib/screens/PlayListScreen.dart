@@ -118,7 +118,6 @@ class _PlayListScreen extends State<PlayListScreen> {
         CupertinoActionSheetAction(
           child: Text(
             '新建歌单',
-            style: themeData.textTheme.display1,
           ),
           onPressed: () {
             Navigator.of(context1).pop();
@@ -138,7 +137,6 @@ class _PlayListScreen extends State<PlayListScreen> {
         CupertinoActionSheetAction(
           child: Text(
             '歌单排序',
-            style: themeData.textTheme.display1,
           ),
           onPressed: () {
             Navigator.pop(context1);
@@ -159,7 +157,6 @@ class _PlayListScreen extends State<PlayListScreen> {
       cancelButton: CupertinoActionSheetAction(
         child: Text(
           '取消',
-          style: themeData.textTheme.display1,
         ),
         onPressed: () {
           Navigator.of(context1).pop();

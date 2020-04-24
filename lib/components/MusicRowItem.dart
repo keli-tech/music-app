@@ -49,7 +49,7 @@ class MusicRowItem extends StatelessWidget {
       child: Container(
         color: playId == musicInfoModels[index].id &&
                 audioPlayerState == AudioPlayerState.PLAYING
-            ? themeData.accentColor
+            ? themeData.textSelectionColor
             : themeData.backgroundColor,
         child: SafeArea(
           top: false,
@@ -116,14 +116,12 @@ class MusicRowItem extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                            const Padding(padding: EdgeInsets.only(right: 5.0)),
                             Expanded(
                               child: Text(
                                 _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                                     ? '${_musicInfoModel.title} - ${_musicInfoModel.artist}'
                                     : "",
                                 maxLines: 1,
-                                style: themeData.textTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -134,7 +132,6 @@ class MusicRowItem extends StatelessWidget {
                           _musicInfoModel.type !=  MusicInfoModel.TYPE_FOLD
                               ? '${_musicInfoModel.album}'
                               : "",
-                          style: themeData.primaryTextTheme.subtitle,
                         ),
                       ],
                     ),

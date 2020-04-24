@@ -4,6 +4,8 @@
 <dict>
     <key>GADApplicationIdentifier</key>
     <string>ca-app-pub-8997196463219106~5244690570</string>
+    <key>io.flutter.embedded_views_preview</key>
+    <true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

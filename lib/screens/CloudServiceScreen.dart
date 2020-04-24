@@ -21,17 +21,14 @@ class CloudServiceScreen extends StatelessWidget {
               new ListTile(
                 title: new Text(
                   '云同步',
-                  style: themeData.textTheme.subtitle,
                 ),
               ),
               new ListTile(
                 title: new Text(
                   'Wi-Fi同步文件',
-                  style: themeData.textTheme.title,
                 ),
                 subtitle: Text(
                   '手机与电脑连接到同一个Wi-Fi网络，可以通过电脑端web浏览器来传输文件。',
-                  style: themeData.textTheme.subtitle,
                 ),
                 leading: new Icon(
                   Icons.wifi,
@@ -57,13 +54,11 @@ class CloudServiceScreen extends StatelessWidget {
               new ListTile(
                 title: new Text(
                   '云服务',
-                  style: themeData.textTheme.subtitle,
                 ),
               ),
               new ListTile(
                 title: new Text(
                   '百度网盘',
-                  style: themeData.textTheme.title,
                 ),
                 leading: new Image.asset(
                   "assets/images/cloudicon/baidu.png",
@@ -71,7 +66,6 @@ class CloudServiceScreen extends StatelessWidget {
                 ),
                 subtitle: Text(
                   '等待上线',
-                  style: themeData.textTheme.subtitle,
                 ),
                 trailing: Icon(
                   Icons.chevron_right,
@@ -81,11 +75,9 @@ class CloudServiceScreen extends StatelessWidget {
               new ListTile(
                 title: new Text(
                   'OneDrive',
-                  style: themeData.textTheme.title,
                 ),
                 subtitle: Text(
                   '等待上线',
-                  style: themeData.textTheme.subtitle,
                 ),
                 leading: new Image.asset(
                   "assets/images/cloudicon/onedrive.png",
@@ -98,12 +90,10 @@ class CloudServiceScreen extends StatelessWidget {
               ),
               new ListTile(
                 title: new Text(
-                  'NextCloud3',
-                  style: themeData.textTheme.title,
+                  'NextCloud',
                 ),
                 subtitle: Text(
                   '',
-                  style: themeData.textTheme.subtitle,
                 ),
                 leading: new Image.asset(
                   "assets/images/cloudicon/nextcloud.png",

@@ -22,9 +22,9 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  audioplayers: ^0.15.1
-#  audioplayers:
-#    path: ./dependencies/audioplayers-0.14.2
+#  audioplayers: ^0.15.1
+  audioplayers:
+    path: ./dependencies/audioplayers-0.14.2
   cupertino_icons: ^0.1.2
   event_bus: ^1.1.1
   shared_preferences:
@@ -42,6 +42,8 @@ dependencies:
   webdav:
   mime:
 #  firebase_admob:
+  admob_flutter: "^1.0.0-beta.2"
+
 
 
 

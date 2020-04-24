@@ -71,11 +71,9 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
     ThemeData themeData = Theme.of(context);
 
     return CupertinoPageScaffold(
-        backgroundColor: themeData.backgroundColor,
         navigationBar: CupertinoNavigationBar(
           middle: Text(
             widget.title,
-            style: themeData.primaryTextTheme.headline,
           ),
           trailing: CupertinoButton(
             onPressed: () {
@@ -145,7 +143,6 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
         CupertinoActionSheetAction(
           child: Text(
             '下载文件夹内音乐文件',
-            style: themeData.textTheme.display1,
           ),
           onPressed: () {
             Navigator.of(context1).pop();
@@ -157,7 +154,6 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
       cancelButton: CupertinoActionSheetAction(
         child: Text(
           '取消',
-          style: themeData.textTheme.display1,
         ),
         onPressed: () {
           Navigator.of(context1).pop();

@@ -97,9 +97,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
       appBar: CupertinoNavigationBar(
         backgroundColor: themeData.backgroundColor,
         leading: Container(
-            width: 50,
-            height: 50,
-            child: FlatButton(
+            child: CupertinoButton(
               padding: EdgeInsets.only(left: 0, right: 0),
               child: Icon(
                 Icons.keyboard_arrow_down,
@@ -113,7 +111,6 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
             )),
         middle: Text(
           widget.title,
-          style: themeData.primaryTextTheme.headline,
         ),
         trailing: Container(
             width: 50,
@@ -122,7 +119,6 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
               padding: EdgeInsets.only(left: 0, right: 0),
               child: Text(
                 "完成",
-                style: themeData.primaryTextTheme.title,
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -135,7 +131,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
           scrollDirection: Axis.vertical,
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           children: listItems.map<Widget>((item) {
-            if (item.musicInfoModel.type ==  MusicInfoModel.TYPE_FOLD) {
+            if (item.musicInfoModel.type == MusicInfoModel.TYPE_FOLD) {
               return buildFoldListTile(item);
             } else {
               return buildListTile(item);
@@ -172,15 +168,14 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
         ));
       },
       key: Key(_listItem.musicInfoModel.id.toString()),
-      isThreeLine: true,
-      title: Text(""),
-      subtitle: Row(
+      isThreeLine: false,
+//      title: Text(""),
+      title: Row(
         children: <Widget>[
           Expanded(
             child: Text(
               '${_listItem.musicInfoModel.name}',
               maxLines: 1,
-              style: themeData.textTheme.title,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -205,7 +200,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
 
     Widget listTile = CheckboxListTile(
       key: Key(_listItem.musicInfoModel.id.toString()),
-      isThreeLine: true,
+      isThreeLine: false,
       activeColor: themeData.primaryColor,
       value: _listItem.checkState ?? false,
       onChanged: (bool newChecked) {
@@ -254,15 +249,14 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
                   ? '${_listItem.musicInfoModel.name}'
                   : "sdsdff",
               maxLines: 1,
-              style: themeData.textTheme.title,
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
       subtitle: Text(
-          '${_listItem.musicInfoModel.album} - ${_listItem.musicInfoModel.artist}',
-          style: themeData.textTheme.subtitle),
+        '${_listItem.musicInfoModel.album} - ${_listItem.musicInfoModel.artist}',
+      ),
       secondary: Container(
         key: Key("start"),
         height: 60.0,

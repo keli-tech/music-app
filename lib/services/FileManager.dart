@@ -34,6 +34,13 @@ class FileManager {
   }
 
   static Directory musicAlbumPicturePath(String artist, String album) {
+    if (album == null) {
+      album = "";
+    }
+
+    if (artist == null) {
+      artist = "";
+    }
     album = md5.convert(utf8.encode(album)).toString();
 
     final path = Global.profile.documentDirectory;
@@ -42,6 +49,13 @@ class FileManager {
   }
 
   static Directory musicAlbumPictureFullPath(String artist, String album) {
+    if (album == null) {
+      album = "";
+    }
+
+    if (artist == null) {
+      artist = "";
+    }
     album = md5.convert(utf8.encode(album)).toString();
     final path = Global.profile.documentDirectory;
     musicAlbumPicturePath(artist, album).createSync(recursive: true);
@@ -49,14 +63,20 @@ class FileManager {
     return Directory('$path/picture/$artist/$album.bmp');
   }
 
-//  ec65e03c35f13e703348c6941c6b3141
   static File musicAlbumPictureFile(String artist, String album) {
+    if (album == null) {
+      album = "";
+    }
+
+    if (artist == null) {
+      artist = "";
+    }
     final path = Global.profile.documentDirectory;
     album = md5.convert(utf8.encode(album)).toString();
 
     var file = File('$path/picture/$artist/$album.bmp');
 
-    return file;
+    return file.existsSync() ? file : null;
   }
 
   static ImageProvider musicAlbumPictureImage(String artist, String album) {

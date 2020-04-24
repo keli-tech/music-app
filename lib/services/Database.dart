@@ -62,7 +62,7 @@ class DBProvider {
           "create unique index if not exists mid ON music_play_list (name, type, artist)");
 
       await db.execute(
-          "INSERT Into music_play_list (id, name,type,sort,imgpath) VALUES (1, '我喜欢的音乐', 'fav', 1000, '')");
+          "INSERT Into music_play_list (id,artist,name,type,sort,imgpath) VALUES (1, '-', '我喜欢的音乐', 'fav', 1000, '')");
 
       await db.execute("create table if not exists music_play_list_info("
           "mpl_id INTEGER,"
@@ -166,17 +166,32 @@ class DBProvider {
     return list;
   }
 
+  //更新数据
+  Future<int> updateMusicPlayList(int mplID, updateValue) async {
+    final db = await database;
+
+    var res = await db
+        .update("music_play_list", updateValue, where: " id = ?", whereArgs: [
+      mplID,
+    ]);
+
+    print("sdfdsf" + res.toString());
+
+    return res;
+  }
+
   Future<int> newMusicPlayList(MusicPlayListModel newMusicPlayListModel) async {
     final db = await database;
     int retID;
 
     await db.transaction((txn) async {
       var res = await txn.query("music_play_list",
-          where: " name = ? and artist = ? ",
+          where: " name = ? and artist = ? and type = ?",
           orderBy: "sort desc",
           whereArgs: [
             newMusicPlayListModel.name,
             newMusicPlayListModel.artist,
+            newMusicPlayListModel.type,
           ]);
 
       List<MusicInfoModel> list = res.isNotEmpty
@@ -206,21 +221,30 @@ class DBProvider {
   // 删除 music play list
   // 删除 列表， 删除关系
   deleteMusicPlayList(int id) async {
-    final db = await database;
-    logger.info("delete play list id: $id");
+    try {
+      final db = await database;
+      logger.info("delete play list id: $id");
 
-    List<MusicInfoModel> musicInfos = await getMusicInfoByPlayListId(id);
-    List<int> ids = musicInfos.map((f) {
-      return f.id;
-    });
+      List<MusicInfoModel> musicInfos = await getMusicInfoByPlayListId(id);
+      if (musicInfos.length > 0) {
+        List<int> ids = musicInfos.map((f) {
+          return f.id;
+        }).toList();
+      }
 
-    var raw = await db
-        .rawDelete("delete from music_play_list_info where  mpl_id = ?", [id]);
-    raw = await db.delete("music_play_list", where: "id = ?", whereArgs: [id]);
+      var raw = await db.rawDelete(
+          "delete from music_play_list_info where  mpl_id = ?", [id]);
 
-    if (raw > 0) {
-      return musicInfos;
-    } else {
+      raw =
+          await db.delete("music_play_list", where: "id = ?", whereArgs: [id]);
+
+      if (raw > 0) {
+        return musicInfos;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      logger.warning(error);
       return [];
     }
   }

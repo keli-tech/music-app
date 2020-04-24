@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:dart_tags/dart_tags.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
+import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:http_server/http_server.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,6 +17,8 @@ import '../models/MusicInfoModel.dart';
 import '../services/Database.dart';
 
 class MyHttpServer extends StatefulWidget {
+  static const String className = 'MyHttpServer';
+
   @override
   _MyHttpServerState createState() => _MyHttpServerState();
 }
@@ -187,7 +191,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
               name: foldName,
               path: foldPath,
               fullpath: foldPath + foldName + "/",
-              type:  MusicInfoModel.TYPE_FOLD,
+              type: MusicInfoModel.TYPE_FOLD,
               sort: 1,
               updatetime: new DateTime.now().millisecondsSinceEpoch,
               syncstatus: true);
@@ -384,15 +388,13 @@ class _MyHttpServerState extends State<MyHttpServer> {
       appBar: CupertinoNavigationBar(
         middle: Text(
           'Wi-Fi同步文件',
-          style: themeData.primaryTextTheme.headline,
         ),
         backgroundColor: themeData.backgroundColor,
       ),
       backgroundColor: themeData.backgroundColor,
       body: Builder(
-          // Create an inner BuildContext so that the snackBar onPressed methods
-          // can refer to the Scaffold with Scaffold.of().
-          builder: buildBody),
+        builder: buildBody,
+      ),
     );
   }
 
@@ -404,6 +406,15 @@ class _MyHttpServerState extends State<MyHttpServer> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
+          Container(
+            child: AdmobBanner(
+              adUnitId: AdMobService.getBannerAdUnitId(MyHttpServer.className),
+              adSize: AdmobBannerSize.FULL_BANNER,
+              listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+                AdMobService.handleEvent(event, args, 'Banner');
+              },
+            ),
+          ),
           SizedBox(
             height: 70,
           ),
@@ -453,15 +464,13 @@ class _MyHttpServerState extends State<MyHttpServer> {
                   children: <Widget>[
                     ListTile(
                       title: new Text(
-                        '在电脑端浏览器中输入一下 url:',
-                        style: themeData.textTheme.title,
+                        '在电脑端浏览器中输入以下 url:',
                       ),
                     ),
                     Divider(),
                     ListTile(
                       title: new Text(
                         serverUrl,
-                        style: themeData.textTheme.title,
                       ),
                       leading: Icon(
                         Icons.desktop_mac,
@@ -479,12 +488,11 @@ class _MyHttpServerState extends State<MyHttpServer> {
                           });
 
                           Scaffold.of(context).showSnackBar(new SnackBar(
-                              backgroundColor: themeData.cardColor,
+                              backgroundColor: themeData.textSelectionColor,
                               content: Container(
                                 height: 70,
                                 child: new Text(
                                   "已复制 url !",
-                                  style: themeData.primaryTextTheme.title,
                                 ),
                               )));
                         },

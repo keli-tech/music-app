@@ -1,8 +1,10 @@
 //import 'package:firebase_admob/firebase_admob.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/FileRowItem.dart';
 import 'package:hello_world/screens/CloudServiceScreen.dart';
+import 'package:hello_world/services/AdmobService.dart';
 import 'package:provider/provider.dart';
 
 import '../models/MusicInfoModel.dart';
@@ -12,6 +14,8 @@ class FileListScreen extends StatefulWidget {
   @override
   _FileListScreen createState() => _FileListScreen();
   static const String routeName = '/filelist';
+
+  static const String className = 'FileListScreen';
 }
 
 class _FileListScreen extends State<FileListScreen>
@@ -22,12 +26,16 @@ class _FileListScreen extends State<FileListScreen>
 
   bool _isLoding = false;
 
+  AdmobBannerSize bannerSize;
+  AdmobInterstitial interstitialAd;
+  AdmobReward rewardAd;
+
   @override
   void initState() {
     super.initState();
 
     _refreshList(path);
-
+    bannerSize = AdmobBannerSize.FULL_BANNER;
 
 //    MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
 //      keywords: <String>['flutterio', 'beautiful apps'],
@@ -95,6 +103,15 @@ class _FileListScreen extends State<FileListScreen>
             child: Column(
               children: <Widget>[
                 Container(
+                  child: AdmobBanner(
+                    adUnitId: AdMobService.getBannerAdUnitId(FileListScreen.className),
+                    adSize: bannerSize,
+                    listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+                      AdMobService.handleEvent(event, args, 'Banner');
+                    },
+                  ),
+                ),
+                Container(
                   width: _windowWidth,
                   child: CupertinoSlidingSegmentedControl(
                     padding: EdgeInsets.all(4.0),
@@ -119,70 +136,52 @@ class _FileListScreen extends State<FileListScreen>
                   ),
                 ),
                 Container(
-                  height: _windowHeight - 160,
+                  height: _windowHeight -
+                      160 -
+                      50 -
+                      _bottomBarHeight -
+                      bannerSize.height,
                   width: _windowWidth,
                   child: CupertinoScrollbar(
                     child: CustomScrollView(
                         semanticChildCount: _musicInfoModels.length,
                         slivers: <Widget>[
-                          SliverList(
-                            delegate: SliverChildListDelegate([
-                              currentControl == 0
-                                  ? Container(
-                                      height: _windowHeight -
-                                          _bottomBarHeight -
-                                          50 -
-                                          150,
-                                      child: Consumer<MusicInfoData>(
-                                        builder: (context, musicInfoData, _) =>
-                                            Container(
-                                          width: _windowWidth,
-                                          height: _windowHeight,
-                                          child: CustomScrollView(
-                                            semanticChildCount: 3,
-                                            slivers: <Widget>[
-                                              SliverPadding(
-                                                padding: EdgeInsets.only(
-                                                    left: 0,
-                                                    top: 0,
-                                                    right: 0,
-                                                    bottom: 20),
-                                                sliver: SliverList(
-                                                  delegate:
-                                                      SliverChildBuilderDelegate(
-                                                    (BuildContext context,
-                                                        int index) {
-                                                      return FileRowItem(
-                                                        index: index,
-                                                        musicInfoModels:
-                                                            _musicInfoModels,
-                                                        audioPlayerState:
-                                                            musicInfoData
-                                                                .audioPlayerState,
-                                                        musicInfoFavIDSet:
-                                                            musicInfoData
-                                                                .musicInfoFavIDSet,
-                                                        playId: musicInfoData
-                                                            .musicInfoModel.id,
-                                                      );
-                                                    },
-                                                    childCount:
-                                                        _musicInfoModels.length,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ))
-                                  : Container(
-                                      height: _windowHeight -
-                                          _bottomBarHeight -
-                                          50 -
-                                          150,
-                                      child: CloudServiceScreen())
-                            ]),
-                          ),
+                          currentControl == 0
+                              ? Consumer<MusicInfoData>(
+                                  builder: (context, musicInfoData, _) =>
+                                      SliverPadding(
+                                    padding: EdgeInsets.only(
+                                        left: 0, top: 0, right: 0, bottom: 20),
+                                    sliver: SliverList(
+                                      delegate: SliverChildBuilderDelegate(
+                                        (BuildContext context, int index) {
+                                          return FileRowItem(
+                                            index: index,
+                                            musicInfoModels: _musicInfoModels,
+                                            audioPlayerState:
+                                                musicInfoData.audioPlayerState,
+                                            musicInfoFavIDSet:
+                                                musicInfoData.musicInfoFavIDSet,
+                                            playId:
+                                                musicInfoData.musicInfoModel.id,
+                                          );
+                                        },
+                                        childCount: _musicInfoModels.length,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : SliverList(
+                                  delegate: SliverChildListDelegate([
+                                    Container(
+                                        height: _windowHeight -
+                                            160 -
+                                            50 -
+                                            _bottomBarHeight -
+                                            bannerSize.height,
+                                        child: CloudServiceScreen())
+                                  ]),
+                                ),
                         ]),
                   ),
                 )

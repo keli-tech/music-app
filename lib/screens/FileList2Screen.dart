@@ -50,19 +50,18 @@ class _FileList2Screen extends State<FileList2Screen>
 
     return CupertinoPageScaffold(
         backgroundColor: themeData.backgroundColor,
+        navigationBar: CupertinoNavigationBar(
+          middle: Text(
+            widget.musicInfoModel.name,
+          ),
+          backgroundColor: themeData.backgroundColor,
+        ),
         child: RefreshIndicator(
           color: Colors.white,
           backgroundColor: themeData.primaryColor,
           child: CustomScrollView(
             semanticChildCount: _musicInfoModels.length,
             slivers: <Widget>[
-              CupertinoSliverNavigationBar(
-                largeTitle: Text(
-                  widget.musicInfoModel.name,
-                  style: themeData.primaryTextTheme.headline,
-                ),
-                backgroundColor: themeData.backgroundColor,
-              ),
               Consumer<MusicInfoData>(
                 builder: (context, musicInfoData, _) => SliverPadding(
                   // Top media padding consumed by CupertinoSliverNavigationBar.

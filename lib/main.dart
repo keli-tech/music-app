@@ -1,4 +1,5 @@
 //import 'package:firebase_admob/firebase_admob.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/theme/darkTheme.dart';
 import 'package:hello_world/theme/lightTheme.dart';
@@ -12,14 +13,15 @@ import 'screens/StructScreen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  String appId = "ca-app-pub-8997196463219106~5244690570";
+  Admob.initialize(appId);
+
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
     print(
         '${record.loggerName}: ${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  String appId = "ca-app-pub-8997196463219106~5244690570";
-//  FirebaseAdMob.instance.initialize(appId: appId);
 
   Global.init().then((onValue) {
     runApp(
