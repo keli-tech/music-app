@@ -63,7 +63,7 @@ class Global {
     }
 
     Logger logger = new Logger("Global");
-    logger.info(profile.toJson().toString());
+//    logger.info(profile.toJson().toString());
   }
 
   // 持久化Profile信息

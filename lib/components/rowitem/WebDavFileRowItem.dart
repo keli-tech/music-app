@@ -8,11 +8,17 @@ class WebDavFileRowItem extends StatefulWidget {
   @override
   _WebDavFileRowItem createState() => _WebDavFileRowItem();
 
-  WebDavFileRowItem({Key key, this.index, this.file, this.downloadedFiles})
-      : super(key: key);
+  WebDavFileRowItem({
+    Key key,
+    this.lastItem,
+    this.index,
+    this.file,
+    this.downloadedFiles,
+  }) : super(key: key);
 
   int statusBarHeight;
 
+  final bool lastItem;
   final int index;
   final WebDavFile file;
   List<String> downloadedFiles;
@@ -34,11 +40,28 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
 
   @override
   Widget build(BuildContext context) {
+    var row;
     if (widget.file.isDirectory) {
-      return builderFold(context);
+      row = builderFold(context);
     } else {
-      return builder(context);
+      row = builder(context);
     }
+
+    if (widget.lastItem) {
+      return row;
+    }
+
+    return Column(
+      children: <Widget>[
+        row,
+        const Divider(
+          thickness: 0.5,
+          endIndent: 20,
+          indent: 70,
+          height: 0.40,
+        ),
+      ],
+    );
   }
 
   Widget builderFold(BuildContext context) {
@@ -66,7 +89,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
               children: <Widget>[
                 Text(
                   (widget.index + 1).toString() + '.',
-                  style: themeData.textTheme.subtitle,
+                  style: themeData.primaryTextTheme.title,
                 ),
                 SizedBox(
                   width: 5,
@@ -88,7 +111,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                             Expanded(
                               child: Text(
                                 widget.file.name,
-                                style: themeData.textTheme.subtitle,
+                                style: themeData.primaryTextTheme.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -144,7 +167,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
               children: <Widget>[
                 Text(
                   (widget.index + 1).toString() + '.',
-                  style: themeData.textTheme.subtitle,
+                  style: themeData.primaryTextTheme.title,
                 ),
                 Expanded(
                   child: Padding(
@@ -157,7 +180,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                             Expanded(
                               child: Text(
                                 widget.file.name,
-                                style: themeData.textTheme.subtitle,
+                                style: themeData.primaryTextTheme.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),

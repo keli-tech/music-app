@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/ChipScreenComp.dart';
-import 'package:hello_world/components/PlayListRowItem.dart';
+import 'package:hello_world/components/rowitem/PlayListRowItem.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/screens/PlayListDetailScreen.dart';
 import 'package:hello_world/services/FileManager.dart';
@@ -107,8 +107,13 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
       navigationBar: CupertinoNavigationBar(
+        middle: Text(
+          "收藏",
+          style: themeData.primaryTextTheme.title,
+        ),
         backgroundColor: themeData.backgroundColor,
         trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
           child: Icon(
             Icons.more_vert,
             color: themeData.primaryColor,
@@ -324,6 +329,7 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
 //            var musicPlayListModel = await DBProvider.db.getFavMusicInfoList();
             var musicPlayListModel = await DBProvider.db.getMusicPlayListById(
                 MusicPlayListModel.FAVOURITE_PLAY_LIST_ID);
+            print(musicPlayListModel);
 
             Navigator.of(context).push(CupertinoPageRoute<void>(
               title: "我喜欢的音乐",
@@ -364,7 +370,7 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                               bottomLeft: Radius.circular(8.0),
                               bottomRight: Radius.circular(8.0),
                             ),
-                            color: Colors.white70,
+                            color: themeData.highlightColor,
                           ),
                           child: Row(children: <Widget>[
                             Icon(
@@ -444,7 +450,7 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                               bottomLeft: Radius.circular(8.0),
                               bottomRight: Radius.circular(8.0),
                             ),
-                            color: Colors.white70,
+                            color: themeData.highlightColor,
                           ),
                           child: Row(children: <Widget>[
                             Icon(

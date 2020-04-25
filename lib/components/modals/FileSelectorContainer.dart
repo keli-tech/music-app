@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hello_world/components/FileSelectorComp.dart';
+import 'package:hello_world/components/modals/FileSelectorComp.dart';
+import 'package:hello_world/models/MusicInfoModel.dart';
+import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
-
-import '../models/MusicInfoModel.dart';
-import '../services/Database.dart';
 
 class FileSelectorContainer extends StatefulWidget {
   FileSelectorContainer(
@@ -98,32 +97,31 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
         backgroundColor: themeData.backgroundColor,
         leading: Container(
             child: CupertinoButton(
-              padding: EdgeInsets.only(left: 0, right: 0),
-              child: Icon(
-                Icons.keyboard_arrow_down,
-                size: 40,
-                color: themeData.primaryColor,
-              ),
-              onPressed: () {
-                print(1);
-                Navigator.of(context).pop();
-              },
-            )),
+          padding: EdgeInsets.zero,
+          child: Icon(
+            Icons.keyboard_arrow_down,
+            size: 40,
+            color: themeData.primaryColor,
+          ),
+          onPressed: () {
+            print(1);
+            Navigator.of(context).pop();
+          },
+        )),
         middle: Text(
           widget.title,
+          style: themeData.primaryTextTheme.title,
         ),
-        trailing: Container(
-            width: 50,
-            height: 50,
-            child: FlatButton(
-              padding: EdgeInsets.only(left: 0, right: 0),
-              child: Text(
-                "完成",
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Text(
+            "完成",
+            style: themeData.primaryTextTheme.title,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
       body: Scrollbar(
         child: ListView(

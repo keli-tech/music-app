@@ -209,6 +209,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                                   animation: animation,
                                   //将要执行动画的子view
                                   child: CupertinoButton(
+                                    padding: EdgeInsets.zero,
                                     pressedOpacity: 1,
                                     color: Colors.transparent,
                                     onPressed: _playPauseAction,
@@ -328,7 +329,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         height: 40,
                         child: CupertinoButton(
                           pressedOpacity: 1,
-                          padding: EdgeInsets.only(left: 0, right: 0),
+                          padding: EdgeInsets.zero,
                           child: Icon(
                             Icons.repeat,
                             color: themeData.primaryTextTheme.headline.color,
@@ -353,7 +354,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         height: 40,
                         child: CupertinoButton(
                           pressedOpacity: 1,
-                          padding: EdgeInsets.only(left: 0, right: 0),
+                          padding: EdgeInsets.zero,
                           child: AnimatedSwitcher(
                             transitionBuilder: (child, anim) {
                               return ScaleTransition(child: child, scale: anim);
@@ -418,6 +419,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         switchOutCurve: Curves.fastOutSlowIn,
         duration: Duration(milliseconds: 300),
         child: CupertinoButton(
+          padding: EdgeInsets.zero,
           pressedOpacity: 1,
           onPressed: () {
             _playPauseAction();
@@ -450,6 +452,7 @@ class _PlayingScreenState extends State<PlayingScreen>
 
     return Container(
       child: CupertinoButton(
+        padding: EdgeInsets.zero,
         pressedOpacity: 1,
         child: Icon(
           Icons.skip_previous,
@@ -468,6 +471,7 @@ class _PlayingScreenState extends State<PlayingScreen>
 
     return Container(
       child: CupertinoButton(
+        padding: EdgeInsets.zero,
         pressedOpacity: 1,
         child: Icon(
           Icons.skip_next,

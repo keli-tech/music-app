@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_world/components/FileRowItem.dart';
+import 'package:hello_world/components/rowitem/FileRowItem.dart';
 import 'package:provider/provider.dart';
 
 import '../models/MusicInfoModel.dart';
@@ -53,6 +53,7 @@ class _FileList2Screen extends State<FileList2Screen>
         navigationBar: CupertinoNavigationBar(
           middle: Text(
             widget.musicInfoModel.name,
+            style: themeData.primaryTextTheme.title,
           ),
           backgroundColor: themeData.backgroundColor,
         ),
@@ -72,6 +73,7 @@ class _FileList2Screen extends State<FileList2Screen>
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
                         return FileRowItem(
+                          lastItem: index == _musicInfoModels.length - 1,
                           index: index,
                           musicInfoModels: _musicInfoModels,
                           playId: musicInfoData.musicInfoModel.id,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:hello_world/models/MusicPlayListModel.dart';
@@ -30,6 +31,7 @@ class DBProvider {
     String path = join(documentsDirectory.path, "keli_music9.db");
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
+      // 文件和文件夹信息表
       await db.execute("CREATE TABLE IF NOT EXISTS music_info ("
           "id INTEGER PRIMARY KEY AUTOINCREMENT,"
           "name TEXT,"
@@ -46,6 +48,10 @@ class DBProvider {
           "extra TEXT,"
           "updatetime INTEGER"
           ")");
+
+      // 文件和文件夹信息表索引：类型 + name + type +path + artist + title;
+      await db.execute(
+          "create unique index if not exists mi_index ON music_info (name, type, artist, title, path)");
 
       await db.execute("create table if not exists music_play_list ("
           "id INTEGER primary key autoincrement,"
@@ -96,10 +102,37 @@ class DBProvider {
         whereArgs: [
           MusicPlayListModel.TYPE_PLAY_LIST,
         ]);
+    List<MusicPlayListModel> list = [];
+    try {
+      var res2 = await db.rawQuery(
+          "select t2.id as id, count(1) as musiccount from music_play_list_info as t1 "
+                  "inner join music_play_list as t2 on t1.mpl_id = t2.id "
+                  "where t2.type = '" +
+              MusicPlayListModel.TYPE_PLAY_LIST +
+              "' group by t2.id ");
 
-    List<MusicPlayListModel> list = res.isNotEmpty
-        ? res.map((c) => MusicPlayListModel.fromMap(c)).toList()
-        : [];
+      Map<int, int> rr = new HashMap();
+      if (res2.isNotEmpty) {
+        res2.forEach((f) {
+          if (f["id"] != null) {
+            rr[f["id"]] = f["musiccount"];
+          }
+        });
+      }
+      if (res.isNotEmpty) {
+        res.forEach((f) {
+          var cc = MusicPlayListModel.fromMap(f);
+          if (rr.containsKey(f["id"])) {
+            cc.musiccount = rr[f["id"]];
+          } else {
+            cc.musiccount = 0;
+          }
+          list.add(cc);
+        });
+      }
+    } catch (error) {
+      print(error);
+    }
     return list;
   }
 
@@ -112,7 +145,6 @@ class DBProvider {
         orderBy: "updatetime desc, sort desc",
         whereArgs: [
           type,
-          MusicPlayListModel.TYPE_FAV,
         ]);
 
     List<MusicPlayListModel> list = res.isNotEmpty
@@ -143,7 +175,6 @@ class DBProvider {
             }).toList()
           : [];
     } catch (error) {
-      print('failed');
       print(error);
     }
     return list;
@@ -174,8 +205,6 @@ class DBProvider {
         .update("music_play_list", updateValue, where: " id = ?", whereArgs: [
       mplID,
     ]);
-
-    print("sdfdsf" + res.toString());
 
     return res;
   }
@@ -303,11 +332,12 @@ class DBProvider {
   Future<int> addMusicToPlayList(int plid, int mid) async {
     final db = await database;
     var raw = await db.rawInsert(
-        "INSERT Into music_play_list_info (mpl_id,mi_id)"
-        " VALUES (?,?)",
+        "INSERT Into music_play_list_info (mpl_id,mi_id,updatetime)"
+        " VALUES (?,?,?)",
         [
           plid,
           mid,
+          new DateTime.now().millisecondsSinceEpoch,
         ]);
     logger.info("insert plid:$plid, mid:$mid");
     return raw;

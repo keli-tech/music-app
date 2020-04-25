@@ -1,15 +1,10 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hello_world/services/FileManager.dart';
-import 'package:provider/provider.dart';
 
-import '../common/RotateTransform.dart';
-import '../models/MusicInfoModel.dart';
-import '../screens/MyHttpServer.dart';
-import '../services/Database.dart';
-import '../services/EventBus.dart';
+import '../../models/MusicInfoModel.dart';
+import '../../services/Database.dart';
 
 class FileSelectorComp extends StatefulWidget {
   FileSelectorComp(
@@ -99,7 +94,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
         appBar: CupertinoNavigationBar(
           backgroundColor: themeData.backgroundColor,
           leading: CupertinoButton(
-            padding: EdgeInsets.only(left: 0, right: 0),
+            padding: EdgeInsets.zero,
             child: Icon(
               Icons.keyboard_arrow_left,
               size: 40,
@@ -112,16 +107,18 @@ class _FileSelectorComp extends State<FileSelectorComp>
           ),
           middle: Text(
             widget.title,
+            style: themeData.primaryTextTheme.title,
           ),
-          trailing: FlatButton(
+          trailing: CupertinoButton(
+              padding: EdgeInsets.zero,
               onPressed: () {
                 for (int i = 0; i <= widget.level; i++) {
-                  print(22222222);
                   Navigator.of(context).pop();
                 }
               },
               child: Text(
                 "完成",
+                style: themeData.primaryTextTheme.title,
               )),
         ),
         body: Scrollbar(
@@ -130,7 +127,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
             scrollDirection: Axis.vertical,
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             children: listItems.map<Widget>((item) {
-              if (item.musicInfoModel.type ==  MusicInfoModel.TYPE_FOLD) {
+              if (item.musicInfoModel.type == MusicInfoModel.TYPE_FOLD) {
                 return buildFoldListTile(item);
               } else {
                 return buildListTile(item);
@@ -260,7 +257,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
 //          const Padding(padding: EdgeInsets.only(right: 5.0)),
           Expanded(
             child: Text(
-              _listItem.musicInfoModel.type !=  MusicInfoModel.TYPE_FOLD
+              _listItem.musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                   ? '${_listItem.musicInfoModel.name}'
                   : "sdsdff",
               maxLines: 1,
@@ -270,7 +267,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
         ],
       ),
       subtitle: Text(
-          '${_listItem.musicInfoModel.album} - ${_listItem.musicInfoModel.artist}',
+        '${_listItem.musicInfoModel.album} - ${_listItem.musicInfoModel.artist}',
       ),
       secondary: Container(
         key: Key("start"),

@@ -15,6 +15,7 @@ class MusicPlayListModel {
   int sort = 0;
   String imgpath = "";
   int updatetime = 0;
+  int musiccount = 0;
 
   static int FAVOURITE_PLAY_LIST_ID = 1;
 
@@ -32,6 +33,7 @@ class MusicPlayListModel {
     this.sort,
     this.imgpath,
     this.updatetime,
+    this.musiccount,
   });
 
   factory MusicPlayListModel.fromMap(Map<String, dynamic> json) =>
@@ -44,6 +46,7 @@ class MusicPlayListModel {
         sort: json["sort"],
         imgpath: json["imgpath"],
         updatetime: json["updatetime"],
+        musiccount: json["musiccount"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -55,6 +58,7 @@ class MusicPlayListModel {
         "sort": sort,
         "imgpath": imgpath,
         "updatetime": updatetime,
+        "musiccount": musiccount,
       };
 
   Map toJson() {
@@ -65,6 +69,7 @@ class MusicPlayListModel {
     map["sort"] = this.sort;
     map["imgpath"] = this.imgpath;
     map["updatetime"] = this.updatetime;
+    map["musiccount"] = this.musiccount;
     return map;
   }
 

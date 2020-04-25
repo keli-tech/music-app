@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hello_world/components/FileSelectorContainer.dart';
-import 'package:hello_world/components/MusicRowItem.dart';
+import 'package:hello_world/components/modals/FileSelectorContainer.dart';
+import 'package:hello_world/components/rowitem/MusicRowItem.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/services/FileManager.dart';
@@ -51,19 +50,35 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
     _refreshList();
   }
 
-  @override
-  void deactivate() {
-    super.deactivate();
-    _logger.info("deactivate");
+//  @override
+//  void deactivate() {
+//    super.deactivate();
+//    _logger.info("deactivate");
+//    _refreshList();
+//  }
 
-    _refreshList();
+  @override
+  void dispose() {
+    super.dispose();
   }
 
-  _refreshList() async {
+  _refreshList() {
     int plid = widget.musicPlayListModel.id;
     DBProvider.db.getMusicInfoByPlayListId(plid).then((onValue) {
-      File image = FileManager.musicAlbumPictureFile(
-          widget.musicPlayListModel.artist, widget.musicPlayListModel.imgpath);
+      File image;
+      if (widget.musicPlayListModel.type == MusicPlayListModel.TYPE_PLAY_LIST) {
+        image = FileManager.musicAlbumPictureFile(
+            widget.musicPlayListModel.artist,
+            widget.musicPlayListModel.imgpath);
+      } else if (widget.musicPlayListModel.type ==
+          MusicPlayListModel.TYPE_FAV) {
+        image = FileManager.musicAlbumPictureFile(
+            widget.musicPlayListModel.artist,
+            widget.musicPlayListModel.imgpath);
+      } else {
+        image = FileManager.musicAlbumPictureFile(
+            widget.musicPlayListModel.artist, widget.musicPlayListModel.name);
+      }
 
       setState(() {
         _musicInfoModels = onValue;
@@ -81,9 +96,14 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
 
     ThemeData themeData = Theme.of(context);
     return CupertinoPageScaffold(
-      backgroundColor: themeData.backgroundColor,
       navigationBar: CupertinoNavigationBar(
+        backgroundColor: themeData.backgroundColor,
+        middle: Text(
+          widget.musicPlayListModel.name,
+          style: themeData.primaryTextTheme.title,
+        ),
         trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
           child: Icon(
             Icons.more_vert,
             color: themeData.primaryColor,
@@ -92,7 +112,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
             showCupertinoModalPopup(
               context: context,
               builder: (BuildContext context1) {
-                return actionSheet(context1, context);
+                return _actionSheet(context1, context);
               },
             );
           },
@@ -102,26 +122,23 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
         semanticChildCount: _musicInfoModels.length,
         slivers: <Widget>[
           SliverAppBar(
-            brightness: Brightness.light,
             automaticallyImplyLeading: false,
             forceElevated: true,
             elevation: 5,
             stretch: true,
-            backgroundColor: Colors.white70,
-            expandedHeight: width * 0.7,
+            backgroundColor: themeData.highlightColor,
+            expandedHeight: width * 0.8,
             flexibleSpace: Hero(
               tag: widget.musicPlayListModel.id,
               child: Container(
-                padding: EdgeInsets.only(top: _statusBarHeight),
-                child: new Container(
-                  decoration: new BoxDecoration(
-                    color: Colors.white.withOpacity(0.0),
-                    image: new DecorationImage(
-                      fit: BoxFit.cover,
-                      image: _image == null
-                          ? FileManager.musicAlbumPictureImage("1", "1")
-                          : FileImage(_image),
-                    ),
+//                padding: EdgeInsets.only(left: 70, top: 0, right: 0, bottom: 70),
+                decoration: new BoxDecoration(
+                  color: Colors.white.withOpacity(0.0),
+                  image: new DecorationImage(
+                    fit: BoxFit.cover,
+                    image: _image == null || !_image.existsSync()
+                        ? FileManager.musicAlbumPictureImage("1", "1")
+                        : FileImage(_image),
                   ),
                 ),
               ),
@@ -129,18 +146,20 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
           ),
           Consumer<MusicInfoData>(
             builder: (context, musicInfoData, _) => SliverPadding(
-              // Top media padding consumed by CupertinoSliverNavigationBar.
-              // Left/Right media padding consumed by Tab1RowItem.
               padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 70),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
                     return MusicRowItem(
+                      statusBarHeight: _statusBarHeight,
+                      lastItem: index == _musicInfoModels.length - 1,
                       index: index,
+                      mplID: widget.musicPlayListModel.id,
                       musicInfoModels: _musicInfoModels,
                       playId: musicInfoData.musicInfoModel.id,
                       audioPlayerState: musicInfoData.audioPlayerState,
                       musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,
+                      refreshFunction: _refreshList,
                     );
                   },
                   childCount: _musicInfoModels.length,
@@ -153,8 +172,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
     );
   }
 
-  // 底部弹出菜单actionSheet
-  Widget actionSheet(BuildContext context1, BuildContext context) {
+  Widget _actionSheet(BuildContext context1, BuildContext context) {
     ThemeData themeData = Theme.of(context);
     var windowHeight = MediaQuery.of(context).size.height;
     List<Widget> actionSheets = [];
@@ -181,7 +199,8 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
     ));
 
     if (widget.musicPlayListModel.id !=
-        MusicPlayListModel.FAVOURITE_PLAY_LIST_ID) {
+            MusicPlayListModel.FAVOURITE_PLAY_LIST_ID &&
+        widget.musicPlayListModel.type != MusicPlayListModel.TYPE_ALBUM) {
       actionSheets.add(CupertinoActionSheetAction(
         child: Text(
           '重新命名',
@@ -192,46 +211,55 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
         },
       ));
     }
+    if (widget.musicPlayListModel.type != MusicPlayListModel.TYPE_ALBUM) {
+      actionSheets.add(
+        CupertinoActionSheetAction(
+          child: Text(
+            '更换封面',
+          ),
+          onPressed: () async {
+            Navigator.pop(context1);
+            var image =
+                await ImagePicker.pickImage(source: ImageSource.gallery);
 
-    actionSheets.add(CupertinoActionSheetAction(
-      child: Text(
-        '更换封面',
-      ),
-      onPressed: () async {
-        Navigator.pop(context1);
-        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+            if (image != null) {
+              var updateValue = {
+                "imgpath": widget.musicPlayListModel.name +
+                    (new DateTime.now().millisecondsSinceEpoch).toString(),
+              };
+              DBProvider.db
+                  .updateMusicPlayList(
+                      widget.musicPlayListModel.id, updateValue)
+                  .then((onValue) {
+                // fixme
+                var oldFile = FileManager.musicAlbumPictureFile(
+                    "-", widget.musicPlayListModel.imgpath);
+                if (oldFile.existsSync()) {
+                  oldFile.deleteSync();
+                }
 
-        if (image != null) {
-          var updateValue = {
-            "imgpath": widget.musicPlayListModel.name +
-                (new DateTime.now().millisecondsSinceEpoch).toString(),
-          };
-          DBProvider.db
-              .updateMusicPlayList(widget.musicPlayListModel.id, updateValue)
-              .then((onValue) {
-            var oldFile = FileManager.musicAlbumPictureFile(
-                "-", widget.musicPlayListModel.imgpath);
-            if (oldFile != null) {
-              oldFile.deleteSync();
+                image.copySync(FileManager.musicAlbumPictureFullPath(
+                        "-", updateValue["imgpath"])
+                    .path);
+
+                setState(() {
+                  _image = image;
+                });
+              });
             }
-
-            image.copySync(FileManager.musicAlbumPictureFullPath(
-                    "-", updateValue["imgpath"])
-                .path);
-
-            setState(() {
-              _image = image;
-            });
-          });
-        }
-      },
-    ));
+          },
+        ),
+      );
+    }
 
     if (widget.musicPlayListModel.id !=
         MusicPlayListModel.FAVOURITE_PLAY_LIST_ID) {
       actionSheets.add(CupertinoActionSheetAction(
         child: Text(
-          '删除歌单',
+          '删除' +
+              (widget.musicPlayListModel.type == MusicPlayListModel.TYPE_ALBUM
+                  ? "专辑"
+                  : "歌单"),
         ),
         isDestructiveAction: true,
         onPressed: () {

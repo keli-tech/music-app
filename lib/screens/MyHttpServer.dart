@@ -186,6 +186,9 @@ class _MyHttpServerState extends State<MyHttpServer> {
         MusicInfoModel musicInfoModel =
             await DBProvider.db.getFoldByPathName(foldPath, foldName);
         if (musicInfoModel != null && musicInfoModel.id > 0) {
+          Responses response =
+              new Responses(Data: new Map(), Code: 100, Message: "Failed");
+          musicInfoJson = jsonEncode(response);
         } else {
           MusicInfoModel newMusicInfo = MusicInfoModel(
               name: foldName,
@@ -202,14 +205,18 @@ class _MyHttpServerState extends State<MyHttpServer> {
 
           var dir = await new Directory(path + foldPath + foldName + "/")
               .create(recursive: true);
+
+          Responses response =
+              new Responses(Data: new Map(), Code: 200, Message: "Success");
+          musicInfoJson = jsonEncode(response);
         }
       } catch (e) {
         print(e);
-      }
 
-      Responses response =
-          new Responses(Data: new Map(), Code: 200, Message: "Success");
-      musicInfoJson = jsonEncode(response);
+        Responses response =
+            new Responses(Data: new Map(), Code: 100, Message: "Failed");
+        musicInfoJson = jsonEncode(response);
+      }
 
       request.response
         ..headers.clear()
@@ -235,60 +242,71 @@ class _MyHttpServerState extends State<MyHttpServer> {
           .then((_) async {
         //todo size
         int fileLength = await file.length();
+        String fileSize = Uri.decodeComponent(
+            (fileLength / 1024 / 1024).toStringAsFixed(2).toString() + "MB");
 
         request.response.close();
 
         // 保存到数据库
         // todo bugfix, 部分无tab mp3 未读取到 tag，会卡住, 比如flac
         TagProcessor tp = new TagProcessor();
-        tp.getTagsFromByteArray(file.readAsBytes()).then((l) async {
-          l.forEach((f) async {
-            if (f.tags != null && f.tags.containsKey("picture")) {
-              // 保存音乐文件表
-              AttachedPicture picture = f.tags["picture"];
-              String title = f.tags["title"];
-              String artist = f.tags["artist"];
-              String album = f.tags["album"];
 
-              MusicInfoModel newMusicInfo = MusicInfoModel(
-                name: fileUploaded.filename,
-                path: musicPath,
-                fullpath: musicPath + fileUploaded.filename,
-                type: fileUploaded.filename.split(".").last.toLowerCase(),
-                syncstatus: true,
-                title: title,
-                artist: artist,
-                album: album,
-                sort: 100,
-                updatetime: new DateTime.now().millisecondsSinceEpoch,
-              );
-              int newMid = await DBProvider.db.newMusicInfo(newMusicInfo);
+        var l = await tp.getTagsFromByteArray(file.readAsBytes());
 
-              // 添加到专辑表
-              MusicPlayListModel newMusicPlayListModel = MusicPlayListModel(
-                name: album,
-                type: MusicPlayListModel.TYPE_ALBUM,
-                artist: artist,
-                sort: 100,
-              );
-              int newPlid =
-                  await DBProvider.db.newMusicPlayList(newMusicPlayListModel);
-              if (newPlid > 0 && newMid > 0) {
-                // 保存到列表
-                await DBProvider.db.addMusicToPlayList(newPlid, newMid);
-              }
+        AttachedPicture picture;
+        String title = fileUploaded.filename;
+        String artist = "未知";
+        String album = "未知";
 
-              // 保存音乐封面
-              var dir = await FileManager.musicAlbumPicturePath(artist, album)
-                  .create(recursive: true);
-              var imageFile =
-                  await FileManager.musicAlbumPictureFile(artist, album);
-              imageFile
-                  .writeAsBytes(picture.imageData, mode: FileMode.WRITE)
-                  .then((_) async {});
-            }
-          });
+        l.forEach((f) {
+          if (f.tags != null && f.tags.containsKey("picture")) {
+            // 保存音乐文件表
+            picture = f.tags["picture"];
+            title = f.tags["title"];
+            artist = f.tags["artist"];
+            album = f.tags["album"];
+          }
         });
+
+        MusicInfoModel newMusicInfo = MusicInfoModel(
+          name: fileUploaded.filename,
+          path: musicPath,
+          fullpath: musicPath + fileUploaded.filename,
+          type: fileUploaded.filename.split(".").last.toLowerCase(),
+          syncstatus: true,
+          title: title,
+          artist: artist,
+          filesize: fileSize,
+          album: album,
+          sort: 100,
+          updatetime: new DateTime.now().millisecondsSinceEpoch,
+        );
+        int newMid = await DBProvider.db.newMusicInfo(newMusicInfo);
+
+        // 添加到专辑表
+        MusicPlayListModel newMusicPlayListModel = MusicPlayListModel(
+          name: album,
+          type: MusicPlayListModel.TYPE_ALBUM,
+          artist: artist,
+          sort: 100,
+        );
+        int newPlid =
+            await DBProvider.db.newMusicPlayList(newMusicPlayListModel);
+        if (newPlid > 0 && newMid > 0) {
+          // 保存到列表
+          await DBProvider.db.addMusicToPlayList(newPlid, newMid);
+        }
+
+        // 保存音乐封面
+        if (picture.imageData != null) {
+          var dir = await FileManager.musicAlbumPicturePath(artist, album)
+              .create(recursive: true);
+          var imageFile =
+              await FileManager.musicAlbumPictureFile(artist, album);
+          imageFile
+              .writeAsBytes(picture.imageData, mode: FileMode.WRITE)
+              .then((_) async {});
+        }
       });
     });
   }
@@ -313,8 +331,6 @@ class _MyHttpServerState extends State<MyHttpServer> {
       request.response
         ..headers.clear()
         ..headers.contentType = new ContentType(type1, type2, charset: "UTF-8")
-        // new ContentType("application", "octet-stream")
-        // ..write('Hello, world')
         ..headers.set("Accept-Ranges", "bytes")
         ..headers.set("Connection", "keep-alive")
         ..headers.set("Content-Length", value.lengthInBytes)
@@ -488,7 +504,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
                           });
 
                           Scaffold.of(context).showSnackBar(new SnackBar(
-                              backgroundColor: themeData.textSelectionColor,
+                              backgroundColor: themeData.highlightColor,
                               content: Container(
                                 height: 70,
                                 child: new Text(

@@ -104,8 +104,8 @@ class CloudServiceScreen extends StatelessWidget {
                   color: themeData.primaryColor,
                 ),
                 onTap: () async {
-                  Navigator.of(context, rootNavigator: true)
-                      .push(CupertinoPageRoute<void>(
+//                  Navigator.of(context, rootNavigator: true)
+                  Navigator.of(context).push(CupertinoPageRoute<void>(
                     title: "Nextcloud",
                     builder: (BuildContext context) => NextCloudFileScreen(
                       title: "Nextcloud",

@@ -1,26 +1,36 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
-import 'package:hello_world/screens/MyHttpServer.dart';
+import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/EventBus.dart';
 import 'package:hello_world/services/FileManager.dart';
+import 'package:hello_world/utils/ToastUtils.dart';
 import 'package:provider/provider.dart';
 
 class MusicRowItem extends StatelessWidget {
   const MusicRowItem({
+    this.mplID,
     this.index,
+    this.lastItem,
     this.musicInfoModels,
     this.playId,
     this.audioPlayerState,
     this.musicInfoFavIDSet,
+    this.refreshFunction,
+    this.statusBarHeight,
   });
 
+  final bool lastItem;
+  final int mplID;
   final int index;
+  final double statusBarHeight;
   final List<MusicInfoModel> musicInfoModels;
   final int playId;
   final AudioPlayerState audioPlayerState;
   final Set<int> musicInfoFavIDSet;
+  final Function() refreshFunction;
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +59,8 @@ class MusicRowItem extends StatelessWidget {
       child: Container(
         color: playId == musicInfoModels[index].id &&
                 audioPlayerState == AudioPlayerState.PLAYING
-            ? themeData.textSelectionColor
-            : themeData.backgroundColor,
+            ? themeData.highlightColor
+            : themeData.cardColor,
         child: SafeArea(
           top: false,
           bottom: false,
@@ -121,7 +131,7 @@ class MusicRowItem extends StatelessWidget {
                                 _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                                     ? '${_musicInfoModel.title} - ${_musicInfoModel.artist}'
                                     : "",
-                                style: themeData.textTheme.title,
+                                style: themeData.primaryTextTheme.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -133,7 +143,7 @@ class MusicRowItem extends StatelessWidget {
                           _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                               ? '${_musicInfoModel.album}'
                               : "",
-                          style: themeData.textTheme.subtitle,
+                          style: themeData.primaryTextTheme.subtitle,
                         ),
                       ],
                     ),
@@ -146,14 +156,12 @@ class MusicRowItem extends StatelessWidget {
                     semanticLabel: 'Add',
                   ),
                   onPressed: () {
-                    Navigator.of(context).push(CupertinoPageRoute<void>(
-                      title: "hehe",
-                      builder: (BuildContext context) => MyHttpServer(
-                          // color: color,
-                          // colorName: colorName,
-                          // index: index,
-                          ),
-                    ));
+                    showCupertinoModalPopup(
+                      context: context,
+                      builder: (BuildContext context1) {
+                        return _actionSheet(context1, context);
+                      },
+                    );
                   },
                 ),
               ],
@@ -163,6 +171,87 @@ class MusicRowItem extends StatelessWidget {
       ),
     );
 
-    return row;
+    if (lastItem) {
+      return row;
+    }
+
+    return Column(
+      children: <Widget>[
+        row,
+        const Divider(
+          thickness: 0.5,
+          endIndent: 20,
+          indent: 70,
+          height: 0.40,
+        ),
+      ],
+    );
+  }
+
+  Widget _actionSheet(BuildContext context1, BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+    var windowHeight = MediaQuery.of(context).size.height;
+    List<Widget> actionSheets = [];
+
+    actionSheets.add(CupertinoActionSheetAction(
+      child: Text(
+        '收藏到歌单',
+      ),
+      onPressed: () {
+        Navigator.pop(context1);
+
+        showModalBottomSheet<void>(
+            context: context,
+            useRootNavigator: false,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              return PlayListSelectorContainer(
+                title: "收藏到歌单",
+                mid: musicInfoModels[index].id,
+                statusBarHeight: statusBarHeight,
+              );
+            });
+
+//        showCupertinoModalPopup(
+//            context: context,
+//            builder: (BuildContext context) {
+//              return PlayListSelectorContainer(
+//                title: "添加到歌单",
+//                playListId: mplID,
+//                statusBarHeight: statusBarHeight,
+//              );
+//            });
+      },
+    ));
+    actionSheets.add(CupertinoActionSheetAction(
+      child: Text(
+        '从歌单删除',
+      ),
+      isDestructiveAction: true,
+      onPressed: () {
+        Navigator.of(context1).pop();
+
+        DBProvider.db
+            .deleteMusicFromPlayList(mplID, musicInfoModels[index].id)
+            .then((onValue) {
+          if (onValue > 0) {
+            refreshFunction();
+            ToastUtils.show("已从歌单删除.");
+          }
+        });
+      },
+    ));
+
+    return new CupertinoActionSheet(
+      actions: actionSheets,
+      cancelButton: CupertinoActionSheetAction(
+        child: Text(
+          '取消',
+        ),
+        onPressed: () {
+          Navigator.of(context1).pop();
+        },
+      ),
+    );
   }
 }

@@ -74,9 +74,7 @@ class FileManager {
     final path = Global.profile.documentDirectory;
     album = md5.convert(utf8.encode(album)).toString();
 
-    var file = File('$path/picture/$artist/$album.bmp');
-
-    return file.existsSync() ? file : null;
+    return File('$path/picture/$artist/$album.bmp');
   }
 
   static ImageProvider musicAlbumPictureImage(String artist, String album) {

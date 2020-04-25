@@ -99,7 +99,7 @@ final ThemeData lightThemeData = ThemeData(
     ),
     title: TextStyle(
       color: Color(0xdd000000),
-      fontSize: null,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
@@ -135,7 +135,7 @@ final ThemeData lightThemeData = ThemeData(
     ),
     subtitle: TextStyle(
       color: Color(0xff000000),
-      fontSize: null,
+      fontSize: 13,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
@@ -179,7 +179,7 @@ final ThemeData lightThemeData = ThemeData(
     ),
     title: TextStyle(
       color: Color(0xffffffff),
-      fontSize: null,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
@@ -215,7 +215,7 @@ final ThemeData lightThemeData = ThemeData(
     ),
     subtitle: TextStyle(
       color: Color(0xffffffff),
-      fontSize: null,
+      fontSize: 13,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),

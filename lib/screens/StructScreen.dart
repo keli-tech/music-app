@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 
 import 'FileListScreen.dart';
 import 'MusicFavListScreen.dart';
-import 'PlayListScreen.dart';
 
 class StructScreen extends StatefulWidget {
   static const String routeName = '/struct';
@@ -35,10 +34,10 @@ class _StructScreenState extends State<StructScreen>
     FileList2Screen.routeName: (context) => FileList2Screen(),
   };
 
-  PageController _pageController;
   Animation<double> animation;
   AnimationController controller;
   bool _showIcon = false;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -91,11 +90,14 @@ class _StructScreenState extends State<StructScreen>
   //销毁
   @override
   void dispose() {
-    _pageController.dispose();
     _controller.dispose();
 
     super.dispose();
   }
+
+  final GlobalKey<NavigatorState> firstTabNavKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> secondTabNavKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> thirdTabNavKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +120,23 @@ class _StructScreenState extends State<StructScreen>
             child: CupertinoTabScaffold(
               backgroundColor: themeData.backgroundColor,
               tabBar: CupertinoTabBar(
+                onTap: (index) {
+                  // back home only if not switching tab
+                  if (_currentIndex == index) {
+                    switch (index) {
+                      case 0:
+                        firstTabNavKey.currentState.popUntil((r) => r.isFirst);
+                        break;
+                      case 1:
+                        secondTabNavKey.currentState.popUntil((r) => r.isFirst);
+                        break;
+                      case 2:
+                        thirdTabNavKey.currentState.popUntil((r) => r.isFirst);
+                        break;
+                    }
+                  }
+                  _currentIndex = index;
+                },
                 currentIndex: 0,
                 iconSize: 30,
                 backgroundColor: themeData.backgroundColor,
@@ -145,6 +164,7 @@ class _StructScreenState extends State<StructScreen>
                 switch (index) {
                   case 0:
                     return CupertinoTabView(
+                      navigatorKey: firstTabNavKey,
                       builder: (BuildContext context) => MusicFavListScreen(),
                       routes: routes,
                       defaultTitle: '收藏',
@@ -159,6 +179,7 @@ class _StructScreenState extends State<StructScreen>
 //                    break;
                   case 1:
                     return CupertinoTabView(
+                      navigatorKey: secondTabNavKey,
                       builder: (BuildContext context) => AlbumListScreen(),
                       routes: routes,
                       defaultTitle: '专辑',
@@ -166,6 +187,7 @@ class _StructScreenState extends State<StructScreen>
                     break;
                   case 2:
                     return CupertinoTabView(
+                      navigatorKey: thirdTabNavKey,
                       builder: (BuildContext context) => FileListScreen(),
                       routes: routes,
                       defaultTitle: '文件',

@@ -5,7 +5,11 @@ import 'package:hello_world/screens/PlayListDetailScreen.dart';
 import 'package:hello_world/services/FileManager.dart';
 
 class PlayListRowItem extends StatelessWidget {
-  const PlayListRowItem({this.index, this.lastItem, this.musicPlayListModel});
+  const PlayListRowItem({
+    this.index,
+    this.lastItem,
+    this.musicPlayListModel,
+  });
 
   final int index;
   final bool lastItem;
@@ -26,7 +30,7 @@ class PlayListRowItem extends StatelessWidget {
         ));
       },
       child: Container(
-        padding: const EdgeInsets.symmetric( vertical: 5.0),
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: SafeArea(
           top: false,
           bottom: false,
@@ -42,7 +46,8 @@ class PlayListRowItem extends StatelessWidget {
                     image: DecorationImage(
                       fit: BoxFit.cover, //这个地方很重要，需要设置才能充满
                       image: FileManager.musicAlbumPictureImage(
-                          musicPlayListModel.artist, musicPlayListModel.imgpath),
+                          musicPlayListModel.artist,
+                          musicPlayListModel.imgpath),
                     ),
                   ),
                 ),
@@ -59,7 +64,7 @@ class PlayListRowItem extends StatelessWidget {
                             child: Text(
                               musicPlayListModel.name,
                               maxLines: 1,
-                              style: themeData.textTheme.title,
+                              style: themeData.primaryTextTheme.title,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -67,8 +72,8 @@ class PlayListRowItem extends StatelessWidget {
                       ),
                       const Padding(padding: EdgeInsets.only(top: 8.0)),
                       Text(
-                        "18首",
-                        style: themeData.textTheme.subtitle,
+                        musicPlayListModel.musiccount.toString() + "首",
+                        style: themeData.primaryTextTheme.subtitle,
                       ),
                     ],
                   ),

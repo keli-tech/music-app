@@ -34,6 +34,8 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   Duration _position = new Duration();
   Duration _duration = new Duration(seconds: 1);
   CarouselSlider _carouselControl;
+  CarouselController _buttonCarouselController = CarouselController();
+
   AudioPlayerState _musicPlayAction = AudioPlayerState.STOPPED;
 
   List<MusicInfoModel> musicInfoModels = [];
@@ -57,7 +59,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   void initState() {
     super.initState();
 
-    _logger.info("init");
+    _logger.info("initState!");
     _initPlayer();
     _initEvent();
     _initMusicPlayerEvent();
@@ -69,7 +71,8 @@ class _PlayingControlCompState extends State<PlayingControlComp>
       _logger.info(event.musicPlayerEvent);
 
       var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
-      if (event.musicPlayerEvent == MusicPlayerEvent.play) {
+      if (event.musicPlayerEvent == MusicPlayerEvent.play ||
+          event.musicPlayerEvent == MusicPlayerEvent.scroll_play) {
         if (musicInfoData != null) {
           if (musicInfoModel !=
                   musicInfoData.musicInfoList[musicInfoData.playIndex] &&
@@ -78,9 +81,16 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                 musicInfoData.musicInfoList[musicInfoData.playIndex];
 
             _position = new Duration(seconds: 0);
+            print("prepare:" + musicInfoData.playIndex.toString());
             playFile();
 
-            _carouselControl.jumpToPage(musicInfoData.playIndex);
+            try {
+              if (event.musicPlayerEvent == MusicPlayerEvent.play) {
+                _buttonCarouselController.jumpToPage(musicInfoData.playIndex);
+              }
+            } catch (error) {
+              print(error);
+            }
 
             audioPlayer.resume();
             controller.forward();
@@ -135,7 +145,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   // 初始化监听事件
   void _initEvent() {
     _eventBusOn = eventBus.on<AudioPlayerEvent>().listen((event) {
-      _logger.info("audio player event:" + event.audioPlayerState.toString());
+//      _logger.info("audio player event:" + event.audioPlayerState.toString());
 
       if (_musicPlayAction != event.audioPlayerState) {
         _musicPlayAction = event.audioPlayerState;
@@ -229,10 +239,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
         .then((v) {})
         .catchError((e) {
       print('error with setNotification $e');
-    });
-
-    setState(() {
-//      _musicPlayAction = AudioPlayerState.PLAYING;
     });
   }
 
@@ -334,6 +340,10 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                                     ),
                                   )),
                         onPressed: () {
+//                          _buttonCarouselController.nextPage(
+//                              duration: Duration(milliseconds: 300),
+//                              curve: Curves.linear);
+
                           if (musicInfoData.musicInfoFavIDSet
                               .contains(musicInfoData.musicInfoModel.id)) {
                             Provider.of<MusicInfoData>(context, listen: false)
@@ -387,20 +397,23 @@ class _PlayingControlCompState extends State<PlayingControlComp>
     ThemeData themeData = Theme.of(context);
 
     _carouselControl = CarouselSlider(
-      autoPlay: false,
-      height: 45.0,
-      viewportFraction: 1.0,
-      initialPage:
-          musicInfoData.playIndex > musicInfoData.musicInfoList.length - 1
-              ? musicInfoData.musicInfoList.length - 1
-              : musicInfoData.playIndex,
-      onPageChanged: (onValue) {
-        // 播放 Next
-        Provider.of<MusicInfoData>(context, listen: false)
-            .setPlayIndex(onValue);
-        // 通知开始播放 Play
-        eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
-      },
+      carouselController: _buttonCarouselController,
+      options: CarouselOptions(
+          autoPlay: false,
+          height: 45.0,
+          viewportFraction: 1.0,
+          initialPage:
+              musicInfoData.playIndex > musicInfoData.musicInfoList.length - 1
+                  ? musicInfoData.musicInfoList.length - 1
+                  : musicInfoData.playIndex,
+          onPageChanged: (index, onValue) {
+            _logger.info("carouse slider changed $index");
+            // 播放 Next
+            Provider.of<MusicInfoData>(context, listen: false)
+                .setPlayIndex(index);
+            // 通知开始播放 Play
+            eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.scroll_play));
+          }),
       items: musicInfoData.musicInfoList.map((musicInfoModel) {
         return Builder(
           builder: (BuildContext context) {

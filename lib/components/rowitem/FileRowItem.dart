@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/FileList2Screen.dart';
 import 'package:hello_world/screens/MyHttpServer.dart';
-import 'package:hello_world/services/EventBus.dart';
 import 'package:hello_world/services/FileManager.dart';
-import 'package:provider/provider.dart';
+import 'package:hello_world/services/MusicControlService.dart';
 
 class FileRowItem extends StatelessWidget {
   const FileRowItem({
+    this.lastItem,
     this.index,
     this.musicInfoModels,
     this.musicInfoFavIDSet,
@@ -17,6 +17,7 @@ class FileRowItem extends StatelessWidget {
     this.playId,
   });
 
+  final bool lastItem;
   final int index;
   final List<MusicInfoModel> musicInfoModels;
   final AudioPlayerState audioPlayerState;
@@ -26,11 +27,28 @@ class FileRowItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var row;
     if (musicInfoModels[index].type == MusicInfoModel.TYPE_FOLD) {
-      return builderFold(context);
+      row = builderFold(context);
     } else {
-      return builder(context);
+      row = builder(context);
     }
+
+    if (lastItem) {
+      return row;
+    }
+
+    return Column(
+      children: <Widget>[
+        row,
+        const Divider(
+          thickness: 0.5,
+          indent: 70,
+          endIndent: 20,
+          height: 0.40,
+        ),
+      ],
+    );
   }
 
   Widget builderFold(BuildContext context) {
@@ -79,16 +97,12 @@ class FileRowItem extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 musicInfoModels[index].name,
-                                style: themeData.textTheme.title,
                                 maxLines: 1,
+                                style: themeData.primaryTextTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
-                        ),
-                        const Padding(padding: EdgeInsets.only(top: 8.0)),
-                        Text(
-                          musicInfoModels[index].fullpath,
                         ),
                       ],
                     ),
@@ -123,30 +137,19 @@ class FileRowItem extends StatelessWidget {
 
   Widget builder(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-    MusicInfoModel _musicInfoModel = musicInfoModels[index];
-    List<MusicInfoModel> mims =
-        musicInfoModels.getRange(0, musicInfoModels.length).toList();
-    mims.removeWhere((music) {
-      return music.type == MusicInfoModel.TYPE_FOLD;
-    });
-    int offset = musicInfoModels.length - mims.length;
 
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        // todo 2 to 1
-        Provider.of<MusicInfoData>(context, listen: false)
-            .setMusicInfoList(mims);
-        Provider.of<MusicInfoData>(context, listen: false)
-            .setPlayIndex(index - offset);
+        print("asdfasdfjasfjalsf:" + index.toString());
 
-        eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
+        MusicControlService.play(context, musicInfoModels, index);
       },
       child: Container(
         color: playId == musicInfoModels[index].id &&
                 audioPlayerState == AudioPlayerState.PLAYING
-            ? themeData.textSelectionColor
-            : themeData.backgroundColor,
+            ? themeData.highlightColor
+            : themeData.cardColor,
         child: SafeArea(
           top: false,
           bottom: false,
@@ -201,7 +204,8 @@ class FileRowItem extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            !musicInfoFavIDSet.contains(_musicInfoModel.id)
+                            !musicInfoFavIDSet
+                                    .contains(musicInfoModels[index].id)
                                 ? Text("")
                                 : Flex(
                                     direction: Axis.horizontal,
@@ -217,7 +221,7 @@ class FileRowItem extends StatelessWidget {
                               child: Text(
                                 musicInfoModels[index].name,
                                 maxLines: 1,
-                                style: themeData.textTheme.title,
+                                style: themeData.primaryTextTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -225,7 +229,8 @@ class FileRowItem extends StatelessWidget {
                         ),
                         const Padding(padding: EdgeInsets.only(top: 8.0)),
                         Text(
-                          musicInfoModels[index].fullpath,
+                          musicInfoModels[index].filesize ?? "",
+                          style: themeData.primaryTextTheme.subtitle,
                         ),
                       ],
                     ),

@@ -33,7 +33,7 @@ dependencies:
   http_server:
   provider: ^4.0.4
   dart_tags: ^0.2.3
-  carousel_slider: ^1.4.1
+  carousel_slider: ^2.0.0
   image_picker:
   fluttertoast: ^4.0.0
   logging:

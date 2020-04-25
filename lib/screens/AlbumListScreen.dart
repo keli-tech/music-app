@@ -63,6 +63,10 @@ class _AlbumListScreen extends State<AlbumListScreen> {
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
       navigationBar: CupertinoNavigationBar(
+        middle: Text(
+          "专辑",
+          style: themeData.primaryTextTheme.title,
+        ),
         backgroundColor: themeData.backgroundColor,
       ),
       child: RefreshIndicator(
@@ -109,7 +113,7 @@ class _AlbumListScreen extends State<AlbumListScreen> {
               ),
               Container(
                 padding:
-                    EdgeInsets.only(left: 5.0, right: 5.0, top: 0, bottom: 0.0),
+                    EdgeInsets.only(left: 5.0, right: 5.0, top: 0, bottom: 30.0),
                 height: _windowHeight -
                     _bottomBarHeight -
                     50 -
@@ -125,9 +129,9 @@ class _AlbumListScreen extends State<AlbumListScreen> {
                               //Grid
                               gridDelegate:
                                   new SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2, //Grid按两列显示
+                                crossAxisCount: 3,
                                 mainAxisSpacing: 10.0,
-                                crossAxisSpacing: 10.0,
+                                crossAxisSpacing: 15.0,
                                 childAspectRatio: 1,
                               ),
                               delegate: new SliverChildBuilderDelegate(
@@ -165,9 +169,8 @@ class _AlbumListScreen extends State<AlbumListScreen> {
                                         ));
                                       },
                                       leading: Text(
-                                          '${index + 1}. ' +
-                                              _artistListModels[index]
-                                                  ["artist"],
+                                        '${index + 1}. ' +
+                                            _artistListModels[index]["artist"],
                                       ),
                                     ),
                                   );
@@ -275,13 +278,13 @@ class Tab1RowItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
                     Container(
-                        height: 50,
+                        height: 40,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(8.0),
                             bottomRight: Radius.circular(8.0),
                           ),
-                          color: Colors.white70,
+                          color: themeData.highlightColor,
                         ),
                         child: Row(children: <Widget>[
                           Expanded(
@@ -292,11 +295,13 @@ class Tab1RowItem extends StatelessWidget {
                                 Text(
                                   '${musicPlayListModel.name}',
                                   maxLines: 1,
+                                  style: themeData.primaryTextTheme.subtitle,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   '${musicPlayListModel.artist}',
                                   maxLines: 1,
+                                  style: themeData.primaryTextTheme.subtitle,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -306,7 +311,7 @@ class Tab1RowItem extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             child: const Icon(
                               Icons.play_circle_outline,
-                              size: 35,
+                              size: 30,
                             ),
                             onPressed: () async {
                               var _musicInfoModels = await DBProvider.db

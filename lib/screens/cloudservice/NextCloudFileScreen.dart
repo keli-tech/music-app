@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_world/components/WebDavFileRowItem.dart';
+import 'package:hello_world/components/rowitem/WebDavFileRowItem.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
@@ -71,11 +71,15 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
     ThemeData themeData = Theme.of(context);
 
     return CupertinoPageScaffold(
+        backgroundColor: themeData.backgroundColor,
         navigationBar: CupertinoNavigationBar(
+          backgroundColor: themeData.backgroundColor,
           middle: Text(
             widget.title,
+            style: themeData.primaryTextTheme.title,
           ),
           trailing: CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: () {
               showCupertinoModalPopup(
                 context: context,
@@ -89,7 +93,6 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
               color: themeData.primaryColor,
             ),
           ),
-          backgroundColor: themeData.backgroundColor,
         ),
         child: _isLoading
             ? new Container(
@@ -115,6 +118,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
                           delegate: SliverChildBuilderDelegate(
                             (BuildContext context, int index) {
                               return WebDavFileRowItem(
+                                lastItem: index == _files.length - 1,
                                 index: index,
                                 file: _files[index],
                                 downloadedFiles: _downloadedFiles,

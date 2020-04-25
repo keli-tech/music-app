@@ -2,7 +2,7 @@
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_world/components/FileRowItem.dart';
+import 'package:hello_world/components/rowitem/FileRowItem.dart';
 import 'package:hello_world/screens/CloudServiceScreen.dart';
 import 'package:hello_world/services/AdmobService.dart';
 import 'package:provider/provider.dart';
@@ -92,6 +92,10 @@ class _FileListScreen extends State<FileListScreen>
     return CupertinoPageScaffold(
         backgroundColor: themeData.backgroundColor,
         navigationBar: CupertinoNavigationBar(
+          middle: Text(
+            "文件",
+            style: themeData.primaryTextTheme.title,
+          ),
           backgroundColor: themeData.backgroundColor,
         ),
         child: RefreshIndicator(
@@ -104,7 +108,8 @@ class _FileListScreen extends State<FileListScreen>
               children: <Widget>[
                 Container(
                   child: AdmobBanner(
-                    adUnitId: AdMobService.getBannerAdUnitId(FileListScreen.className),
+                    adUnitId: AdMobService.getBannerAdUnitId(
+                        FileListScreen.className),
                     adSize: bannerSize,
                     listener: (AdmobAdEvent event, Map<String, dynamic> args) {
                       AdMobService.handleEvent(event, args, 'Banner');
@@ -156,6 +161,8 @@ class _FileListScreen extends State<FileListScreen>
                                       delegate: SliverChildBuilderDelegate(
                                         (BuildContext context, int index) {
                                           return FileRowItem(
+                                            lastItem: index ==
+                                                _musicInfoModels.length - 1,
                                             index: index,
                                             musicInfoModels: _musicInfoModels,
                                             audioPlayerState:
