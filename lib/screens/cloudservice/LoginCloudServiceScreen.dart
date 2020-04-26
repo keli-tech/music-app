@@ -94,7 +94,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                       bottom: BorderSide(
                           width: 0.0, color: CupertinoColors.inactiveGray)),
                 ),
-                placeholder: 'http://192.168.10.100:8081/remote.php/webdev',
+                placeholder: 'http://192.168.10.100:8081/',
               ),
               CupertinoTextField(
                 controller: _accountTextController,

@@ -30,9 +30,6 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
   _refreshList() {
     try {
       CloudService.cs.getCloudServiceList().then((onValue) {
-        print("=============");
-        print(onValue);
-        print("333333333333333333");
         setState(() {
           _cloudServiceModels = onValue;
         });

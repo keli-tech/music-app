@@ -111,6 +111,9 @@ class DBProvider {
     var res = await db.query("music_play_list", where: "id = ?", whereArgs: [
       mplID,
     ]);
+
+//    await db.execute(
+//        "create unique index if not exists mi_index ON music_info (name, type, artist, title, path)");
 //
 //    await db.execute("drop table cloud_service;");
 //
@@ -401,26 +404,33 @@ class DBProvider {
     return raw;
   }
 
-  newMusicInfo(MusicInfoModel newMusicInfo) async {
+  Future<int> newMusicInfo(MusicInfoModel newMusicInfo) async {
     final db = await database;
-    var raw = await db.rawInsert(
-        "INSERT Into music_info (name,path,fullpath,type,syncstatus,title,artist,album,filesize,sourcepath,sort,updatetime)"
-        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-        [
-          newMusicInfo.name,
-          newMusicInfo.path,
-          newMusicInfo.fullpath,
-          newMusicInfo.type,
-          newMusicInfo.syncstatus,
-          newMusicInfo.title,
-          newMusicInfo.artist,
-          newMusicInfo.album,
-          newMusicInfo.filesize,
-          newMusicInfo.sourcepath,
-          newMusicInfo.sort,
-          newMusicInfo.updatetime,
-        ]);
-    return raw;
+
+    var res = await db.rawQuery(
+        "select count(1) as cc from music_info where name = '${newMusicInfo.name}' and path = '${newMusicInfo.path}'");
+    if (res != null && res.length > 0 && res[0]['cc'] >= 1) {
+      return 0;
+    } else {
+      var raw = await db.rawInsert(
+          "INSERT Into music_info (name,path,fullpath,type,syncstatus,title,artist,album,filesize,sourcepath,sort,updatetime)"
+          " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+          [
+            newMusicInfo.name,
+            newMusicInfo.path,
+            newMusicInfo.fullpath,
+            newMusicInfo.type,
+            newMusicInfo.syncstatus,
+            newMusicInfo.title,
+            newMusicInfo.artist,
+            newMusicInfo.album,
+            newMusicInfo.filesize,
+            newMusicInfo.sourcepath,
+            newMusicInfo.sort,
+            newMusicInfo.updatetime,
+          ]);
+      return raw;
+    }
   }
 
   //根据路径获取音乐列表
