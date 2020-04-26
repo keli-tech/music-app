@@ -2,27 +2,32 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
-import 'package:nextcloud/nextcloud.dart';
-import 'package:nextcloud/src/network.dart';
-import 'package:nextcloud/src/webdav/file.dart';
+
+import '../http/network.dart';
+import '../webdav/file.dart';
 
 /// WebDavClient class
 class WebDavClient {
   // ignore: public_member_api_docs
-  WebDavClient(
+  WebDavClient({
+    String rootPath,
+    String scheme,
     String host,
     String username,
-    String password, {
+    String password,
     int port,
   }) {
     if (port == null) {
-      _baseUrl = 'http://$host';
+      _baseUrl = '$scheme://$host';
     } else {
-      _baseUrl = 'http://$host:$port';
+      _baseUrl = '$scheme://$host:$port';
     }
     final client = NextCloudHttpClient(username, password);
     _network = Network(client);
+    _rootPath = rootPath;
   }
+
+  String _rootPath;
 
   String _baseUrl;
 
@@ -35,11 +40,11 @@ class WebDavClient {
     if (path.startsWith('/')) {
       // Since the base url ends with '/' by default trim of one char at the
       // beginning of the path
-      return '$_baseUrl/remote.php/webdav/${path.substring(1, path.length)}';
+      return '$_baseUrl$_rootPath${path.substring(1, path.length)}';
     }
 
     // If the path does not start with '/' append it after the baseUrl
-    return [_baseUrl, '/remote.php/webdav/', path].join('');
+    return [_baseUrl, '$_rootPath', path].join('');
   }
 
   /// make a dir with [path] under current dir

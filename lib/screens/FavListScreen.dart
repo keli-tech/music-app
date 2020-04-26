@@ -13,12 +13,12 @@ import 'package:provider/provider.dart';
 import '../models/MusicInfoModel.dart';
 import '../services/Database.dart';
 
-class MusicFavListScreen extends StatefulWidget {
+class FavListScreen extends StatefulWidget {
   @override
-  _MusicFavListScreen createState() => _MusicFavListScreen();
+  _FavListScreen createState() => _FavListScreen();
 }
 
-class _MusicFavListScreen extends State<MusicFavListScreen>
+class _FavListScreen extends State<FavListScreen>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
   Animation<double> animation;
@@ -28,7 +28,7 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
 
   MusicPlayListModel _favPlayListInfo;
 
-  Logger _logger = new Logger("MusicFavListScreen");
+  Logger _logger = new Logger("FavListScreen");
 
   bool _isLoding = false;
   TextEditingController _chatTextController;
@@ -36,6 +36,7 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
   @override
   void initState() {
     super.initState();
+    _logger.info("initState");
 
     _chatTextController = TextEditingController();
 
@@ -45,26 +46,15 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
   //销毁
   @override
   void dispose() {
-    super.dispose();
-  }
+    _logger.info("dispose");
 
-  @override
-  void reassemble() {
-    super.reassemble();
-    print("mfl sreassemble");
+    super.dispose();
   }
 
   @override
   void deactivate() {
     super.deactivate();
     _logger.info("deactivate");
-
-    _refreshList();
-  }
-
-  @override
-  void didUpdateWidget(Widget oldWidget) {
-    super.didUpdateWidget(oldWidget);
 
     _refreshList();
   }
@@ -103,6 +93,8 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
     var windowHeight = MediaQuery.of(context).size.height;
     var windowWidth = MediaQuery.of(context).size.width;
+
+    print("rebuild");
 
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
@@ -190,6 +182,7 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                   (BuildContext context, int index) {
                     return PlayListRowItem(
                       index: index,
+                      lastItem: index == _musicPlayListModels.length - 1,
                       musicPlayListModel: _musicPlayListModels[index],
                     );
                   },
@@ -381,13 +374,15 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                               child: Text(
                                 '我喜欢的音乐',
                                 maxLines: 1,
+                                style: themeData.primaryTextTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             CupertinoButton(
                               padding: EdgeInsets.zero,
-                              child: const Icon(
+                              child: Icon(
                                 Icons.play_circle_outline,
+                                color: themeData.primaryTextTheme.title.color,
                                 size: 35,
                               ),
                               onPressed: () async {
@@ -460,13 +455,15 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                               child: Text(
                                 '最近100首播放',
                                 maxLines: 1,
+                                style: themeData.primaryTextTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             CupertinoButton(
                               padding: EdgeInsets.zero,
-                              child: const Icon(
+                              child:  Icon(
                                 Icons.play_circle_outline,
+                                color: themeData.primaryTextTheme.title.color,
                                 size: 35,
                               ),
                               onPressed: () {},
@@ -497,6 +494,13 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                 keyboardType: TextInputType.text,
                 autocorrect: false,
                 autofocus: true,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 0.0,
+                    color: CupertinoColors.inactiveGray,
+                  ),
+                  color: Colors.white,
+                ),
               ),
               actions: <Widget>[
                 CupertinoDialogAction(
@@ -554,6 +558,13 @@ class _MusicFavListScreen extends State<MusicFavListScreen>
                 keyboardType: TextInputType.text,
                 autocorrect: false,
                 autofocus: true,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 0.0,
+                    color: CupertinoColors.inactiveGray,
+                  ),
+                  color: Colors.white,
+                ),
               ),
               actions: <Widget>[
                 CupertinoDialogAction(

@@ -36,42 +36,6 @@ class _FileListScreen extends State<FileListScreen>
 
     _refreshList(path);
     bannerSize = AdmobBannerSize.FULL_BANNER;
-
-//    MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-//      keywords: <String>['flutterio', 'beautiful apps'],
-//      contentUrl: 'https://flutter.io',
-//      birthday: DateTime.now(),
-//      childDirected: false,
-//      designedForFamilies: false,
-//      gender: MobileAdGender.male, // or MobileAdGender.female, MobileAdGender.unknown
-//      testDevices: <String>[], // Android emulators are considered test devices
-//    );
-//
-//    BannerAd myBanner = BannerAd(
-//      // Replace the testAdUnitId with an ad unit id from the AdMob dash.
-//      // https://developers.google.com/admob/android/test-ads
-//      // https://developers.google.com/admob/ios/test-ads
-//      adUnitId: BannerAd.testAdUnitId,
-//      size: AdSize.smartBanner,
-//      targetingInfo: targetingInfo,
-//      listener: (MobileAdEvent event) {
-//        print("BannerAd event is $event");
-//      },
-//    );
-//
-//
-//    myBanner
-//    // typically this happens well before the ad is shown
-//      ..load()
-//      ..show(
-//        // Positions the banner ad 60 pixels from the bottom of the screen
-//        anchorOffset: 60.0,
-//        // Positions the banner ad 10 pixels from the center of the screen to the right
-//        horizontalCenterOffset: 10.0,
-//        // Banner Position
-//        anchorType: AnchorType.bottom,
-//      );
-//
   }
 
   _refreshList(String path) async {
@@ -88,6 +52,8 @@ class _FileListScreen extends State<FileListScreen>
     var _windowHeight = MediaQuery.of(context).size.height;
     var _bottomBarHeight = MediaQuery.of(context).padding.bottom;
     var _windowWidth = MediaQuery.of(context).size.width;
+
+    double _statusBarHeight = MediaQuery.of(context).padding.top;
 
     return CupertinoPageScaffold(
         backgroundColor: themeData.backgroundColor,
@@ -161,6 +127,7 @@ class _FileListScreen extends State<FileListScreen>
                                       delegate: SliverChildBuilderDelegate(
                                         (BuildContext context, int index) {
                                           return FileRowItem(
+                                            statusBarHeight: _statusBarHeight,
                                             lastItem: index ==
                                                 _musicInfoModels.length - 1,
                                             index: index,

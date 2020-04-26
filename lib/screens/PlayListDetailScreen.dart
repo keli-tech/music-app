@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hello_world/components/modals/FileSelectorContainer.dart';
 import 'package:hello_world/components/rowitem/MusicRowItem.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
@@ -44,8 +43,9 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
   void initState() {
     super.initState();
 
-    _chatTextController = TextEditingController();
-    _chatTextController.text = widget.musicPlayListModel.name;
+    _chatTextController = TextEditingController(
+      text: widget.musicPlayListModel.name,
+    );
 
     _refreshList();
   }
@@ -96,6 +96,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
 
     ThemeData themeData = Theme.of(context);
     return CupertinoPageScaffold(
+      backgroundColor: themeData.backgroundColor,
       navigationBar: CupertinoNavigationBar(
         backgroundColor: themeData.backgroundColor,
         middle: Text(
@@ -121,29 +122,32 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
       child: CustomScrollView(
         semanticChildCount: _musicInfoModels.length,
         slivers: <Widget>[
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            forceElevated: true,
-            elevation: 5,
-            stretch: true,
-            backgroundColor: themeData.highlightColor,
-            expandedHeight: width * 0.8,
-            flexibleSpace: Hero(
-              tag: widget.musicPlayListModel.id,
-              child: Container(
+          _image == null || !_image.existsSync()
+              ? SliverPadding(
+                  padding:
+                      EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 1),
+                )
+              : SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  forceElevated: true,
+                  elevation: 5,
+                  stretch: true,
+                  backgroundColor: themeData.backgroundColor,
+                  expandedHeight: width * 0.8,
+                  flexibleSpace: Hero(
+                    tag: widget.musicPlayListModel.id,
+                    child: Container(
 //                padding: EdgeInsets.only(left: 70, top: 0, right: 0, bottom: 70),
-                decoration: new BoxDecoration(
-                  color: Colors.white.withOpacity(0.0),
-                  image: new DecorationImage(
-                    fit: BoxFit.cover,
-                    image: _image == null || !_image.existsSync()
-                        ? FileManager.musicAlbumPictureImage("1", "1")
-                        : FileImage(_image),
+                      decoration: new BoxDecoration(
+                        color: Colors.white.withOpacity(0.0),
+                        image: new DecorationImage(
+                          fit: BoxFit.cover,
+                          image: FileImage(_image),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
           Consumer<MusicInfoData>(
             builder: (context, musicInfoData, _) => SliverPadding(
               padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 70),
@@ -289,14 +293,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                     DBProvider.db
                         .deleteMusicPlayList(widget.musicPlayListModel.id)
                         .then((onValue) {
-                      Fluttertoast.showToast(
-                          msg: "已删除歌单",
-                          toastLength: Toast.LENGTH_LONG,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.black45,
-                          textColor: Colors.white,
-                          fontSize: 13.0);
+                      ToastUtils.show("已删除歌单");
                       Navigator.pop(context);
                     });
                   },
@@ -339,6 +336,13 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                 keyboardType: TextInputType.text,
                 autocorrect: false,
                 autofocus: true,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 0.0,
+                    color: CupertinoColors.inactiveGray,
+                  ),
+                  color: Colors.white,
+                ),
               ),
               actions: <Widget>[
                 CupertinoDialogAction(

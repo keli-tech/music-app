@@ -1,22 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/rowitem/WebDavFileRowItem.dart';
+import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
-import 'package:nextcloud/nextcloud.dart';
+import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:hello_world/utils/webdav/file.dart';
 import 'package:provider/provider.dart';
 
 class NextCloudFileScreen extends StatefulWidget {
-  NextCloudFileScreen({Key key, this.musicInfoModel, this.path, this.title})
-      : super(key: key);
+  NextCloudFileScreen({
+    Key key,
+    this.cloudServiceModel,
+    this.path,
+    this.filePath,
+    this.title,
+  }) : super(key: key);
 
   static const String routeName = '/filelist2';
 
   String path = "/";
   String title = "";
+  String filePath = "";
 
-  MusicInfoModel musicInfoModel;
+  CloudServiceModel cloudServiceModel;
 
   @override
   _NextCloudFileScreen createState() => _NextCloudFileScreen();
@@ -34,6 +42,10 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
   void initState() {
     super.initState();
     _refreshList(widget.path);
+
+    if (widget.cloudServiceModel != null) {
+      CloudService.cs.initWebDavClient(widget.cloudServiceModel);
+    }
   }
 
   //销毁
@@ -48,20 +60,26 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
       _isLoading = true;
     });
     List<String> downloadedFiles = [];
-    List<MusicInfoModel> nextCloudPath =
-        await DBProvider.db.getMusicInfoByPath("/nextcloud/");
-    nextCloudPath.forEach((f) {
-      downloadedFiles.add(f.sourcepath);
-    });
 
-    CloudService.nextCloudClientc.list(path).then((files) {
+    try {
+      List<MusicInfoModel> nextCloudPath =
+          await DBProvider.db.getMusicInfoByPath(widget.filePath.toLowerCase());
+      if (nextCloudPath.length >= 1) {
+        nextCloudPath.forEach((f) {
+          downloadedFiles.add(f.sourcepath);
+        });
+      }
+    } catch (error) {
+      print(error);
+    }
+
+    CloudService.cs.list(path).then((files) {
       setState(() {
         _isLoading = false;
         _files = files;
         _downloadedFiles = downloadedFiles;
       });
     }).catchError((error) {
-      print('failed');
       print(error);
     });
   }
@@ -84,7 +102,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
               showCupertinoModalPopup(
                 context: context,
                 builder: (BuildContext context1) {
-                  return actionSheet(context1, context);
+                  return _actionSheet(context1, context);
                 },
               );
             },
@@ -121,7 +139,9 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
                                 lastItem: index == _files.length - 1,
                                 index: index,
                                 file: _files[index],
+                                filePath: widget.filePath,
                                 downloadedFiles: _downloadedFiles,
+                                cloudServiceModel: widget.cloudServiceModel,
 //                          playId: musicInfoData.musicInfoModel.id,
 //                          audioPlayerState: musicInfoData.audioPlayerState,
 //                          musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,
@@ -139,17 +159,40 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
   }
 
   // 底部弹出菜单actionSheet
-  Widget actionSheet(BuildContext context1, BuildContext context) {
+  Widget _actionSheet(BuildContext context1, BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
     return new CupertinoActionSheet(
       actions: <Widget>[
+//        CupertinoActionSheetAction(
+//          child: Text(
+//            '下载本页文件',
+//          ),
+//          onPressed: () {
+//            Navigator.of(context1).pop();
+//
+//            // download
+//          },
+//        ),
         CupertinoActionSheetAction(
           child: Text(
-            '下载文件夹内音乐文件',
+            '退出账号',
           ),
           onPressed: () {
-            Navigator.of(context1).pop();
+            var updateValue = {
+              "password": "",
+              "signedin": false,
+              "updatetime": 0,
+            };
+            CloudService.cs
+                .updateCloudService(widget.cloudServiceModel.id, updateValue)
+                .then((res) {
+              if (res > 0) {
+                Navigator.of(context1).pop();
+                Navigator.of(context).pop();
+                ToastUtils.show("已成功退出");
+              }
+            });
 
             // download
           },

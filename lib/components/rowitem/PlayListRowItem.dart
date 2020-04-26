@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/screens/PlayListDetailScreen.dart';
+import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
+import 'package:hello_world/services/MusicControlService.dart';
 
 class PlayListRowItem extends StatelessWidget {
   const PlayListRowItem({
@@ -81,12 +83,17 @@ class PlayListRowItem extends StatelessWidget {
               ),
               CupertinoButton(
                 padding: EdgeInsets.zero,
-                child: const Icon(
+                child: Icon(
                   Icons.play_circle_outline,
-                  size: 35,
-                  semanticLabel: 'Add',
+                  color: themeData.primaryTextTheme.title.color,
+                  size: 25,
                 ),
-                onPressed: () {},
+                onPressed: () async {
+                  var _musicInfoModels = await DBProvider.db
+                      .getMusicInfoByPlayListId(musicPlayListModel.id);
+
+                  MusicControlService.play(context, _musicInfoModels, 0);
+                },
               ),
             ],
           ),
@@ -94,6 +101,20 @@ class PlayListRowItem extends StatelessWidget {
       ),
     );
 
-    return row;
+    if (lastItem) {
+      return row;
+    }
+
+    return Column(
+      children: <Widget>[
+        row,
+        const Divider(
+          thickness: 0.5,
+          endIndent: 5,
+          indent: 5,
+          height: 0.40,
+        ),
+      ],
+    );
   }
 }

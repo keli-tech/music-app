@@ -201,7 +201,7 @@ class _AlbumListScreen extends State<AlbumListScreen> {
   }
 
   // 底部弹出菜单actionSheet
-  Widget actionSheet(BuildContext context1, BuildContext context) {
+  Widget _actionSheet(BuildContext context1, BuildContext context) {
     ThemeData themeData = Theme.of(context);
     var windowHeight = MediaQuery.of(context).size.height;
 
@@ -295,7 +295,7 @@ class Tab1RowItem extends StatelessWidget {
                                 Text(
                                   '${musicPlayListModel.name}',
                                   maxLines: 1,
-                                  style: themeData.primaryTextTheme.subtitle,
+                                  style: themeData.primaryTextTheme.title,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
@@ -309,8 +309,9 @@ class Tab1RowItem extends StatelessWidget {
                           ),
                           CupertinoButton(
                             padding: EdgeInsets.zero,
-                            child: const Icon(
+                            child: Icon(
                               Icons.play_circle_outline,
+                              color: themeData.primaryTextTheme.title.color,
                               size: 30,
                             ),
                             onPressed: () async {

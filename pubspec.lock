@@ -129,7 +129,7 @@ packages:
     source: hosted
     version: "4.0.1"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       url: "https://pub.dartlang.org"
@@ -164,7 +164,7 @@ packages:
     source: hosted
     version: "0.6.5"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       url: "https://pub.dartlang.org"
@@ -205,13 +205,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.4"
-  nextcloud:
-    dependency: "direct main"
-    description:
-      path: "dependencies/nextcloud-1.0.16"
-      relative: true
-    source: path
-    version: "1.0.16"
   path:
     dependency: "direct main"
     description:

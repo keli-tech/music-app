@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
 import 'package:hello_world/services/CloudService.dart';
-import 'package:nextcloud/nextcloud.dart';
+import 'package:hello_world/utils/webdav/file.dart';
 
 class WebDavFileRowItem extends StatefulWidget {
   @override
@@ -13,15 +14,19 @@ class WebDavFileRowItem extends StatefulWidget {
     this.lastItem,
     this.index,
     this.file,
+    this.filePath,
     this.downloadedFiles,
+    this.cloudServiceModel,
   }) : super(key: key);
 
   int statusBarHeight;
 
+  final String filePath;
   final bool lastItem;
   final int index;
   final WebDavFile file;
   List<String> downloadedFiles;
+  CloudServiceModel cloudServiceModel;
 }
 
 class _WebDavFileRowItem extends State<WebDavFileRowItem> {
@@ -67,6 +72,8 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
   Widget builderFold(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
+    print(widget.cloudServiceModel);
+
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -75,6 +82,8 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
           builder: (BuildContext context) => NextCloudFileScreen(
             title: widget.file.name.toString(),
             path: widget.file.path,
+            filePath: widget.filePath,
+            cloudServiceModel: widget.cloudServiceModel,
           ),
         ));
       },
@@ -150,7 +159,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
         setState(() {
           _status = 1;
         });
-        CloudService.nextCloudClientc.download(widget.file).then((res) {
+        CloudService.cs.download(widget.filePath, widget.file).then((res) {
           setState(() {
             _status = 2;
           });
@@ -211,7 +220,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                           )
                         : Icon(
                             Icons.check_box,
-                            color: themeData.primaryColor,
+                            color: Colors.green,
                           )),
                 SizedBox(
                   width: 8,
@@ -227,7 +236,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
   }
 
   // 底部弹出菜单actionSheet
-  Widget actionSheet(BuildContext context1, BuildContext context) {
+  Widget _actionSheet(BuildContext context1, BuildContext context) {
     ThemeData themeData = Theme.of(context);
     var windowHeight = MediaQuery.of(context).size.height;
 

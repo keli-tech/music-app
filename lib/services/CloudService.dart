@@ -1,25 +1,78 @@
 import 'dart:io';
 
 import 'package:dart_tags/dart_tags.dart';
+import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
+import 'package:hello_world/utils/webdav/client.dart';
+import 'package:hello_world/utils/webdav/file.dart';
 import 'package:mime/mime.dart';
-import 'package:nextcloud/nextcloud.dart';
 
 class CloudService {
   CloudService._();
 
-  static final CloudService nextCloudClientc = CloudService._();
+  static final CloudService cs = CloudService._();
 
-  NextCloudClient _ncClient;
+  WebDavClient _ncClient;
 
-  Future<NextCloudClient> get ncClient async {
-    if (_ncClient != null) return _ncClient;
-    // if _database is null we instantiate it
+  static String getRootPath(CloudServiceModel cloudServiceModel, String host) {
+    if (cloudServiceModel.name.toLowerCase() == "nextcloud") {
+      return "/remote.php/webdav/";
+    } else {
+//      var a = Uri.parse(host);
+//      var paths = a.pathSegments;
+//      var patharr= paths.getRange(0, paths.length).toList();
+//
+//      patharr.removeWhere((value) => value == null || value == '');
+//
+//       paths.join("/");
+      return "/";
+    }
+  }
 
-    _ncClient = NextCloudClient('192.168.31.28', 'fence', 'ekstox', port: 801);
+  static Future<bool> testWebDavClient(CloudServiceModel cloudServiceModel,
+      String host, String account, String password) async {
+    var a = Uri.parse(host);
+    String _rootPath = getRootPath(cloudServiceModel, host);
+
+    var ncClient = WebDavClient(
+      host: a.host,
+      rootPath: _rootPath,
+      scheme: a.scheme,
+      port: a.port,
+      username: account,
+      password: password,
+    );
+    String indexPath = "/";
+    if (cloudServiceModel.name.toLowerCase() == '坚果云') {
+      indexPath = "dav";
+    }
+
+    try {
+      var res = await ncClient.ls(indexPath);
+    } catch (error) {
+      print(error);
+      return false;
+    }
+    return true;
+  }
+
+  initWebDavClient(CloudServiceModel cloudServiceModel) {
+    var a = Uri.parse(cloudServiceModel.url);
+
+    _ncClient = WebDavClient(
+      host: cloudServiceModel.host,
+      scheme: a.scheme,
+      rootPath: getRootPath(cloudServiceModel, cloudServiceModel.url),
+      username: cloudServiceModel.account,
+      password: cloudServiceModel.password,
+      port: int.parse(cloudServiceModel.port),
+    );
+  }
+
+  Future<WebDavClient> get ncClient async {
     return _ncClient;
   }
 
@@ -27,7 +80,7 @@ class CloudService {
   Future<List<WebDavFile>> list(String path) async {
     final client = await ncClient;
 
-    return client.webDav.ls(path).then((files) {
+    return client.ls(path).then((files) {
       files.removeWhere((WebDavFile f) =>
           !f.isDirectory &&
           ![
@@ -42,17 +95,18 @@ class CloudService {
   }
 
   // 下载文件
-  Future<bool> download(WebDavFile webDavFile) async {
+  Future<bool> download(String filePath, WebDavFile webDavFile) async {
     final client = await ncClient;
 
     bool res = true;
-    await client.webDav.download(webDavFile.path).then((data) async {
-      var file = await FileManager.localCloudFile("nextcloud", webDavFile.name);
+    await client.download(webDavFile.path).then((data) async {
+      var file = await FileManager.localCloudFile(filePath, webDavFile.name);
+
       await file.writeAsBytes(data, mode: FileMode.WRITE).then((_) async {
         MusicInfoModel musicInfoModel = await analyseMusicFile(file);
         musicInfoModel.name = webDavFile.name;
-        musicInfoModel.path = "/nextcloud/";
-        musicInfoModel.fullpath = "/nextcloud/" + musicInfoModel.name;
+        musicInfoModel.path = filePath;
+        musicInfoModel.fullpath = filePath + musicInfoModel.name;
         musicInfoModel.sourcepath = webDavFile.path;
         musicInfoModel.updatetime = new DateTime.now().millisecondsSinceEpoch;
 
@@ -124,7 +178,6 @@ class CloudService {
         .writeAsBytes(picture.imageData, mode: FileMode.WRITE)
         .then((_) async {});
 
-//    print(trackID);
     MusicInfoModel newMusicInfo = MusicInfoModel(
         name: title + "." + mimeType,
         title: title,
@@ -138,5 +191,35 @@ class CloudService {
         syncstatus: true);
 
     return newMusicInfo;
+  }
+
+  //根据播放列表
+  Future<List<CloudServiceModel>> getCloudServiceList() async {
+    final db = await DBProvider.db.database;
+
+    List<CloudServiceModel> list = [];
+    try {
+      var res = await db.query("cloud_service",
+          orderBy: "updatetime desc, id asc", whereArgs: []);
+
+      list = res.isNotEmpty
+          ? res.map((c) => CloudServiceModel.fromMap(c)).toList()
+          : [];
+    } catch (err) {
+      print(err);
+    }
+    return list;
+  }
+
+  //根据播放列表
+  Future<int> updateCloudService(int id, Map updateValue) async {
+    final db = await DBProvider.db.database;
+
+    var res = await db
+        .update("cloud_service", updateValue, where: " id = ?", whereArgs: [
+      id,
+    ]);
+
+    return res;
   }
 }

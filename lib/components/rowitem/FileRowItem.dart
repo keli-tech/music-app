@@ -1,16 +1,21 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/common/Global.dart';
+import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/FileList2Screen.dart';
-import 'package:hello_world/screens/MyHttpServer.dart';
+import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
+import 'package:hello_world/utils/ToastUtils.dart';
 
 class FileRowItem extends StatelessWidget {
   const FileRowItem({
     this.lastItem,
+    this.statusBarHeight,
     this.index,
+    this.mplID,
     this.musicInfoModels,
     this.musicInfoFavIDSet,
     this.audioPlayerState,
@@ -18,7 +23,10 @@ class FileRowItem extends StatelessWidget {
   });
 
   final bool lastItem;
+  final int mplID;
+
   final int index;
+  final double statusBarHeight;
   final List<MusicInfoModel> musicInfoModels;
   final AudioPlayerState audioPlayerState;
   final Set<int> musicInfoFavIDSet;
@@ -115,14 +123,12 @@ class FileRowItem extends StatelessWidget {
                     semanticLabel: 'Add',
                   ),
                   onPressed: () {
-                    Navigator.of(context).push(CupertinoPageRoute<void>(
-                      title: "hehe2",
-                      builder: (BuildContext context) => MyHttpServer(
-                          // color: color,
-                          // colorName: colorName,
-                          // index: index,
-                          ),
-                    ));
+                    showCupertinoModalPopup(
+                      context: context,
+                      builder: (BuildContext context1) {
+                        return _actionSheet(context1, context);
+                      },
+                    );
                   },
                 ),
               ],
@@ -148,7 +154,7 @@ class FileRowItem extends StatelessWidget {
       child: Container(
         color: playId == musicInfoModels[index].id &&
                 audioPlayerState == AudioPlayerState.PLAYING
-            ? themeData.highlightColor
+            ? themeData.selectedRowColor
             : themeData.cardColor,
         child: SafeArea(
           top: false,
@@ -243,14 +249,12 @@ class FileRowItem extends StatelessWidget {
                     semanticLabel: 'Add',
                   ),
                   onPressed: () {
-                    Navigator.of(context).push(CupertinoPageRoute<void>(
-                      title: "hehe",
-                      builder: (BuildContext context) => MyHttpServer(
-                          // color: color,
-                          // colorName: colorName,
-                          // index: index,
-                          ),
-                    ));
+                    showCupertinoModalPopup(
+                      context: context,
+                      builder: (BuildContext context1) {
+                        return _actionSheet(context1, context);
+                      },
+                    );
                   },
                 ),
               ],
@@ -261,5 +265,102 @@ class FileRowItem extends StatelessWidget {
     );
 
     return row;
+  }
+
+  Widget _actionSheet(BuildContext context1, BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+    var windowHeight = MediaQuery.of(context).size.height;
+    List<Widget> actionSheets = [];
+
+    actionSheets.add(CupertinoActionSheetAction(
+      child: Text(
+        '收藏到歌单',
+      ),
+      onPressed: () {
+        Navigator.pop(context1);
+
+        showModalBottomSheet<void>(
+            context: context,
+            useRootNavigator: false,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              return PlayListSelectorContainer(
+                title: "收藏到歌单",
+                mid: musicInfoModels[index].id,
+                statusBarHeight: statusBarHeight,
+              );
+            });
+
+//        showCupertinoModalPopup(
+//            context: context,
+//            builder: (BuildContext context) {
+//              return PlayListSelectorContainer(
+//                title: "添加到歌单",
+//                playListId: mplID,
+//                statusBarHeight: statusBarHeight,
+//              );
+//            });
+      },
+    ));
+    actionSheets.add(CupertinoActionSheetAction(
+        child: Text(
+          '删除音乐文件',
+        ),
+        isDestructiveAction: true,
+        onPressed: () {
+          Navigator.of(context1).pop();
+
+          showCupertinoDialog<String>(
+            context: context1,
+            builder: (BuildContext context1) => CupertinoAlertDialog(
+              title: const Text('删除确认'),
+              content: Text('是否删除\"' + musicInfoModels[index].fullpath + '\"?'),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text(
+                    '取消',
+                  ),
+                  isDefaultAction: true,
+                  onPressed: () => Navigator.pop(context1, 'Cancel'),
+                ),
+                CupertinoDialogAction(
+                  child: Text(
+                    '删除',
+                  ),
+                  isDestructiveAction: true,
+                  onPressed: () {
+                    DBProvider.db
+                        .deleteMusic(musicInfoModels[index].id)
+                        .then((onValue) {
+                      print(Global.profile.documentDirectory);
+                      FileManager.musicFile(musicInfoModels[index].fullpath)
+                          .delete();
+
+                      ToastUtils.show("已删除文件");
+
+                      Navigator.pop(context1);
+                    });
+                  },
+                ),
+              ],
+            ),
+          ).then((String value) {
+            if (value != null) {
+//                setState(() { lastSelectedValue = value; });
+            }
+          });
+        }));
+
+    return new CupertinoActionSheet(
+      actions: actionSheets,
+      cancelButton: CupertinoActionSheetAction(
+        child: Text(
+          '取消',
+        ),
+        onPressed: () {
+          Navigator.of(context1).pop();
+        },
+      ),
+    );
   }
 }

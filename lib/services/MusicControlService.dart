@@ -6,6 +6,9 @@ import 'package:provider/provider.dart';
 class MusicControlService {
   static play(
       BuildContext context, List<MusicInfoModel> musicInfoModels, int index) {
+    if (musicInfoModels.length <= 0) {
+      return;
+    }
     List<MusicInfoModel> mims =
         musicInfoModels.getRange(0, musicInfoModels.length).toList();
     mims.removeWhere((music) {

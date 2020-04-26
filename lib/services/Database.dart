@@ -8,7 +8,6 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../models/ClientModel.dart';
 import '../models/MusicInfoModel.dart';
 
 class DBProvider {
@@ -78,6 +77,30 @@ class DBProvider {
 
       await db.execute(
           "create unique index if not exists mid ON music_play_list_info (mpl_id, mi_id)");
+
+      // 云服务 Service
+      await db.execute("create table if not exists cloud_service("
+          "id INTEGER primary key autoincrement,"
+          "name TEXT," // 云服务名称
+          "assetspath TEXT," // 图标地址
+          "type TEXT," // webdav 留着待定
+          "url TEXT," // url webdav url
+          "host TEXT," // host 其他服务器 host, 包括 http / https
+          "port TEXT," // port 端口
+          "account TEXT," // 账号
+          "password TEXT," // 密码， 明文存储
+          "signedin bit," // true: 登录， false: 登出, 登出保留账号，清除密码;
+          "updatetime INT" // true: 登录， false: 登出, 登出保留账号，清除密码;
+          ")");
+
+      await db.execute(
+          "INSERT Into cloud_service (id,name,assetspath,signedin) VALUES "
+          "(1, '坚果云', 'assets/images/cloudicon/坚果云.png', false),"
+          "(2, 'NextCloud', 'assets/images/cloudicon/nextcloud.png', false),"
+          "(3, 'WebDav', 'assets/images/cloudicon/webdav.png', false)"
+//          "(4, '百度网盘', 'assets/images/cloudicon/baidu.png', false),"
+//          "(5, 'OneDrive', 'assets/images/cloudicon/onedrive.png', false)"
+          );
     });
   }
 
@@ -88,6 +111,29 @@ class DBProvider {
     var res = await db.query("music_play_list", where: "id = ?", whereArgs: [
       mplID,
     ]);
+//
+//    await db.execute("drop table cloud_service;");
+//
+//    await db.execute("create table if not exists cloud_service("
+//        "id INTEGER primary key autoincrement,"
+//        "name TEXT," // 云服务名称
+//        "assetspath TEXT," // 图标地址
+//        "type TEXT," // webdav 留着待定
+//        "url TEXT," // url webdav url
+//        "host TEXT," // host 其他服务器 host, 包括 http / https
+//        "port TEXT," // port 端口
+//        "account TEXT," // 账号
+//        "password TEXT," // 密码， 明文存储
+//        "signedin bit," // true: 登录， false: 登出, 登出保留账号，清除密码;
+//        "updatetime INT" // true: 登录， false: 登出, 登出保留账号，清除密码;
+//        ")");
+//
+//    await db.execute(
+//        "INSERT Into cloud_service (id,name,assetspath,signedin) VALUES "
+//            "(1, '坚果云', 'assets/images/cloudicon/坚果云.png', false),"
+//            "(2, 'NextCloud', 'assets/images/cloudicon/nextcloud.png', false),"
+//            "(3, 'WebDav', 'assets/images/cloudicon/webdav.png', false)"
+//    );
 
     return res.isNotEmpty ? MusicPlayListModel.fromMap(res.first) : null;
   }
@@ -411,7 +457,24 @@ class DBProvider {
 
   deleteMusic(int id) async {
     final db = await database;
-    return db.delete("music_info", where: "id = ?", whereArgs: [id]);
+
+    var musicInfo = await getMusic(id);
+
+    var albumCountRes = await db.rawQuery(
+        "select t1.mpl_id as mpl_id, count(*) as count from music_play_list_info as t1 "
+                "join music_play_list as t2 on t1.mpl_id = t2.id "
+                "where t1.mi_id = $id and t2.type ='" +
+            MusicPlayListModel.TYPE_ALBUM +
+            "' limit 1");
+    if (albumCountRes != null && albumCountRes[0]["count"] <= 1) {
+      deleteMusicPlayList(albumCountRes[0]["mpl_id"]);
+    }
+
+    var res2 =
+        db.delete("music_play_list_info", where: "mi_id = ?", whereArgs: [id]);
+    var res = await db.delete("music_info", where: "id = ?", whereArgs: [id]);
+
+    return res;
   }
 
   syncOrNot(MusicInfoModel musicInfoModel) async {
@@ -425,31 +488,6 @@ class DBProvider {
         syncstatus: !musicInfoModel.syncstatus);
     var res = await db.update("Client", blocked.toMap(),
         where: "id = ?", whereArgs: [musicInfoModel.id]);
-    return res;
-  }
-
-  newClient(Client newClient) async {
-    final db = await database;
-    //get the biggest id in the table
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM Client");
-    int id = table.first["id"];
-    //insert to the table using the new id
-    var raw = await db.rawInsert(
-        "INSERT Into Client (id,first_name,last_name,blocked)"
-        " VALUES (?,?,?,?)",
-        [id, newClient.firstName, newClient.lastName, newClient.blocked]);
-    return raw;
-  }
-
-  blockOrUnblock(Client client) async {
-    final db = await database;
-    Client blocked = Client(
-        id: client.id,
-        firstName: client.firstName,
-        lastName: client.lastName,
-        blocked: !client.blocked);
-    var res = await db.update("Client", blocked.toMap(),
-        where: "id = ?", whereArgs: [client.id]);
     return res;
   }
 }

@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/services/Database.dart';
-import 'package:hello_world/services/EventBus.dart';
 import 'package:hello_world/services/FileManager.dart';
+import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
-import 'package:provider/provider.dart';
 
 class MusicRowItem extends StatelessWidget {
   const MusicRowItem({
@@ -37,29 +36,16 @@ class MusicRowItem extends StatelessWidget {
     ThemeData themeData = Theme.of(context);
 
     MusicInfoModel _musicInfoModel = musicInfoModels[index];
-    List<MusicInfoModel> mims =
-        musicInfoModels.getRange(0, musicInfoModels.length).toList();
-    mims.removeWhere((music) {
-      return music.type == MusicInfoModel.TYPE_FOLD;
-    });
-    int offset = musicInfoModels.length - mims.length;
 
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        // todo 2 to 1
-
-        Provider.of<MusicInfoData>(context, listen: false)
-            .setMusicInfoList(mims);
-        Provider.of<MusicInfoData>(context, listen: false)
-            .setPlayIndex(index - offset);
-
-        eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
+        MusicControlService.play(context, musicInfoModels, index);
       },
       child: Container(
         color: playId == musicInfoModels[index].id &&
                 audioPlayerState == AudioPlayerState.PLAYING
-            ? themeData.highlightColor
+            ? themeData.selectedRowColor
             : themeData.cardColor,
         child: SafeArea(
           top: false,
@@ -223,24 +209,26 @@ class MusicRowItem extends StatelessWidget {
 //            });
       },
     ));
-    actionSheets.add(CupertinoActionSheetAction(
-      child: Text(
-        '从歌单删除',
-      ),
-      isDestructiveAction: true,
-      onPressed: () {
-        Navigator.of(context1).pop();
+    if (mplID != null && mplID > 0) {
+      actionSheets.add(CupertinoActionSheetAction(
+        child: Text(
+          '从歌单删除',
+        ),
+        isDestructiveAction: true,
+        onPressed: () {
+          Navigator.of(context1).pop();
 
-        DBProvider.db
-            .deleteMusicFromPlayList(mplID, musicInfoModels[index].id)
-            .then((onValue) {
-          if (onValue > 0) {
-            refreshFunction();
-            ToastUtils.show("已从歌单删除.");
-          }
-        });
-      },
-    ));
+          DBProvider.db
+              .deleteMusicFromPlayList(mplID, musicInfoModels[index].id)
+              .then((onValue) {
+            if (onValue > 0) {
+              refreshFunction();
+              ToastUtils.show("已从歌单删除.");
+            }
+          });
+        },
+      ));
+    }
 
     return new CupertinoActionSheet(
       actions: actionSheets,

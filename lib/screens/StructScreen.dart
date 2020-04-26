@@ -6,12 +6,12 @@ import 'package:hello_world/components/AblumImageAnimation.dart';
 import 'package:hello_world/components/PlayingControlComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/AlbumListScreen.dart';
+import 'package:hello_world/screens/FavListScreen.dart';
 import 'package:hello_world/screens/FileList2Screen.dart';
 import 'package:hello_world/screens/PlayListDetailScreen.dart';
 import 'package:provider/provider.dart';
 
 import 'FileListScreen.dart';
-import 'MusicFavListScreen.dart';
 
 class StructScreen extends StatefulWidget {
   static const String routeName = '/struct';
@@ -165,7 +165,7 @@ class _StructScreenState extends State<StructScreen>
                   case 0:
                     return CupertinoTabView(
                       navigatorKey: firstTabNavKey,
-                      builder: (BuildContext context) => MusicFavListScreen(),
+                      builder: (BuildContext context) => FavListScreen(),
                       routes: routes,
                       defaultTitle: '收藏',
                     );

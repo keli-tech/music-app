@@ -138,22 +138,7 @@ class _PlayingScreenState extends State<PlayingScreen>
     final _windowWidth = size.width;
     final _windowHeight = size.height;
 
-    return GestureDetector(
-      onVerticalDragStart: (DragStartDetails details) {
-        setState(() {});
-      },
-      onVerticalDragEnd: (DragEndDetails details) {
-        print(details);
-        if (details.primaryVelocity > 400) {
-          widget.hideAction();
-          Navigator.of(context).pop();
-        }
-        setState(() {});
-      },
-      onVerticalDragUpdate: (DragUpdateDetails details) {
-        setState(() {});
-      },
-      child: Stack(
+    return Stack(
         children: [
           Consumer<MusicInfoData>(
             builder: (context, musicInfoData, _) => AnimatedSwitcher(
@@ -405,7 +390,6 @@ class _PlayingScreenState extends State<PlayingScreen>
             ),
           ),
         ],
-      ),
     );
   }
 
@@ -452,7 +436,6 @@ class _PlayingScreenState extends State<PlayingScreen>
 
     return Container(
       child: CupertinoButton(
-        padding: EdgeInsets.zero,
         pressedOpacity: 1,
         child: Icon(
           Icons.skip_previous,
@@ -471,7 +454,6 @@ class _PlayingScreenState extends State<PlayingScreen>
 
     return Container(
       child: CupertinoButton(
-        padding: EdgeInsets.zero,
         pressedOpacity: 1,
         child: Icon(
           Icons.skip_next,

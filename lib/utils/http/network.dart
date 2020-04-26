@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
-import 'package:nextcloud/src/http_client/http_client.dart';
+import '../http_client/http_client.dart';
 
 /// Http client with the correct authentication and header
 class NextCloudHttpClient extends HttpClient {

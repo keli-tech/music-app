@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/components/modals/MusicFileListComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/PlayingScreen.dart';
 import 'package:hello_world/services/FileManager.dart';
@@ -270,6 +271,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
               highlightColor: themeData.backgroundColor,
               color: themeData.backgroundColor,
               child: ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: Container(
                   width: 40,
                   height: 40,
@@ -357,7 +359,18 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                         },
                       ),
                       CupertinoButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showModalBottomSheet<void>(
+                              elevation: 15,
+                              context: context,
+                              useRootNavigator: true,
+                              isScrollControlled: true,
+                              builder: (BuildContext context) {
+                                return MusicFileListComp(
+                                  statusBarHeight: _statusBarHeight,
+                                );
+                              });
+                        },
                         padding: EdgeInsets.zero,
                         child: Icon(
                           Icons.format_list_bulleted,
@@ -371,21 +384,38 @@ class _PlayingControlCompState extends State<PlayingControlComp>
               ),
               onPressed: () {
                 if (musicInfoData.playIndex == null ||
-                    musicInfoData.playIndex < 0) {
+                    musicInfoData.playIndex < 0 ||
+                    musicInfoData.musicInfoList == null ||
+                    musicInfoData.musicInfoList.length <= 0) {
                   return;
                 }
 
-                Navigator.of(context, rootNavigator: true)
-                    .push(CupertinoPageRoute<void>(
-                  title: "",
-                  fullscreenDialog: true,
-                  builder: (BuildContext context) => PlayingScreen(
-                    hideAction: widget.hideAction,
-                    seekAction: seek,
-                    audioplayer: audioPlayer,
-                    musicInfoData: musicInfoData,
-                  ),
-                ));
+                if (true) {
+                  showModalBottomSheet<void>(
+                      context: context,
+                      useRootNavigator: false,
+                      isScrollControlled: true,
+                      builder: (BuildContext context) {
+                        return PlayingScreen(
+                          hideAction: widget.hideAction,
+                          seekAction: seek,
+                          audioplayer: audioPlayer,
+                          musicInfoData: musicInfoData,
+                        );
+                      });
+                } else {
+                  Navigator.of(context, rootNavigator: true)
+                      .push(CupertinoPageRoute<void>(
+                    title: "",
+                    fullscreenDialog: true,
+                    builder: (BuildContext context) => PlayingScreen(
+                      hideAction: widget.hideAction,
+                      seekAction: seek,
+                      audioplayer: audioPlayer,
+                      musicInfoData: musicInfoData,
+                    ),
+                  ));
+                }
               },
             )),
       ),
@@ -425,11 +455,15 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                 children: <Widget>[
                   Text(
                     musicInfoModel.title,
+                    maxLines: 1,
                     style: TextStyle(
-                        fontSize: 13, color: themeData.textTheme.title.color),
+                      fontSize: 13,
+                      color: themeData.textTheme.title.color,
+                    ),
                   ),
                   Text(
                     musicInfoModel.artist,
+                    maxLines: 1,
                     style: TextStyle(
                         fontSize: 10, color: themeData.textTheme.title.color),
                   ),
