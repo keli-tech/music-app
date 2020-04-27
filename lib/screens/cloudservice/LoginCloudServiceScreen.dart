@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
@@ -81,16 +82,19 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
           padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
           child: Column(
             children: <Widget>[
-              Container(
-                child: AdmobBanner(
-                  adUnitId: AdMobService.getBannerAdUnitId(
-                      LoginCloudServiceScreen.className),
-                  adSize: AdmobBannerSize.FULL_BANNER,
-                  listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-                    AdMobService.handleEvent(event, args, 'Banner');
-                  },
-                ),
-              ),
+              Global.showAd
+                  ? Container(
+                      child: AdmobBanner(
+                        adUnitId: AdMobService.getBannerAdUnitId(
+                            LoginCloudServiceScreen.className),
+                        adSize: AdmobBannerSize.FULL_BANNER,
+                        listener:
+                            (AdmobAdEvent event, Map<String, dynamic> args) {
+                          AdMobService.handleEvent(event, args, 'Banner');
+                        },
+                      ),
+                    )
+                  : Container(),
               SizedBox(
                 height: 20,
               ),
@@ -184,8 +188,8 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                         "updatetime": new DateTime.now().millisecondsSinceEpoch,
                       };
 
-                      final localpath = await FileManager.localFile("");
-                      var dir = await new Directory(localpath.path.toString() +
+                      final localpath = await FileManager.localPathDirectory();
+                      var dir = await new Directory(localpath +
                               widget.cloudServiceModel.name.toLowerCase() +
                               "/")
                           .create(recursive: true);

@@ -4,8 +4,12 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hello_world/common/Global.dart';
+import 'package:logging/logging.dart';
 
 class FileManager {
+
+  static Logger _logger = new Logger("FileManager");
+
   // service = '/nextcloud/' 带 前后缀
   static File localCloudFile(String service, String fileName) {
     final path = Global.profile.documentDirectory;
@@ -18,7 +22,14 @@ class FileManager {
   static File localFile(String fileName) {
     final path = Global.profile.documentDirectory;
 
-    return File('$path/$fileName');
+//    _logger.info('$path$fileName');
+    return File('$path$fileName');
+  }
+
+  static String localPathDirectory() {
+    final path = Global.profile.documentDirectory;
+
+    return '${path}/';
   }
 
   static String musicFilePath(String fullpath) {
@@ -88,7 +99,7 @@ class FileManager {
     }
 
     album = md5.convert(utf8.encode(album)).toString();
-    File file = localFile('picture/$artist/$album.bmp');
+    File file = localFile('/picture/$artist/$album.bmp');
 
     return file.existsSync()
         ? FileImage(file)

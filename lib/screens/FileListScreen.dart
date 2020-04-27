@@ -2,6 +2,7 @@
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/rowitem/FileRowItem.dart';
 import 'package:hello_world/screens/CloudServiceScreen.dart';
 import 'package:hello_world/services/AdmobService.dart';
@@ -78,16 +79,19 @@ class _FileListScreen extends State<FileListScreen>
             width: _windowWidth,
             child: Column(
               children: <Widget>[
-                Container(
-                  child: AdmobBanner(
-                    adUnitId: AdMobService.getBannerAdUnitId(
-                        FileListScreen.className),
-                    adSize: bannerSize,
-                    listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-                      AdMobService.handleEvent(event, args, 'Banner');
-                    },
-                  ),
-                ),
+                Global.showAd
+                    ? Container(
+                        child: AdmobBanner(
+                          adUnitId: AdMobService.getBannerAdUnitId(
+                              FileListScreen.className),
+                          adSize: bannerSize,
+                          listener:
+                              (AdmobAdEvent event, Map<String, dynamic> args) {
+                            AdMobService.handleEvent(event, args, 'Banner');
+                          },
+                        ),
+                      )
+                    : Container(),
                 Container(
                   width: _windowWidth,
                   child: CupertinoSlidingSegmentedControl(

@@ -1,6 +1,7 @@
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/rowitem/WebDavFileRowItem.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
@@ -135,17 +136,20 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
                           top: 0.0, left: 0.0, right: 0.0, bottom: 20.0),
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
-                          Container(
-                            child: AdmobBanner(
-                              adUnitId: AdMobService.getBannerAdUnitId(
-                                  NextCloudFileScreen.className),
-                              adSize: AdmobBannerSize.FULL_BANNER,
-                              listener: (AdmobAdEvent event,
-                                  Map<String, dynamic> args) {
-                                AdMobService.handleEvent(event, args, 'Banner');
-                              },
-                            ),
-                          ),
+                          Global.showAd
+                              ? Container(
+                                  child: AdmobBanner(
+                                    adUnitId: AdMobService.getBannerAdUnitId(
+                                        NextCloudFileScreen.className),
+                                    adSize: AdmobBannerSize.FULL_BANNER,
+                                    listener: (AdmobAdEvent event,
+                                        Map<String, dynamic> args) {
+                                      AdMobService.handleEvent(
+                                          event, args, 'Banner');
+                                    },
+                                  ),
+                                )
+                              : Container(),
                         ]),
                       ),
                     ),

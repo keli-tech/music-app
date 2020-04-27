@@ -25,7 +25,7 @@ final ThemeData darkThemeData = ThemeData(
   scaffoldBackgroundColor: Color(0xff303030),
   bottomAppBarColor: Color(0xff424242),
   cardColor: Color(0xff232323),
-  dividerColor: Color(0x1fffffff),
+  dividerColor: Color(0x77ffffff),
   highlightColor: Color(0xaa232323),
   splashColor: Color(0x40cccccc),
   selectedRowColor: Color(0xff1c1c1e),

@@ -1,7 +1,9 @@
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
+import 'package:hello_world/screens/ArtistListDetailScreen.dart';
 import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
@@ -75,16 +77,19 @@ class _AlbumListScreen extends State<AlbumListScreen> {
           width: _windowWidth,
           child: Column(
             children: <Widget>[
-              Container(
-                child: AdmobBanner(
-                  adUnitId:
-                      AdMobService.getBannerAdUnitId(AlbumListScreen.className),
-                  adSize: AdmobBannerSize.FULL_BANNER,
-                  listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-                    AdMobService.handleEvent(event, args, 'Banner');
-                  },
-                ),
-              ),
+              Global.showAd
+                  ? Container(
+                      child: AdmobBanner(
+                        adUnitId: AdMobService.getBannerAdUnitId(
+                            AlbumListScreen.className),
+                        adSize: AdmobBannerSize.FULL_BANNER,
+                        listener:
+                            (AdmobAdEvent event, Map<String, dynamic> args) {
+                          AdMobService.handleEvent(event, args, 'Banner');
+                        },
+                      ),
+                    )
+                  : Container(),
               Container(
                 width: _windowWidth,
                 child: CupertinoSlidingSegmentedControl(
@@ -110,8 +115,8 @@ class _AlbumListScreen extends State<AlbumListScreen> {
                 ),
               ),
               Container(
-                padding:
-                    EdgeInsets.only(left: 5.0, right: 5.0, top: 0, bottom: 30.0),
+                padding: EdgeInsets.only(
+                    left: 5.0, right: 5.0, top: 0, bottom: 30.0),
                 height: _windowHeight -
                     _bottomBarHeight -
                     50 -
@@ -157,8 +162,9 @@ class _AlbumListScreen extends State<AlbumListScreen> {
                                           title: _artistListModels[index]
                                               ["artist"],
                                           builder: (BuildContext context) =>
-                                              PlayListDetailScreen(
-//                                            musicPlayListModel: musicPlayListModel,
+                                              ArtistListDetailScreen(
+                                            artist: _artistListModels[index]
+                                                ["artist"],
                                             statusBarHeight:
                                                 MediaQuery.of(context)
                                                     .padding

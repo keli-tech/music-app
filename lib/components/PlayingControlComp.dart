@@ -254,8 +254,8 @@ class _PlayingControlCompState extends State<PlayingControlComp>
             decoration: BoxDecoration(
               border: Border(
                   top: BorderSide(
-                color: themeData.primaryColor,
-                width: 0.1,
+                color: themeData.dividerColor,
+                width: 0.3,
                 style: BorderStyle.solid,
               )),
             ),

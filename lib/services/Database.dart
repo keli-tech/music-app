@@ -112,31 +112,19 @@ class DBProvider {
       mplID,
     ]);
 
-//    await db.execute(
-//        "create unique index if not exists mi_index ON music_info (name, type, artist, title, path)");
-//
-//    await db.execute("drop table cloud_service;");
-//
-//    await db.execute("create table if not exists cloud_service("
-//        "id INTEGER primary key autoincrement,"
-//        "name TEXT," // 云服务名称
-//        "assetspath TEXT," // 图标地址
-//        "type TEXT," // webdav 留着待定
-//        "url TEXT," // url webdav url
-//        "host TEXT," // host 其他服务器 host, 包括 http / https
-//        "port TEXT," // port 端口
-//        "account TEXT," // 账号
-//        "password TEXT," // 密码， 明文存储
-//        "signedin bit," // true: 登录， false: 登出, 登出保留账号，清除密码;
-//        "updatetime INT" // true: 登录， false: 登出, 登出保留账号，清除密码;
-//        ")");
-//
-//    await db.execute(
-//        "INSERT Into cloud_service (id,name,assetspath,signedin) VALUES "
-//            "(1, '坚果云', 'assets/images/cloudicon/坚果云.png', false),"
-//            "(2, 'NextCloud', 'assets/images/cloudicon/nextcloud.png', false),"
-//            "(3, 'WebDav', 'assets/images/cloudicon/webdav.png', false)"
-//    );
+    return res.isNotEmpty ? MusicPlayListModel.fromMap(res.first) : null;
+  }
+
+  //根据播放列表
+  Future<MusicPlayListModel> getMusicPlayListByArtistName(
+      String artist, String name) async {
+    final db = await database;
+
+    var res = await db
+        .query("music_play_list", where: "artist = ? and name = ?", whereArgs: [
+      artist,
+      name,
+    ]);
 
     return res.isNotEmpty ? MusicPlayListModel.fromMap(res.first) : null;
   }
@@ -431,6 +419,21 @@ class DBProvider {
           ]);
       return raw;
     }
+  }
+
+  //根据路径获取音乐列表
+  Future<List<MusicInfoModel>> getMusicInfoByArtist(String artist) async {
+    final db = await database;
+
+    var res = await db.query("music_info",
+        where: "artist = ? ",
+        orderBy: " sort asc, updatetime desc ",
+        whereArgs: [artist]);
+
+    List<MusicInfoModel> list = res.isNotEmpty
+        ? res.map((c) => MusicInfoModel.fromMap(c)).toList()
+        : [];
+    return list;
   }
 
   //根据路径获取音乐列表

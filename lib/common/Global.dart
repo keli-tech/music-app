@@ -18,6 +18,8 @@ const _themes = <MaterialColor>[
 class Global {
   static SharedPreferences _prefs;
   static Profile profile = Profile();
+  // 广告开关
+  static bool showAd = false;
 
   // 可选的主题列表
   static List<MaterialColor> get themes => _themes;
@@ -51,9 +53,6 @@ class Global {
     }
 
     // 如果没有缓存策略，设置默认缓存策略
-    if (profile.documentDirectory == null) {
-      profile.documentDirectory = directory.path;
-    }
     if (profile.musicInfoList == null) {
       profile.musicInfoList = [];
     }
@@ -61,6 +60,7 @@ class Global {
       profile.playIndex = 0;
     }
 
+    profile.documentDirectory = directory.path;
     Logger logger = new Logger("Global");
 //    logger.info(profile.toJson().toString());
   }

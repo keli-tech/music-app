@@ -3,6 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
+import 'package:hello_world/models/MusicPlayListModel.dart';
+import 'package:hello_world/screens/ArtistListDetailScreen.dart';
+import 'package:hello_world/screens/PlayListDetailScreen.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
@@ -19,8 +22,10 @@ class MusicRowItem extends StatelessWidget {
     this.musicInfoFavIDSet,
     this.refreshFunction,
     this.statusBarHeight,
+    this.musicPlayListModel,
   });
 
+  final MusicPlayListModel musicPlayListModel;
   final bool lastItem;
   final int mplID;
   final int index;
@@ -180,6 +185,45 @@ class MusicRowItem extends StatelessWidget {
     List<Widget> actionSheets = [];
 
     actionSheets.add(CupertinoActionSheetAction(
+        child: Text(
+          '查看专辑',
+        ),
+        onPressed: () async {
+          Navigator.pop(context1);
+
+          String album = musicInfoModels[index].album;
+          String artist = musicInfoModels[index].artist;
+
+          MusicPlayListModel musicPlayListModel =
+              await DBProvider.db.getMusicPlayListByArtistName(artist, album);
+          if (musicPlayListModel.id > 0) {
+            Navigator.of(context, rootNavigator: true)
+                .push(MaterialPageRoute<void>(
+              builder: (BuildContext context) => PlayListDetailScreen(
+                musicPlayListModel: musicPlayListModel,
+                statusBarHeight: this.statusBarHeight,
+              ),
+            ));
+          }
+        }));
+
+    actionSheets.add(CupertinoActionSheetAction(
+        child: Text(
+          '查看歌手',
+        ),
+        onPressed: () {
+          Navigator.pop(context1);
+
+          Navigator.of(context, rootNavigator: true)
+              .push(MaterialPageRoute<void>(
+            builder: (BuildContext context) => ArtistListDetailScreen(
+              artist: musicInfoModels[index].artist,
+              statusBarHeight: statusBarHeight,
+            ),
+          ));
+        }));
+
+    actionSheets.add(CupertinoActionSheetAction(
       child: Text(
         '收藏到歌单',
       ),
@@ -229,6 +273,54 @@ class MusicRowItem extends StatelessWidget {
         },
       ));
     }
+
+    actionSheets.add(CupertinoActionSheetAction(
+        child: Text(
+          '删除音乐文件',
+        ),
+        isDestructiveAction: true,
+        onPressed: () {
+          Navigator.of(context1).pop();
+
+          showCupertinoDialog<String>(
+            context: context1,
+            builder: (BuildContext context1) => CupertinoAlertDialog(
+              title: const Text('删除确认'),
+              content: Text('是否删除\"' + musicInfoModels[index].fullpath + '\"?'),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text(
+                    '取消',
+                  ),
+                  isDefaultAction: true,
+                  onPressed: () => Navigator.pop(context1, 'Cancel'),
+                ),
+                CupertinoDialogAction(
+                  child: Text(
+                    '删除',
+                  ),
+                  isDestructiveAction: true,
+                  onPressed: () {
+                    DBProvider.db
+                        .deleteMusic(musicInfoModels[index].id)
+                        .then((onValue) {
+                      FileManager.musicFile(musicInfoModels[index].fullpath)
+                          .delete();
+
+                      ToastUtils.show("已删除文件");
+
+                      Navigator.pop(context1);
+                    });
+                  },
+                ),
+              ],
+            ),
+          ).then((String value) {
+            if (value != null) {
+//                setState(() { lastSelectedValue = value; });
+            }
+          });
+        }));
 
     return new CupertinoActionSheet(
       actions: actionSheets,

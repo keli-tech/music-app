@@ -237,15 +237,18 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                       widget.musicPlayListModel.id, updateValue)
                   .then((onValue) async {
                 if (onValue <= 0) {
-                  print("error $onValue");
+                  _logger.warning("error $onValue");
                 } else {
-                  print("start");
-                  print(onValue);
-                  // fixme
                   var oldFile = FileManager.musicAlbumPictureFile(
                       "-", widget.musicPlayListModel.imgpath);
                   if (oldFile.existsSync()) {
                     oldFile.deleteSync();
+                  }
+
+                  if (imageFile != null) {
+                    setState(() {
+                      _image = imageFile;
+                    });
                   }
 
                   ImageImage.Image image =
@@ -257,14 +260,8 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                       .create(recursive: true);
                   var imageFileReal = FileManager.musicAlbumPictureFile(
                       "-", updateValue["imgpath"]);
-                  imageFileReal
-                      .writeAsBytesSync(ImageImage.encodePng(thumbnail));
 
-                  if (thumbnail.data != null) {
-                    setState(() {
-                      _image = imageFileReal;
-                    });
-                  }
+                  imageFileReal.writeAsBytes(ImageImage.encodePng(thumbnail));
                 }
               });
             }
