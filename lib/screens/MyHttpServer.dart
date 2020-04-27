@@ -373,108 +373,115 @@ class _MyHttpServerState extends State<MyHttpServer> {
 
     return Container(
       width: _windowWidth,
-      padding: EdgeInsets.only(left: 5, top: 0, right: 5, bottom: 0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            child: AdmobBanner(
-              adUnitId: AdMobService.getBannerAdUnitId(MyHttpServer.className),
-              adSize: AdmobBannerSize.FULL_BANNER,
-              listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-                AdMobService.handleEvent(event, args, 'Banner');
-              },
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              child: AdmobBanner(
+                adUnitId:
+                    AdMobService.getBannerAdUnitId(MyHttpServer.className),
+                adSize: AdmobBannerSize.FULL_BANNER,
+                listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+                  AdMobService.handleEvent(event, args, 'Banner');
+                },
+              ),
             ),
-          ),
-          SizedBox(
-            height: 70,
-          ),
-          AnimatedSwitcher(
-            transitionBuilder: (child, anim) {
-              return ScaleTransition(child: child, scale: anim);
-            },
-            switchInCurve: Curves.fastLinearToSlowEaseIn,
-            switchOutCurve: Curves.fastOutSlowIn,
-            duration: Duration(milliseconds: 400),
-            child: serverStarted == false
-                ? RaisedButton(
-                    padding: EdgeInsets.only(
-                        left: 30, top: 15, right: 30, bottom: 15),
-                    key: Key("stop"),
-                    color: themeData.primaryColor,
-                    onPressed: () {
-                      _startServer();
-                    },
-                    child: Text("启动Wi-Fi同步文件服务",
-                        style: themeData.primaryTextTheme.button),
-                  )
-                : RaisedButton(
-                    key: Key("start"),
-                    padding: EdgeInsets.only(
-                        left: 30, top: 15, right: 30, bottom: 15),
-                    color: Colors.red,
-                    onPressed: () {
-                      _stopServer();
-                    },
-                    child: Text("停止Wi-Fi同步文件服务",
-                        style: themeData.primaryTextTheme.button),
+            SizedBox(
+              height: 70,
+            ),
+            Column(
+              children: <Widget>[
+                AnimatedSwitcher(
+                  transitionBuilder: (child, anim) {
+                    return ScaleTransition(child: child, scale: anim);
+                  },
+                  switchInCurve: Curves.fastLinearToSlowEaseIn,
+                  switchOutCurve: Curves.fastOutSlowIn,
+                  duration: Duration(milliseconds: 400),
+                  child: serverStarted == false
+                      ? RaisedButton(
+                          padding: EdgeInsets.only(
+                              left: 30, top: 15, right: 30, bottom: 15),
+                          key: Key("stop"),
+                          color: themeData.primaryColor,
+                          onPressed: () {
+                            _startServer();
+                          },
+                          child: Text("启动Wi-Fi同步文件服务",
+                              style: themeData.primaryTextTheme.button),
+                        )
+                      : RaisedButton(
+                          key: Key("start"),
+                          padding: EdgeInsets.only(
+                              left: 30, top: 15, right: 30, bottom: 15),
+                          color: Colors.red,
+                          onPressed: () {
+                            _stopServer();
+                          },
+                          child: Text("停止Wi-Fi同步文件服务",
+                              style: themeData.primaryTextTheme.button),
+                        ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.only(left: 15, top: 15, right: 15, bottom: 15),
+                  child: Text(
+                    "手机与电脑连接到同一个Wi-Fi网络，可以通过电脑端web浏览器来传输文件。",
+                    style: themeData.textTheme.subtitle,
                   ),
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Text(
-            "手机与电脑连接到同一个Wi-Fi网络，可以通过电脑端web浏览器来传输文件。",
-            style: themeData.textTheme.subtitle,
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          serverStarted == true
-              ? Column(
-                  children: <Widget>[
-                    ListTile(
-                      title: new Text(
-                        '在电脑端浏览器中输入以下 url:',
-                      ),
-                    ),
-                    Divider(),
-                    ListTile(
-                      title: new Text(
-                        serverUrl,
-                      ),
-                      leading: Icon(
-                        Icons.desktop_mac,
-                        color: themeData.primaryColor,
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.content_copy),
-                        color: themeData.primaryColor,
-                        onPressed: () {
-                          // 复制 copy url
-                          ClipboardData data =
-                              new ClipboardData(text: serverUrl);
-                          Clipboard.setData(data).then((onValue) {
-                            _logger.info("复制URL 成功。");
-                          });
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                serverStarted == true
+                    ? Column(
+                        children: <Widget>[
+                          ListTile(
+                            title: new Text(
+                              '在电脑端浏览器中输入以下 url:',
+                            ),
+                          ),
+                          Divider(),
+                          ListTile(
+                            title: new Text(
+                              serverUrl,
+                            ),
+                            leading: Icon(
+                              Icons.desktop_mac,
+                              color: themeData.primaryColor,
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(Icons.content_copy),
+                              color: themeData.primaryColor,
+                              onPressed: () {
+                                // 复制 copy url
+                                ClipboardData data =
+                                    new ClipboardData(text: serverUrl);
+                                Clipboard.setData(data).then((onValue) {
+                                  _logger.info("复制URL 成功。");
+                                });
 
-                          Scaffold.of(context).showSnackBar(new SnackBar(
-                              backgroundColor: themeData.selectedRowColor,
-                              content: Container(
-                                height: 70,
-                                child: new Text(
-                                  "已复制 url !",
-                                  style: themeData.primaryTextTheme.title,
-                                ),
-                              )));
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              : Text(""),
-        ],
-      ),
+                                Scaffold.of(context).showSnackBar(new SnackBar(
+                                    backgroundColor: themeData.selectedRowColor,
+                                    content: Container(
+                                      height: 70,
+                                      child: new Text(
+                                        "已复制 url !",
+                                        style: themeData.primaryTextTheme.title,
+                                      ),
+                                    )));
+                              },
+                            ),
+                          ),
+                        ],
+                      )
+                    : Text(""),
+              ],
+            ),
+          ]),
     );
   }
 }

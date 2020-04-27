@@ -9,6 +9,7 @@ import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:image/image.dart' as ImageImage;
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -122,7 +123,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
       child: CustomScrollView(
         semanticChildCount: _musicInfoModels.length,
         slivers: <Widget>[
-          _image == null || !_image.existsSync()
+          _image == null
               ? SliverPadding(
                   padding:
                       EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 1),
@@ -223,10 +224,10 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
           ),
           onPressed: () async {
             Navigator.pop(context1);
-            var image =
+            File imageFile =
                 await ImagePicker.pickImage(source: ImageSource.gallery);
 
-            if (image != null) {
+            if (imageFile != null) {
               var updateValue = {
                 "imgpath": widget.musicPlayListModel.name +
                     (new DateTime.now().millisecondsSinceEpoch).toString(),
@@ -234,21 +235,37 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
               DBProvider.db
                   .updateMusicPlayList(
                       widget.musicPlayListModel.id, updateValue)
-                  .then((onValue) {
-                // fixme
-                var oldFile = FileManager.musicAlbumPictureFile(
-                    "-", widget.musicPlayListModel.imgpath);
-                if (oldFile.existsSync()) {
-                  oldFile.deleteSync();
+                  .then((onValue) async {
+                if (onValue <= 0) {
+                  print("error $onValue");
+                } else {
+                  print("start");
+                  print(onValue);
+                  // fixme
+                  var oldFile = FileManager.musicAlbumPictureFile(
+                      "-", widget.musicPlayListModel.imgpath);
+                  if (oldFile.existsSync()) {
+                    oldFile.deleteSync();
+                  }
+
+                  ImageImage.Image image =
+                      ImageImage.decodeImage(imageFile.readAsBytesSync());
+                  ImageImage.Image thumbnail =
+                      ImageImage.copyResize(image, width: 800);
+
+                  FileManager.musicAlbumPicturePath("-", updateValue["imgpath"])
+                      .create(recursive: true);
+                  var imageFileReal = FileManager.musicAlbumPictureFile(
+                      "-", updateValue["imgpath"]);
+                  imageFileReal
+                      .writeAsBytesSync(ImageImage.encodePng(thumbnail));
+
+                  if (thumbnail.data != null) {
+                    setState(() {
+                      _image = imageFileReal;
+                    });
+                  }
                 }
-
-                image.copySync(FileManager.musicAlbumPictureFullPath(
-                        "-", updateValue["imgpath"])
-                    .path);
-
-                setState(() {
-                  _image = image;
-                });
               });
             }
           },

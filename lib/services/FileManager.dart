@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:hello_world/common/Global.dart';
 
 class FileManager {
-
   // service = '/nextcloud/' 带 前后缀
   static File localCloudFile(String service, String fileName) {
     final path = Global.profile.documentDirectory;

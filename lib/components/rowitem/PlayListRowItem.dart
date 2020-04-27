@@ -38,8 +38,9 @@ class PlayListRowItem extends StatelessWidget {
           bottom: false,
           child: Row(
             children: <Widget>[
-              Hero(
-                tag: 'PlayListScreen' + musicPlayListModel.id.toString(),
+//          Hero(
+              Container(
+//                tag: 'PlayListScreen' + musicPlayListModel.id.toString(),
                 child: Container(
                   height: 76.0,
                   width: 114.0,

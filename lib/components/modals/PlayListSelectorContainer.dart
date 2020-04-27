@@ -88,7 +88,6 @@ class _PlayListSelectorContainer extends State<PlayListSelectorContainer>
             color: themeData.primaryColor,
           ),
           onPressed: () {
-            print(1);
             Navigator.of(context).pop();
           },
         )),

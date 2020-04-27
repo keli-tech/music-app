@@ -44,6 +44,7 @@ dependencies:
   admob_flutter: "^1.0.0-beta.2"
   http: ^0.12.0+4
   intl:
+  image:
 
 dev_dependencies:
   flutter_test:

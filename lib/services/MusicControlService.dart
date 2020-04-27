@@ -16,8 +16,6 @@ class MusicControlService {
     });
     int offset = musicInfoModels.length - mims.length;
 
-    print("offset:offset:offset:offset:offset:offset:$offset");
-
     Provider.of<MusicInfoData>(context, listen: false).setMusicInfoList(mims);
     Provider.of<MusicInfoData>(context, listen: false)
         .setPlayIndex(index - offset);

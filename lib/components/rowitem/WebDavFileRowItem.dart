@@ -72,8 +72,6 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
   Widget builderFold(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    print(widget.cloudServiceModel);
-
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {

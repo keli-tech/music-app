@@ -34,8 +34,6 @@ class _AlbumListScreen extends State<AlbumListScreen> {
   @override
   void deactivate() {
     super.deactivate();
-    print("album list did deactivate");
-
     _refreshList();
   }
 
@@ -193,7 +191,7 @@ class _AlbumListScreen extends State<AlbumListScreen> {
               _isLoding = false;
             });
           }).catchError((error) {
-            print('failed');
+            print(error);
           });
         },
       ),

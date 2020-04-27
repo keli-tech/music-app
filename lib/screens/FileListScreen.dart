@@ -168,12 +168,11 @@ class _FileListScreen extends State<FileListScreen>
               _isLoding = true;
             });
             return _refreshList(path).then((value) {
-              print('success');
               setState(() {
                 _isLoding = false;
               });
             }).catchError((error) {
-              print('failed');
+              print(error);
             });
           },
         ));

@@ -18,18 +18,11 @@ class FavListScreen extends StatefulWidget {
   _FavListScreen createState() => _FavListScreen();
 }
 
-class _FavListScreen extends State<FavListScreen>
-    with SingleTickerProviderStateMixin {
-  List<MusicInfoModel> _musicInfoModels = [];
-  Animation<double> animation;
-  AnimationController controller;
+class _FavListScreen extends State<FavListScreen> {
   List<MusicPlayListModel> _musicSceenListModels = [];
   List<MusicPlayListModel> _musicPlayListModels = [];
-
   MusicPlayListModel _favPlayListInfo;
-
   Logger _logger = new Logger("FavListScreen");
-
   bool _isLoding = false;
   TextEditingController _chatTextController;
 
@@ -68,10 +61,6 @@ class _FavListScreen extends State<FavListScreen>
 
       Provider.of<MusicInfoData>(context, listen: false)
           .setMusicInfoFavIDSet(musicInfoFavIDSet);
-
-      setState(() {
-        _musicInfoModels = onValue;
-      });
     });
 
     var musicSceenListModels = await DBProvider.db
@@ -79,6 +68,8 @@ class _FavListScreen extends State<FavListScreen>
     var musicPlayListModels = await DBProvider.db.getMusicPlayList();
     var musicPlayListModel = await DBProvider.db
         .getMusicPlayListById(MusicPlayListModel.FAVOURITE_PLAY_LIST_ID);
+
+    print('-------------------------');
 
     setState(() {
       _musicSceenListModels = musicSceenListModels;
@@ -89,12 +80,11 @@ class _FavListScreen extends State<FavListScreen>
 
   @override
   Widget build(BuildContext context) {
+
     ThemeData themeData = Theme.of(context);
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
     var windowHeight = MediaQuery.of(context).size.height;
     var windowWidth = MediaQuery.of(context).size.width;
-
-    print("rebuild");
 
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
@@ -120,148 +110,115 @@ class _FavListScreen extends State<FavListScreen>
           },
         ),
       ),
-      child: RefreshIndicator(
-        color: Colors.white,
-        backgroundColor: themeData.primaryColor,
-        child: CustomScrollView(
-          semanticChildCount: _musicInfoModels.length,
-          slivers: <Widget>[
-            SliverPadding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  Flex(
-                    direction: Axis.horizontal,
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: _buildFavList(context),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: _buildHistory100(context),
-                      ),
-                    ],
-                  ),
-                ]),
-              ),
-            ),
-            SliverPadding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    Container(
-                      color: themeData.backgroundColor,
-                      child: Column(
-                        children: <Widget>[
-                          new Divider(),
-                          Card(
-                            elevation: 0,
-                            color: themeData.backgroundColor,
-                            child: ListTile(
-                              title: Text(
-                                "歌单",
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+      child: Scrollbar(
+        child: RefreshIndicator(
+          color: Colors.white,
+          backgroundColor: themeData.primaryColor,
+          child: SingleChildScrollView(
+            child: Column(children: <Widget>[
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+                child: Flex(
+                  direction: Axis.horizontal,
+                  children: <Widget>[
+                    Expanded(
+                      flex: 1,
+                      child: _favPlayListInfo == null
+                          ? Container()
+                          : _buildFavList(context),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: _buildHistory100(context),
                     ),
                   ],
                 ),
               ),
-            ),
-            SliverPadding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    return PlayListRowItem(
-                      index: index,
-                      lastItem: index == _musicPlayListModels.length - 1,
-                      musicPlayListModel: _musicPlayListModels[index],
-                    );
-                  },
-                  childCount: _musicPlayListModels.length,
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    new Divider(),
-                    _musicSceenListModels.length > 0
-                        ? Card(
-                            color: themeData.backgroundColor,
-                            elevation: 0,
-                            child: ListTile(
-                              title: Text(
-                                "场景",
-                              ),
-                            ),
-                          )
-                        : Container(),
-                  ],
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _musicSceenListModels.length > 0
-                      ? Card(
-                          color: themeData.backgroundColor,
-                          elevation: 0,
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: 70.0),
-                            child: Wrap(
-                              spacing: 8.0, // 主轴(水平)方向间距
-                              runSpacing: 4.0, // 纵轴（垂直）方向间距
-                              alignment: WrapAlignment.center, //沿主轴方向居中
-                              children: _musicSceenListModels
-                                  .asMap()
-                                  .keys
-                                  .toList()
-                                  .map((index) {
-                                return ChipScreenComp(
-                                  refreshFunc: _refreshList,
-                                  index: index,
-                                  musicPlayListModel:
-                                      _musicSceenListModels[index],
-                                );
-                              }).toList(),
-                            ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+                child: Container(
+                  color: themeData.backgroundColor,
+                  child: Column(
+                    children: <Widget>[
+                      new Divider(),
+                      Card(
+                        elevation: 0,
+                        color: themeData.backgroundColor,
+                        child: ListTile(
+                          title: Text(
+                            "歌单",
                           ),
-                        )
-                      : Container(),
-                ]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-        onRefresh: () {
-          if (_isLoding) return null;
-          setState(() {
-            _isLoding = true;
-          });
-          return _refreshList().then((value) {
-            print('success');
+              Column(
+                children: _musicPlayListModels.map((item) {
+                  return PlayListRowItem(
+                    index: 1,
+                    lastItem: false,
+//                  lastItem: index == _musicPlayListModels.length - 1,
+                    musicPlayListModel: item,
+                  );
+                }).toList(),
+              ),
+              new Divider(),
+              _musicSceenListModels.length > 0
+                  ? Card(
+                      color: themeData.backgroundColor,
+                      elevation: 0,
+                      child: ListTile(
+                        title: Text(
+                          "场景",
+                        ),
+                      ),
+                    )
+                  : Container(),
+              _musicSceenListModels.length > 0
+                  ? Card(
+                      color: themeData.backgroundColor,
+                      elevation: 0,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 70.0),
+                        child: Wrap(
+                          spacing: 8.0, // 主轴(水平)方向间距
+                          runSpacing: 4.0, // 纵轴（垂直）方向间距
+                          alignment: WrapAlignment.center, //沿主轴方向居中
+                          children: _musicSceenListModels
+                              .asMap()
+                              .keys
+                              .toList()
+                              .map((index) {
+                            return ChipScreenComp(
+                              refreshFunc: _refreshList,
+                              index: index,
+                              musicPlayListModel: _musicSceenListModels[index],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    )
+                  : Container(),
+            ]),
+          ),
+          onRefresh: () {
+            if (_isLoding) return null;
             setState(() {
-              _isLoding = false;
+              _isLoding = true;
             });
-          }).catchError((error) {
-            print('failed');
-          });
-        },
+            return _refreshList().then((value) {
+              setState(() {
+                _isLoding = false;
+              });
+            }).catchError((error) {
+              print(error);
+            });
+          },
+        ),
       ),
     );
   }
@@ -322,7 +279,6 @@ class _FavListScreen extends State<FavListScreen>
 //            var musicPlayListModel = await DBProvider.db.getFavMusicInfoList();
             var musicPlayListModel = await DBProvider.db.getMusicPlayListById(
                 MusicPlayListModel.FAVOURITE_PLAY_LIST_ID);
-            print(musicPlayListModel);
 
             Navigator.of(context).push(CupertinoPageRoute<void>(
               title: "我喜欢的音乐",
@@ -333,70 +289,60 @@ class _FavListScreen extends State<FavListScreen>
             ));
           },
           child: Container(
-            color: Colors.transparent,
-            child: SafeArea(
-              top: false,
-              bottom: false,
-              child: Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: FileManager.musicAlbumPictureImage(
-                        "-",
-                        _favPlayListInfo != null
-                            ? _favPlayListInfo.imgpath
-                            : ""),
-                  ),
-                ),
-                child: Container(
-                  color: Colors.transparent,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(8.0),
-                              bottomRight: Radius.circular(8.0),
-                            ),
-                            color: themeData.highlightColor,
+            height: 150,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: FileManager.musicAlbumPictureImage(
+                    "-", _favPlayListInfo.imgpath),
+              ),
+            ),
+            child: Container(
+              color: Colors.transparent,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(8.0),
+                          bottomRight: Radius.circular(8.0),
+                        ),
+                        color: themeData.highlightColor,
+                      ),
+                      child: Row(children: <Widget>[
+                        Icon(
+                          CupertinoIcons.heart_solid,
+                          color: Colors.red,
+                        ),
+                        Expanded(
+                          child: Text(
+                            '我喜欢的音乐',
+                            maxLines: 1,
+                            style: themeData.primaryTextTheme.title,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          child: Row(children: <Widget>[
-                            Icon(
-                              CupertinoIcons.heart_solid,
-                              color: Colors.red,
-                            ),
-                            Expanded(
-                              child: Text(
-                                '我喜欢的音乐',
-                                maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            CupertinoButton(
-                              padding: EdgeInsets.zero,
-                              child: Icon(
-                                Icons.play_circle_outline,
-                                color: themeData.primaryTextTheme.title.color,
-                                size: 35,
-                              ),
-                              onPressed: () async {
-                                var _musicInfoModels =
-                                    await DBProvider.db.getFavMusicInfoList();
+                        ),
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          child: Icon(
+                            Icons.play_circle_outline,
+                            color: themeData.primaryTextTheme.title.color,
+                            size: 35,
+                          ),
+                          onPressed: () async {
+                            var _musicInfoModels =
+                                await DBProvider.db.getFavMusicInfoList();
 
-                                MusicControlService.play(
-                                    context, _musicInfoModels, 0);
-                              },
-                            ),
-                          ])),
-                    ],
-                  ),
-                ),
+                            MusicControlService.play(
+                                context, _musicInfoModels, 0);
+                          },
+                        ),
+                      ])),
+                ],
               ),
             ),
           ),
@@ -407,7 +353,6 @@ class _FavListScreen extends State<FavListScreen>
 
   Widget _buildHistory100(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
     var windowHeight = MediaQuery.of(context).size.height;
     var windowWidth = MediaQuery.of(context).size.width;
 
@@ -461,7 +406,7 @@ class _FavListScreen extends State<FavListScreen>
                             ),
                             CupertinoButton(
                               padding: EdgeInsets.zero,
-                              child:  Icon(
+                              child: Icon(
                                 Icons.play_circle_outline,
                                 color: themeData.primaryTextTheme.title.color,
                                 size: 35,

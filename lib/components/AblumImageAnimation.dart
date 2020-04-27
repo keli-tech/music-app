@@ -138,8 +138,6 @@ class AlbumImageAnimation extends StatelessWidget {
       ),
     );
 
-    print(bottomBarHeight);
-
     padding3 = Tween<EdgeInsets>(
       begin: EdgeInsets.only(bottom: 0.0),
       end: EdgeInsets.only(bottom: -100 + bottomBarHeight),

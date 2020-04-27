@@ -147,8 +147,6 @@ class FileRowItem extends StatelessWidget {
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        print("asdfasdfjasfjalsf:" + index.toString());
-
         MusicControlService.play(context, musicInfoModels, index);
       },
       child: Container(
@@ -332,7 +330,6 @@ class FileRowItem extends StatelessWidget {
                     DBProvider.db
                         .deleteMusic(musicInfoModels[index].id)
                         .then((onValue) {
-                      print(Global.profile.documentDirectory);
                       FileManager.musicFile(musicInfoModels[index].fullpath)
                           .delete();
 

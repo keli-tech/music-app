@@ -94,12 +94,11 @@ class _FileList2Screen extends State<FileList2Screen>
               _isLoding = true;
             });
             return _refreshList(widget.musicInfoModel.fullpath).then((value) {
-              print('success');
               setState(() {
                 _isLoding = false;
               });
             }).catchError((error) {
-              print('failed');
+              print(error);
             });
           },
         ));

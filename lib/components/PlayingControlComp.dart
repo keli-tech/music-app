@@ -82,7 +82,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                 musicInfoData.musicInfoList[musicInfoData.playIndex];
 
             _position = new Duration(seconds: 0);
-            print("prepare:" + musicInfoData.playIndex.toString());
             playFile();
 
             try {
@@ -178,7 +177,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
       int minute = (d.inSeconds.toInt() / 60).round().toInt();
       String minuteStr =
           minute < 10 ? "0" + minute.toString() : minute.toString();
-      print('total: $minuteStr:$secondStr');
 
       setState(() {
         _duration = d;
@@ -194,7 +192,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
         int minute = (d.inSeconds.toInt() / 60).round().toInt();
         String minuteStr =
             minute < 10 ? "0" + minute.toString() : minute.toString();
-//        print('current: $minuteStr:$secondStr');
         setState(() {
           _position = d;
         });
@@ -513,8 +510,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   }
 
   void seek(Duration position) {
-    print(position);
-
     audioPlayer.seek(position);
   }
 }

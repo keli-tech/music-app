@@ -139,257 +139,258 @@ class _PlayingScreenState extends State<PlayingScreen>
     final _windowHeight = size.height;
 
     return Stack(
-        children: [
-          Consumer<MusicInfoData>(
-            builder: (context, musicInfoData, _) => AnimatedSwitcher(
-              transitionBuilder: (child, anim) {
+      children: [
+        Consumer<MusicInfoData>(
+          builder: (context, musicInfoData, _) => AnimatedSwitcher(
+            transitionBuilder: (child, anim) {
 //                return ScaleTransition(child: child, scale: anim);
-                return FadeTransition(
-                  opacity: anim,
-                  child: child,
-                );
-              },
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeOut,
-              duration: Duration(milliseconds: 800),
-              child: Image(
-                key: Key(musicInfoData.musicInfoModel.name.toString()),
-                height: _windowHeight,
-                fit: BoxFit.cover,
-                image: FileManager.musicAlbumPictureImage(
-                    musicInfoData.musicInfoModel.artist,
-                    musicInfoData.musicInfoModel.album),
-              ),
+              return FadeTransition(
+                opacity: anim,
+                child: child,
+              );
+            },
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeOut,
+            duration: Duration(milliseconds: 800),
+            child: Image(
+              key: Key(musicInfoData.musicInfoModel.name.toString()),
+              height: _windowHeight,
+              fit: BoxFit.cover,
+              image: FileManager.musicAlbumPictureImage(
+                  musicInfoData.musicInfoModel.artist,
+                  musicInfoData.musicInfoModel.album),
             ),
           ),
-          BackdropFilter(
-            filter: new ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: new Container(
-              color: Colors.black87.withOpacity(0.4),
-            ),
+        ),
+        BackdropFilter(
+          filter: new ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: new Container(
+            color: Colors.black87.withOpacity(0.4),
           ),
-          Container(
-            height: _windowHeight,
+        ),
+        Container(
+          height: _windowHeight,
 //            color: themeData.primaryColor,
-            child: CupertinoPageScaffold(
-              backgroundColor: Colors.transparent,
-              child: Consumer<MusicInfoData>(
-                builder: (context, musicInfoData, _) =>
-                    //顶栏
-                    Column(children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      width: _windowWidth,
-                      height: _windowWidth,
-                      child: Hero(
-                        tag: "playing",
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Transform.scale(
-                                scale: 1.9,
-                                child: RotateTransform(
-                                  animation: animation,
-                                  //将要执行动画的子view
-                                  child: CupertinoButton(
-                                    padding: EdgeInsets.zero,
-                                    pressedOpacity: 1,
-                                    color: Colors.transparent,
-                                    onPressed: _playPauseAction,
-                                    child: CircleAvatar(
-                                      backgroundColor:
-                                          Theme.of(context).primaryColor,
-                                      radius: _windowWidth * 0.35,
-                                      child: Center(
-                                        child: Container(
-                                          height: _windowWidth * 0.7 - 16,
-                                          width: _windowWidth * 0.7 - 16,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                                _windowWidth * 0.35 - 8.0),
-                                            image: DecorationImage(
-                                                fit: BoxFit.fill,
-                                                image: FileManager
-                                                    .musicAlbumPictureImage(
-                                                        musicInfoData
-                                                            .musicInfoModel
-                                                            .artist,
-                                                        musicInfoData
-                                                            .musicInfoModel
-                                                            .album)),
-                                          ),
+          child: CupertinoPageScaffold(
+            backgroundColor: Colors.transparent,
+            child: Consumer<MusicInfoData>(
+              builder: (context, musicInfoData, _) =>
+                  //顶栏
+                  Column(children: <Widget>[
+                Expanded(
+                  child: Container(
+                    width: _windowWidth,
+                    height: _windowWidth,
+                    child: Hero(
+                      tag: "playing",
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Transform.scale(
+                              scale: 1.9,
+                              child: RotateTransform(
+                                animation: animation,
+                                //将要执行动画的子view
+                                child: CupertinoButton(
+                                  padding: EdgeInsets.zero,
+                                  pressedOpacity: 1,
+                                  color: Colors.transparent,
+                                  onPressed: _playPauseAction,
+                                  child: CircleAvatar(
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                    radius: _windowWidth * 0.35,
+                                    child: Center(
+                                      child: Container(
+                                        height: _windowWidth * 0.7 - 16,
+                                        width: _windowWidth * 0.7 - 16,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                              _windowWidth * 0.35 - 8.0),
+                                          image: DecorationImage(
+                                              fit: BoxFit.fill,
+                                              image: FileManager
+                                                  .musicAlbumPictureImage(
+                                                      musicInfoData
+                                                          .musicInfoModel
+                                                          .artist,
+                                                      musicInfoData
+                                                          .musicInfoModel
+                                                          .album)),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              )
-                            ],
-                          ),
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     ),
                   ),
+                ),
 
-                  // 播放信息
-                  Text(
-                    musicInfoData.musicInfoList.length > 0
-                        ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].title} - ${musicInfoData.musicInfoList[musicInfoData.playIndex].artist}'
-                        : "",
-                    style: themeData.primaryTextTheme.headline,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    musicInfoData.musicInfoList.length > 0
-                        ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].album}'
-                        : "",
-                    style: themeData.primaryTextTheme.subhead,
-                  ),
-                  // 进度条
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: <
-                      Widget>[
-                    Container(
-                      width: 55,
-                      child: Text(
-                        _currentDurationTime,
-                        style: themeData.primaryTextTheme.subhead,
-                      ),
-                    ),
-                    Container(
-                      width: _windowWidth - 130,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: new CupertinoSlider(
-                        activeColor: themeData.primaryTextTheme.headline.color,
-                        value: _position.inSeconds.toDouble(),
-                        min: 0.0,
-                        max: _maxDuration.inSeconds.toDouble(),
-                        onChanged: (double value) {
-                          Duration curPosition =
-                              new Duration(seconds: value.toInt());
-//                    logger.info(value.toInt());
-                          setState(() {
-                            _position = curPosition;
-                          });
-                        },
-                        onChangeStart: (double val) {
-                          logger.info("change start");
-                          setState(() {
-                            _syncSlide = false;
-                          });
-                        },
-                        onChangeEnd: (double val) {
-                          logger.info("change end :" + val.toInt().toString());
-                          Duration curPosition =
-                              new Duration(milliseconds: val.toInt());
-                          print(curPosition);
-
-                          widget.seekAction(curPosition);
-                          widget.audioplayer.resume();
-                          setState(() {
-//                      _position = curPosition;
-                            _syncSlide = true;
-                          });
-                        },
-                      ),
-                    ),
-                    Container(
-                      width: 55,
-                      child: Text(
-                        _durationTime,
-                        style: themeData.primaryTextTheme.subhead,
-                      ),
-                    ),
-                  ]),
-
-                  // 控制器
-                  Row(
+                // 播放信息
+                Text(
+                  musicInfoData.musicInfoList.length > 0
+                      ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].title} - ${musicInfoData.musicInfoList[musicInfoData.playIndex].artist}'
+                      : "",
+                  style: themeData.primaryTextTheme.headline,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  musicInfoData.musicInfoList.length > 0
+                      ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].album}'
+                      : "",
+                  style: themeData.primaryTextTheme.subhead,
+                ),
+                // 进度条
+                Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Container(
-                        width: 40,
-                        height: 40,
-                        child: CupertinoButton(
-                          pressedOpacity: 1,
-                          padding: EdgeInsets.zero,
-                          child: Icon(
-                            Icons.repeat,
-                            color: themeData.primaryTextTheme.headline.color,
-                          ),
-                          onPressed: () {
-                            widget.hideAction();
-                            Navigator.pop(context);
-                          },
+                        width: 55,
+                        child: Text(
+                          _currentDurationTime,
+                          style: themeData.primaryTextTheme.subhead,
                         ),
                       ),
-                      _genLastBtn(context),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      _genPausePlayBtn(context),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      _genNextBtn(context),
                       Container(
-                        width: 40,
-                        height: 40,
-                        child: CupertinoButton(
-                          pressedOpacity: 1,
-                          padding: EdgeInsets.zero,
-                          child: AnimatedSwitcher(
-                            transitionBuilder: (child, anim) {
-                              return ScaleTransition(child: child, scale: anim);
-                            },
-                            switchInCurve: Curves.fastLinearToSlowEaseIn,
-                            switchOutCurve: Curves.fastLinearToSlowEaseIn,
-                            duration: Duration(milliseconds: 300),
-                            child: musicInfoData.musicInfoFavIDSet
-                                    .contains(musicInfoData.musicInfoModel.id)
-                                ? Container(
-                                    key: Key("play"),
-                                    child: Icon(
-                                      CupertinoIcons.heart_solid,
-                                      color: Colors.red,
-                                      size: 30,
-                                    ),
-                                  )
-                                : Container(
-                                    key: Key("pause"),
-                                    child: Icon(
-                                      CupertinoIcons.heart,
-                                      color: Colors.red,
-                                      size: 30,
-                                    ),
-                                  ),
-                          ),
-                          onPressed: () {
-                            if (musicInfoData.musicInfoFavIDSet
-                                .contains(musicInfoData.musicInfoModel.id)) {
-                              Provider.of<MusicInfoData>(context, listen: false)
-                                  .removeMusicInfoFavIDSet(
-                                      musicInfoData.musicInfoModel.id);
-                            } else {
-                              Provider.of<MusicInfoData>(context, listen: false)
-                                  .addMusicInfoFavIDSet(
-                                      musicInfoData.musicInfoModel.id);
-                            }
+                        width: _windowWidth - 130,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: new CupertinoSlider(
+                          activeColor:
+                              themeData.primaryTextTheme.headline.color,
+                          value: _position.inSeconds.toDouble(),
+                          min: 0.0,
+                          max: _maxDuration.inSeconds.toDouble(),
+                          onChanged: (double value) {
+                            Duration curPosition =
+                                new Duration(seconds: value.toInt());
+
+                            setState(() {
+                              _position = curPosition;
+                            });
+                          },
+                          onChangeStart: (double val) {
+                            setState(() {
+                              _syncSlide = false;
+                            });
+                          },
+                          onChangeEnd: (double val) {
+                            logger
+                                .info("change end :" + val.toInt().toString());
+                            Duration curPosition =
+                                new Duration(milliseconds: val.toInt());
+
+                            widget.seekAction(curPosition);
+                            widget.audioplayer.resume();
+                            setState(() {
+//                      _position = curPosition;
+                              _syncSlide = true;
+                            });
                           },
                         ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                ]),
-              ),
+                      ),
+                      Container(
+                        width: 55,
+                        child: Text(
+                          _durationTime,
+                          style: themeData.primaryTextTheme.subhead,
+                        ),
+                      ),
+                    ]),
+
+                // 控制器
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      width: 40,
+                      height: 40,
+                      child: CupertinoButton(
+                        pressedOpacity: 1,
+                        padding: EdgeInsets.zero,
+                        child: Icon(
+                          Icons.repeat,
+                          color: themeData.primaryTextTheme.headline.color,
+                        ),
+                        onPressed: () {
+                          widget.hideAction();
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                    _genLastBtn(context),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    _genPausePlayBtn(context),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    _genNextBtn(context),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      child: CupertinoButton(
+                        pressedOpacity: 1,
+                        padding: EdgeInsets.zero,
+                        child: AnimatedSwitcher(
+                          transitionBuilder: (child, anim) {
+                            return ScaleTransition(child: child, scale: anim);
+                          },
+                          switchInCurve: Curves.fastLinearToSlowEaseIn,
+                          switchOutCurve: Curves.fastLinearToSlowEaseIn,
+                          duration: Duration(milliseconds: 300),
+                          child: musicInfoData.musicInfoFavIDSet
+                                  .contains(musicInfoData.musicInfoModel.id)
+                              ? Container(
+                                  key: Key("play"),
+                                  child: Icon(
+                                    CupertinoIcons.heart_solid,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                )
+                              : Container(
+                                  key: Key("pause"),
+                                  child: Icon(
+                                    CupertinoIcons.heart,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                ),
+                        ),
+                        onPressed: () {
+                          if (musicInfoData.musicInfoFavIDSet
+                              .contains(musicInfoData.musicInfoModel.id)) {
+                            Provider.of<MusicInfoData>(context, listen: false)
+                                .removeMusicInfoFavIDSet(
+                                    musicInfoData.musicInfoModel.id);
+                          } else {
+                            Provider.of<MusicInfoData>(context, listen: false)
+                                .addMusicInfoFavIDSet(
+                                    musicInfoData.musicInfoModel.id);
+                          }
+                        },
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+              ]),
             ),
           ),
-        ],
+        ),
+      ],
     );
   }
 
@@ -519,18 +520,18 @@ class _PlayingScreenState extends State<PlayingScreen>
   void syncSlide() async {
     if (_syncSlide) {
       int d = await widget.audioplayer.getDuration();
-      var second = (d / 1000).round().toInt() % 60;
+      var second = (d / 1000).floor().toInt() % 60;
       String secondStr =
           second < 10 ? "0" + second.toString() : second.toString();
-      int minute = (d / 60000).round().toInt();
+      int minute = (d / 60000).floor().toInt();
       String minuteStr =
           minute < 10 ? "0" + minute.toString() : minute.toString();
 
       int d2 = await widget.audioplayer.getCurrentPosition();
-      var second2 = (d2 / 1000).round().toInt() % 60;
+      var second2 = (d2 / 1000).floor().toInt() % 60;
       String secondStr2 =
           second2 < 10 ? "0" + second2.toString() : second2.toString();
-      int minute2 = (d2.toInt() / 60000).round().toInt();
+      int minute2 = (d2 / 60000).floor().toInt();
       String minuteStr2 =
           minute2 < 10 ? "0" + minute2.toString() : minute2.toString();
 

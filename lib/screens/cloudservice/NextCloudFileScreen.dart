@@ -1,8 +1,10 @@
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/rowitem/WebDavFileRowItem.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
+import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
@@ -17,6 +19,8 @@ class NextCloudFileScreen extends StatefulWidget {
     this.filePath,
     this.title,
   }) : super(key: key);
+
+  static const String className = "NextCloudFileScreen";
 
   static const String routeName = '/filelist2';
 
@@ -126,6 +130,25 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
                 child: CustomScrollView(
                   semanticChildCount: _files.length,
                   slivers: <Widget>[
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                          top: 0.0, left: 0.0, right: 0.0, bottom: 20.0),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          Container(
+                            child: AdmobBanner(
+                              adUnitId: AdMobService.getBannerAdUnitId(
+                                  NextCloudFileScreen.className),
+                              adSize: AdmobBannerSize.FULL_BANNER,
+                              listener: (AdmobAdEvent event,
+                                  Map<String, dynamic> args) {
+                                AdMobService.handleEvent(event, args, 'Banner');
+                              },
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ),
                     Consumer<MusicInfoData>(
                       builder: (context, musicInfoData, _) => SliverPadding(
                         // Top media padding consumed by CupertinoSliverNavigationBar.

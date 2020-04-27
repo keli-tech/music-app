@@ -14,7 +14,7 @@ final ThemeData lightThemeData = ThemeData(
   bottomAppBarColor: Color(0xffffffff),
   cardColor: Color(0xffffffff),
   dividerColor: Color(0x1f000000),
-  highlightColor: Color(0xccbcbcbc),
+  highlightColor: Color(0xccEEEEEE),
   splashColor: Color(0x66c8c8c8),
   selectedRowColor: Color(0xfff4f4f4),
   unselectedWidgetColor: Color(0x8a000000),
@@ -214,7 +214,7 @@ final ThemeData lightThemeData = ThemeData(
       fontStyle: FontStyle.normal,
     ),
     subtitle: TextStyle(
-      color: Color(0xffadadad),
+      color: Color(0xff888888),
       fontSize: 13,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,

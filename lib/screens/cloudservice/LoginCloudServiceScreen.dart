@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
+import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
@@ -21,6 +23,7 @@ class LoginCloudServiceScreen extends StatefulWidget {
       : super(key: key);
 
   static const String routeName = '/filelist2';
+  static const String className = "LoginCloudServiceScreen";
 
   String path = "/";
   String title = "";
@@ -78,6 +81,19 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
           padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
           child: Column(
             children: <Widget>[
+              Container(
+                child: AdmobBanner(
+                  adUnitId: AdMobService.getBannerAdUnitId(
+                      LoginCloudServiceScreen.className),
+                  adSize: AdmobBannerSize.FULL_BANNER,
+                  listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+                    AdMobService.handleEvent(event, args, 'Banner');
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
               CupertinoTextField(
                 controller: _urlTextController,
                 prefix: const Icon(
