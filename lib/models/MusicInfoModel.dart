@@ -5,21 +5,23 @@ import 'package:hello_world/models/ProfileChangeNotifier.dart';
 import 'package:hello_world/services/Database.dart';
 
 class MusicInfoData extends ProfileChangeNotifier {
-  int _playIndex = 0;
   AudioPlayerState _audioPlayerState = AudioPlayerState.STOPPED;
-  List<MusicInfoModel> _musicInfoList = [];
   Set<int> _musicInfoFavIDSet = Set<int>();
 
 //  MusicInfoModel get musicInfoModel => cnprofile.musicInfoModel;
-  MusicInfoModel get musicInfoModel => _musicInfoList.length > _playIndex
-      ? _musicInfoList[_playIndex]
-      : MusicInfoModel();
+  MusicInfoModel get musicInfoModel => getMusicInfoModel();
 
-  List<MusicInfoModel> get musicInfoList => _musicInfoList;
+  MusicInfoModel getMusicInfoModel() {
+    return cnprofile.musicInfoList.length > cnprofile.playIndex
+        ? cnprofile.musicInfoList[cnprofile.playIndex]
+        : MusicInfoModel();
+  }
+
+  List<MusicInfoModel> get musicInfoList => cnprofile.musicInfoList;
 
   Set<int> get musicInfoFavIDSet => _musicInfoFavIDSet;
 
-  int get playIndex => _playIndex;
+  int get playIndex => cnprofile.playIndex;
 
   AudioPlayerState get audioPlayerState => _audioPlayerState;
 
@@ -29,12 +31,12 @@ class MusicInfoData extends ProfileChangeNotifier {
   }
 
   setPlayIndex(int playIndex) {
-    _playIndex = playIndex;
+    cnprofile.playIndex = playIndex;
     notifyListeners();
   }
 
   setMusicInfoList(List<MusicInfoModel> musicInfoModels) {
-    _musicInfoList = musicInfoModels;
+    cnprofile.musicInfoList = musicInfoModels;
     notifyListeners();
   }
 

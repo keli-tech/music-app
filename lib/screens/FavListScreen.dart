@@ -80,7 +80,6 @@ class _FavListScreen extends State<FavListScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     ThemeData themeData = Theme.of(context);
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
     var windowHeight = MediaQuery.of(context).size.height;
@@ -135,6 +134,42 @@ class _FavListScreen extends State<FavListScreen> {
                   ],
                 ),
               ),
+              _musicSceenListModels.length > 0
+                  ? Card(
+                      color: themeData.backgroundColor,
+                      elevation: 0,
+                      child: ListTile(
+                        title: Text(
+                          "场景",
+                        ),
+                      ),
+                    )
+                  : Container(),
+              _musicSceenListModels.length > 0
+                  ? Card(
+                      color: themeData.backgroundColor,
+                      elevation: 0,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 0.0),
+                        child: Wrap(
+                          spacing: 8.0, // 主轴(水平)方向间距
+                          runSpacing: 4.0, // 纵轴（垂直）方向间距
+                          alignment: WrapAlignment.center, //沿主轴方向居中
+                          children: _musicSceenListModels
+                              .asMap()
+                              .keys
+                              .toList()
+                              .map((index) {
+                            return ChipScreenComp(
+                              refreshFunc: _refreshList,
+                              index: index,
+                              musicPlayListModel: _musicSceenListModels[index],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    )
+                  : Container(),
               Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
@@ -156,53 +191,20 @@ class _FavListScreen extends State<FavListScreen> {
                   ),
                 ),
               ),
-              Column(
-                children: _musicPlayListModels.map((item) {
-                  return PlayListRowItem(
-                    index: 1,
-                    lastItem: false,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: _musicPlayListModels.map((item) {
+                    return PlayListRowItem(
+                      index: 1,
+                      lastItem: false,
 //                  lastItem: index == _musicPlayListModels.length - 1,
-                    musicPlayListModel: item,
-                  );
-                }).toList(),
+                      musicPlayListModel: item,
+                    );
+                  }).toList(),
+                ),
               ),
-              new Divider(),
-              _musicSceenListModels.length > 0
-                  ? Card(
-                      color: themeData.backgroundColor,
-                      elevation: 0,
-                      child: ListTile(
-                        title: Text(
-                          "场景",
-                        ),
-                      ),
-                    )
-                  : Container(),
-              _musicSceenListModels.length > 0
-                  ? Card(
-                      color: themeData.backgroundColor,
-                      elevation: 0,
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 70.0),
-                        child: Wrap(
-                          spacing: 8.0, // 主轴(水平)方向间距
-                          runSpacing: 4.0, // 纵轴（垂直）方向间距
-                          alignment: WrapAlignment.center, //沿主轴方向居中
-                          children: _musicSceenListModels
-                              .asMap()
-                              .keys
-                              .toList()
-                              .map((index) {
-                            return ChipScreenComp(
-                              refreshFunc: _refreshList,
-                              index: index,
-                              musicPlayListModel: _musicSceenListModels[index],
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    )
-                  : Container(),
+              SizedBox(height: 70),
             ]),
           ),
           onRefresh: () {
@@ -330,7 +332,7 @@ class _FavListScreen extends State<FavListScreen> {
                           padding: EdgeInsets.zero,
                           child: Icon(
                             Icons.play_circle_outline,
-                            color: themeData.primaryTextTheme.title.color,
+                            color: themeData.primaryTextTheme.subtitle.color,
                             size: 35,
                           ),
                           onPressed: () async {
@@ -408,7 +410,8 @@ class _FavListScreen extends State<FavListScreen> {
                               padding: EdgeInsets.zero,
                               child: Icon(
                                 Icons.play_circle_outline,
-                                color: themeData.primaryTextTheme.title.color,
+                                color:
+                                    themeData.primaryTextTheme.subtitle.color,
                                 size: 35,
                               ),
                               onPressed: () {},

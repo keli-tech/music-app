@@ -38,6 +38,12 @@ class _FileListScreen extends State<FileListScreen>
     bannerSize = AdmobBannerSize.FULL_BANNER;
   }
 
+  @override
+  void deactivate() {
+    super.deactivate();
+    _refreshList(path);
+  }
+
   _refreshList(String path) async {
     DBProvider.db.getMusicInfoByPath(path).then((onValue) {
       setState(() {

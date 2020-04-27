@@ -86,7 +86,7 @@ class PlayListRowItem extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 child: Icon(
                   Icons.play_circle_outline,
-                  color: themeData.primaryTextTheme.title.color,
+                  color: themeData.primaryTextTheme.subtitle.color,
                   size: 25,
                 ),
                 onPressed: () async {
@@ -108,13 +108,13 @@ class PlayListRowItem extends StatelessWidget {
 
     return Column(
       children: <Widget>[
-        row,
         const Divider(
           thickness: 0.5,
           endIndent: 5,
           indent: 5,
           height: 0.40,
         ),
+        row,
       ],
     );
   }

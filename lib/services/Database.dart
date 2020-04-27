@@ -95,7 +95,7 @@ class DBProvider {
 
       await db.execute(
           "INSERT Into cloud_service (id,name,assetspath,signedin) VALUES "
-          "(1, '坚果云', 'assets/images/cloudicon/坚果云.png', false),"
+          "(1, '坚果云', 'assets/images/cloudicon/jianguoyun.png', false),"
           "(2, 'NextCloud', 'assets/images/cloudicon/nextcloud.png', false),"
           "(3, 'WebDav', 'assets/images/cloudicon/webdav.png', false)"
 //          "(4, '百度网盘', 'assets/images/cloudicon/baidu.png', false),"

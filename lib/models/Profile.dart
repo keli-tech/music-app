@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:hello_world/models/MusicInfoModel.dart';
 
 class Profile {
-  int id;
+  int id = 0;
   MusicInfoModel musicInfo;
-  List<MusicInfoModel> musicInfoList;
-  List<MusicInfoModel> musicInfoFavList;
-  int playIndex;
+  List<MusicInfoModel> musicInfoList = [];
+  List<MusicInfoModel> musicInfoFavList = [];
+  int playIndex = 0;
 
   String documentDirectory;
 
@@ -20,13 +20,23 @@ class Profile {
     this.documentDirectory,
   });
 
-  factory Profile.fromMap(Map<String, dynamic> json) => new Profile(
-        id: json["id"],
-        musicInfo: MusicInfoModel.fromJson(jsonEncode(json["musicInfo"])),
-        musicInfoList: json["musicInfoList"],
-        musicInfoFavList: json["musicInfoFavList"],
-        playIndex: json["playIndex"],
-      );
+  factory Profile.fromMap(Map<String, dynamic> json) {
+    var a = List.castFrom(json["musicInfoList"]);
+    List<MusicInfoModel> musicInfoList = a.isNotEmpty
+        ? a.map((item) {
+            MusicInfoModel m = MusicInfoModel.fromMap(item);
+            return m;
+          }).toList()
+        : [];
+
+    return new Profile(
+      id: json["id"],
+      musicInfo: MusicInfoModel.fromJson(jsonEncode(json["musicInfo"])),
+      musicInfoList: musicInfoList,
+      musicInfoFavList: json["musicInfoFavList"],
+      playIndex: json["playIndex"],
+    );
+  }
 
   Map<String, dynamic> toMap() => {
         "id": id,
@@ -39,7 +49,12 @@ class Profile {
 
   static Profile fromJson(String str) {
     final jsonData = json.decode(str);
-    return Profile.fromMap(jsonData);
+    try {
+      return Profile.fromMap(jsonData);
+    } catch (error) {
+      print(error);
+      return null;
+    }
   }
 
   String toJson() {

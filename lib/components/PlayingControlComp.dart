@@ -218,10 +218,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
 //    audioPlayer.setUrl(file, isLocal: true);
     audioPlayer.play(file, isLocal: true);
 
-    _logger.warning(FileManager.musicAlbumPictureFullPath(
-            musicInfoModel.artist, musicInfoModel.album)
-        .path);
-
     audioPlayer
         .setNotification(
           title: musicInfoModel.title,

@@ -6,6 +6,7 @@ import 'package:hello_world/screens/MyHttpServer.dart';
 import 'package:hello_world/screens/cloudservice/LoginCloudServiceScreen.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
 import 'package:hello_world/services/CloudService.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CloudServiceScreen extends StatefulWidget {
   @override
@@ -91,6 +92,30 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
               Column(
                 children: buildService(),
               ),
+              new Divider(),
+              new ListTile(
+                title: new Text(
+                  '帮助文档',
+                ),
+                leading: new Icon(
+                  Icons.help,
+                  size: 34,
+                  color: themeData.primaryColor,
+                ),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: themeData.primaryColor,
+                ),
+                onTap: () async {
+                  const url = 'https://keli.tech/music/help';
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    print('Could not launch $url');
+                  }
+                },
+              ),
+              SizedBox(height: 20),
             ],
           ),
         ),

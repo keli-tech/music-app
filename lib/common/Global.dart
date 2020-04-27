@@ -34,7 +34,6 @@ class Global {
     if (_profile != null) {
       try {
         profile = Profile.fromJson(_profile);
-        profile.documentDirectory = directory.path;
       } catch (e) {
         print(e);
       }
@@ -52,14 +51,14 @@ class Global {
     }
 
     // 如果没有缓存策略，设置默认缓存策略
-    if (profile.musicInfo == null || profile.musicInfo.id <= 0) {
-      profile.musicInfo = MusicInfoModel()
-        ..id = 0
-        ..name = ""
-        ..path = ""
-        ..fullpath = ""
-        ..type = ""
-        ..syncstatus = true;
+    if (profile.documentDirectory == null) {
+      profile.documentDirectory = directory.path;
+    }
+    if (profile.musicInfoList == null) {
+      profile.musicInfoList = [];
+    }
+    if (profile.playIndex == null) {
+      profile.playIndex = 0;
     }
 
     Logger logger = new Logger("Global");

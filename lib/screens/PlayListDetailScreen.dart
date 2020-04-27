@@ -123,7 +123,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
       child: CustomScrollView(
         semanticChildCount: _musicInfoModels.length,
         slivers: <Widget>[
-          _image == null
+          _image == null || !_image.existsSync()
               ? SliverPadding(
                   padding:
                       EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 1),
