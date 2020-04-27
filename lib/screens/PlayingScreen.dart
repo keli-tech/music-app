@@ -4,7 +4,12 @@ import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
+import 'package:hello_world/models/MusicPlayListModel.dart';
+import 'package:hello_world/screens/ArtistListDetailScreen.dart';
+import 'package:hello_world/screens/PlayListDetailScreen.dart';
+import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -21,12 +26,14 @@ class PlayingScreen extends StatefulWidget {
     this.musicInfoData,
     this.seekAction,
     this.audioplayer,
+    this.statusBarHeight,
   }) : super(key: key);
 
   final String title;
   int showMusicScreen;
   AudioPlayer audioplayer;
   MusicInfoData musicInfoData;
+  double statusBarHeight;
 
   Future<Null> Function() hideAction;
   Function(Duration) seekAction;
@@ -43,16 +50,7 @@ class _PlayingScreenState extends State<PlayingScreen>
   String _durationTime = "";
   bool _syncSlide = true;
 
-  List<MusicInfoModel> musicInfoModels = [];
   int playIndex = 0;
-  MusicInfoModel musicInfoModel = new MusicInfoModel(
-    name: "",
-    path: "",
-    fullpath: "",
-    type: "",
-    syncstatus: true,
-  );
-
   Animation<double> animation;
   AnimationController _animationController;
 
@@ -189,7 +187,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
                             Transform.scale(
-                              scale: 1.9,
+                              scale: 1.6,
                               child: RotateTransform(
                                 animation: animation,
                                 //将要执行动画的子view
@@ -199,16 +197,16 @@ class _PlayingScreenState extends State<PlayingScreen>
                                   color: Colors.transparent,
                                   onPressed: _playPauseAction,
                                   child: CircleAvatar(
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    radius: _windowWidth * 0.35,
+                                    backgroundImage: AssetImage(
+                                        "assets/images/heijiao-record.png"),
+                                    radius: _windowWidth * 0.50,
                                     child: Center(
                                       child: Container(
-                                        height: _windowWidth * 0.7 - 16,
-                                        width: _windowWidth * 0.7 - 16,
+                                        height: _windowWidth * 0.625,
+                                        width: _windowWidth * 0.625,
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(
-                                              _windowWidth * 0.35 - 8.0),
+                                              _windowWidth * 0.315),
                                           image: DecorationImage(
                                               fit: BoxFit.fill,
                                               image: FileManager
@@ -240,14 +238,41 @@ class _PlayingScreenState extends State<PlayingScreen>
                       : "",
                   style: themeData.primaryTextTheme.headline,
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  musicInfoData.musicInfoList.length > 0
-                      ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].album}'
-                      : "",
-                  style: themeData.primaryTextTheme.subhead,
+                ListTile(
+                  leading: CupertinoButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      widget.hideAction();
+                    },
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 30,
+                      color: themeData.primaryTextTheme.headline.color,
+                    ),
+                  ),
+                  title: Center(
+                    child: Text(
+                      musicInfoData.musicInfoList.length > 0
+                          ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].album}'
+                          : "",
+                      style: themeData.primaryTextTheme.subhead,
+                    ),
+                  ),
+                  trailing: CupertinoButton(
+                    onPressed: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (BuildContext context1) {
+                          return _actionSheet(context1, context);
+                        },
+                      );
+                    },
+                    child: Icon(
+                      Icons.more_vert,
+                      size: 30,
+                      color: themeData.primaryTextTheme.headline.color,
+                    ),
+                  ),
                 ),
                 // 进度条
                 Row(
@@ -421,12 +446,12 @@ class _PlayingScreenState extends State<PlayingScreen>
                 ? Icon(
                     Icons.pause,
                     size: 40,
-                    color: themeData.primaryColor,
+                    color: Colors.brown,
                   )
                 : Icon(
                     Icons.play_arrow,
                     size: 40,
-                    color: themeData.primaryColor,
+                    color: Colors.brown,
                   ),
           ),
         ));
@@ -544,5 +569,94 @@ class _PlayingScreenState extends State<PlayingScreen>
         });
       }
     }
+  }
+
+  Widget _actionSheet(BuildContext context1, BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+    var windowHeight = MediaQuery.of(context).size.height;
+    List<Widget> actionSheets = [];
+    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
+
+    actionSheets.add(CupertinoActionSheetAction(
+        child: Text(
+          '查看专辑',
+        ),
+        onPressed: () async {
+          Navigator.pop(context1);
+
+          String album = musicInfoData.musicInfoModel.album;
+          String artist = musicInfoData.musicInfoModel.artist;
+
+          MusicPlayListModel musicPlayListModel =
+              await DBProvider.db.getMusicPlayListByArtistName(artist, album);
+          if (musicPlayListModel.id > 0) {
+            Navigator.of(context, rootNavigator: true)
+                .push(MaterialPageRoute<void>(
+              builder: (BuildContext context) => PlayListDetailScreen(
+                musicPlayListModel: musicPlayListModel,
+                statusBarHeight: widget.statusBarHeight,
+              ),
+            ));
+          }
+        }));
+
+    actionSheets.add(CupertinoActionSheetAction(
+        child: Text(
+          '查看歌手',
+        ),
+        onPressed: () {
+          Navigator.pop(context1);
+
+          Navigator.of(context, rootNavigator: true)
+              .push(MaterialPageRoute<void>(
+            builder: (BuildContext context) => ArtistListDetailScreen(
+              artist: musicInfoData.musicInfoModel.artist,
+              statusBarHeight: widget.statusBarHeight,
+            ),
+          ));
+        }));
+
+    actionSheets.add(CupertinoActionSheetAction(
+      child: Text(
+        '收藏到歌单',
+      ),
+      onPressed: () {
+        Navigator.pop(context1);
+
+        showModalBottomSheet<void>(
+            context: context,
+            useRootNavigator: false,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              return PlayListSelectorContainer(
+                title: "收藏到歌单",
+                mid: musicInfoData.musicInfoModel.id,
+                statusBarHeight: widget.statusBarHeight,
+              );
+            });
+
+//        showCupertinoModalPopup(
+//            context: context,
+//            builder: (BuildContext context) {
+//              return PlayListSelectorContainer(
+//                title: "添加到歌单",
+//                playListId: mplID,
+//                statusBarHeight: statusBarHeight,
+//              );
+//            });
+      },
+    ));
+
+    return new CupertinoActionSheet(
+      actions: actionSheets,
+      cancelButton: CupertinoActionSheetAction(
+        child: Text(
+          '取消',
+        ),
+        onPressed: () {
+          Navigator.of(context1).pop();
+        },
+      ),
+    );
   }
 }

@@ -19,8 +19,6 @@ class WebDavFileRowItem extends StatefulWidget {
     this.cloudServiceModel,
   }) : super(key: key);
 
-  int statusBarHeight;
-
   final String filePath;
   final bool lastItem;
   final int index;

@@ -163,8 +163,9 @@ class AlbumImageAnimation extends StatelessWidget {
           child: Transform.rotate(
             angle: angle1.value + angle2.value + angle3.value,
             child: CircleAvatar(
-              backgroundColor: Theme.of(context).primaryColor,
-              radius: 25, // --> 半径越大，图片越大
+              backgroundImage: AssetImage(
+                  "assets/images/heijiao-record.png"),
+              radius: 32, // --> 半径越大，图片越大
               child: Center(
                 child: Container(
                   key: Key("start"),

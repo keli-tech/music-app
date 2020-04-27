@@ -394,6 +394,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                           seekAction: seek,
                           audioplayer: audioPlayer,
                           musicInfoData: musicInfoData,
+                          statusBarHeight: _statusBarHeight,
                         );
                       });
                 } else {
