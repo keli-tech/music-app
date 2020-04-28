@@ -5,6 +5,7 @@ import 'package:hello_world/components/modals/FileSelectorComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
+import 'package:hello_world/utils/ToastUtils.dart';
 
 class FileSelectorContainer extends StatefulWidget {
   FileSelectorContainer(
@@ -207,14 +208,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
                   widget.playListId, _listItem.musicInfoModel.id)
               .then((res) {
             if (res > 0) {
-              Fluttertoast.showToast(
-                  msg: "已添到歌单",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: Colors.black45,
-                  textColor: Colors.white,
-                  fontSize: 14.0);
+              ToastUtils.show("已添加到歌单");
             }
           });
         } else {
@@ -222,15 +216,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
               .deleteMusicFromPlayList(
                   widget.playListId, _listItem.musicInfoModel.id)
               .then((res) {
-            if (res > 0)
-              Fluttertoast.showToast(
-                  msg: "已从歌单删除",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: Colors.black45,
-                  textColor: Colors.white,
-                  fontSize: 14.0);
+            if (res > 0) ToastUtils.show("已从歌单删除.");
           });
         }
 

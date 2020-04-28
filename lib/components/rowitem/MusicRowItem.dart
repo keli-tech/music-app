@@ -1,11 +1,12 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
-import 'package:hello_world/screens/ArtistListDetailScreen.dart';
-import 'package:hello_world/screens/PlayListDetailScreen.dart';
+import 'package:hello_world/screens/album/ArtistListDetailScreen.dart';
+import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
@@ -43,15 +44,13 @@ class MusicRowItem extends StatelessWidget {
     MusicInfoModel _musicInfoModel = musicInfoModels[index];
 
     final Widget row = GestureDetector(
-      behavior: HitTestBehavior.opaque,
       onTap: () {
         MusicControlService.play(context, musicInfoModels, index);
       },
-      child: Container(
-        color: playId == musicInfoModels[index].id &&
-                audioPlayerState == AudioPlayerState.PLAYING
-            ? themeData.selectedRowColor
-            : themeData.cardColor,
+      child: Tile(
+        selected: playId == musicInfoModels[index].id &&
+            audioPlayerState == AudioPlayerState.PLAYING,
+        radiusnum: 15.0,
         child: SafeArea(
           top: false,
           bottom: false,
@@ -122,7 +121,11 @@ class MusicRowItem extends StatelessWidget {
                                 _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                                     ? '${_musicInfoModel.title} - ${_musicInfoModel.artist}'
                                     : "",
-                                style: themeData.primaryTextTheme.title,
+                                style: playId == musicInfoModels[index].id &&
+                                        audioPlayerState ==
+                                            AudioPlayerState.PLAYING
+                                    ? themeData.textTheme.title
+                                    : themeData.primaryTextTheme.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -134,7 +137,12 @@ class MusicRowItem extends StatelessWidget {
                           _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
                               ? '${_musicInfoModel.album}'
                               : "",
-                          style: themeData.primaryTextTheme.subtitle,
+                          style: playId == musicInfoModels[index].id &&
+                                  audioPlayerState == AudioPlayerState.PLAYING
+                              ? themeData.textTheme.subtitle
+                              : themeData.primaryTextTheme.subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -142,9 +150,12 @@ class MusicRowItem extends StatelessWidget {
                 ),
                 CupertinoButton(
                   padding: EdgeInsets.zero,
-                  child: const Icon(
+                  child: Icon(
                     Icons.more_horiz,
-                    semanticLabel: 'Add',
+                    color: playId == musicInfoModels[index].id &&
+                            audioPlayerState == AudioPlayerState.PLAYING
+                        ? themeData.primaryColorLight
+                        : themeData.primaryColorDark,
                   ),
                   onPressed: () {
                     showCupertinoModalPopup(

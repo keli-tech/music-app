@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
-import 'package:hello_world/screens/PlayListDetailScreen.dart';
+import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
@@ -31,8 +32,11 @@ class PlayListRowItem extends StatelessWidget {
           ),
         ));
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Tile(
+        selected: false,
+//        selected: playId == musicInfoModels[index].id &&
+//            audioPlayerState == AudioPlayerState.PLAYING,
+        radiusnum: 15.0,
         child: SafeArea(
           top: false,
           bottom: false,
@@ -83,11 +87,20 @@ class PlayListRowItem extends StatelessWidget {
                 ),
               ),
               CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: Icon(
-                  Icons.play_circle_outline,
-                  color: themeData.primaryTextTheme.subtitle.color,
-                  size: 25,
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Tile(
+                  selected: false,
+                  radiusnum: 20,
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: themeData.primaryColorDark,
+                    foregroundColor: themeData.primaryColorLight,
+                    child: Icon(
+                      Icons.play_arrow,
+                      color: themeData.primaryColorLight,
+                      size: 18,
+                    ),
+                  ),
                 ),
                 onPressed: () async {
                   var _musicInfoModels = await DBProvider.db

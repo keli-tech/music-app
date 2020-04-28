@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/components/rowitem/FileRowItem.dart';
 import 'package:provider/provider.dart';
 
-import '../models/MusicInfoModel.dart';
-import '../services/Database.dart';
+import '../../models/MusicInfoModel.dart';
+import '../../services/Database.dart';
 
 class FileList2Screen extends StatefulWidget {
   FileList2Screen({Key key, this.musicInfoModel}) : super(key: key);
@@ -51,6 +51,7 @@ class _FileList2Screen extends State<FileList2Screen>
     return CupertinoPageScaffold(
         backgroundColor: themeData.backgroundColor,
         navigationBar: CupertinoNavigationBar(
+          border: null,
           middle: Text(
             widget.musicInfoModel.name,
             style: themeData.primaryTextTheme.title,
@@ -68,7 +69,7 @@ class _FileList2Screen extends State<FileList2Screen>
                   // Top media padding consumed by CupertinoSliverNavigationBar.
                   // Left/Right media padding consumed by Tab1RowItem.
                   padding:
-                      EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 70),
+                      EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 20),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {

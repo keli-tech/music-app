@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
-import 'package:hello_world/screens/ArtistListDetailScreen.dart';
-import 'package:hello_world/screens/PlayListDetailScreen.dart';
+import 'package:hello_world/screens/album/ArtistListDetailScreen.dart';
+import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:logging/logging.dart';
@@ -86,6 +86,8 @@ class _PlayingScreenState extends State<PlayingScreen>
     _animationController.dispose();
     periodicTimer.cancel();
     logger.info("dispose");
+
+    widget.hideAction();
     super.dispose();
   }
 
@@ -242,7 +244,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                   leading: CupertinoButton(
                     onPressed: () {
                       Navigator.pop(context);
-                      widget.hideAction();
+//                      widget.hideAction();
                     },
                     child: Icon(
                       Icons.keyboard_arrow_down,
@@ -346,7 +348,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                           color: themeData.primaryTextTheme.headline.color,
                         ),
                         onPressed: () {
-                          widget.hideAction();
+//                          widget.hideAction();
                           Navigator.pop(context);
                         },
                       ),

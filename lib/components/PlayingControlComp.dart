@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/components/modals/MusicFileListComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/PlayingScreen.dart';
@@ -251,167 +252,197 @@ class _PlayingControlCompState extends State<PlayingControlComp>
       bottom: 50 + _bottomBarHeight,
       child: Consumer<MusicInfoData>(
         builder: (context, musicInfoData, _) => Container(
-            decoration: BoxDecoration(
-              border: Border(
-                  top: BorderSide(
-                color: themeData.dividerColor,
-                width: 0.3,
-                style: BorderStyle.solid,
-              )),
-            ),
             child: new FlatButton(
-              splashColor: themeData.backgroundColor,
-              highlightColor: themeData.backgroundColor,
-              color: themeData.backgroundColor,
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  child: CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    pressedOpacity: 1,
+          padding: EdgeInsets.zero,
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: themeData.primaryColorLight,
+                  // 向上阴影
+                  offset: Offset(0.0, -4.0),
+                  blurRadius: 1.0,
+                  spreadRadius: 0.30,
+                ),
+                BoxShadow(
+                  color: Color(0x6aFFFFFF),
+                  // 向上阴影
+                  offset: Offset(0.0, -12.0),
+                  blurRadius: 20.0,
+                  spreadRadius: 2.0,
+                ),
+                BoxShadow(
+                  color: Color(0x6aFFFFFF),
+                  offset: Offset(10.0, 0.0),
+                  blurRadius: 15.0,
+                  spreadRadius: 2.0,
+                ),
+                BoxShadow(
+                  color: Color(0x6aFFFFFF),
+                  // 向上阴影
+                  offset: Offset(-10.0, 0.0),
+                  blurRadius: 15.0,
+                  spreadRadius: 2.0,
+                ),
+              ],
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0),
+                  topRight: Radius.circular(30.0)),
+              color: themeData.primaryColorDark,
+            ),
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                width: 80,
+                height: 50,
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  pressedOpacity: 1,
+                  child: Tile(
+                    selected: false,
+                    radiusnum: 50,
+                    blur: 4,
                     child: Icon(
                       _musicPlayAction == AudioPlayerState.PLAYING
                           ? Icons.pause_circle_filled
                           : Icons.play_circle_filled,
                       size: 35,
-                      semanticLabel: 'Add',
+                      color: themeData.primaryColorDark,
                     ),
-                    onPressed: () {
-                      if (_musicPlayAction == AudioPlayerState.PLAYING) {
-                        eventBus
-                            .fire(MusicPlayerEventBus(MusicPlayerEvent.stop));
-                      } else {
-                        eventBus
-                            .fire(MusicPlayerEventBus(MusicPlayerEvent.play));
-                      }
-                    },
                   ),
+                  onPressed: () {
+                    if (_musicPlayAction == AudioPlayerState.PLAYING) {
+                      eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.stop));
+                    } else {
+                      eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
+                    }
+                  },
                 ),
-                title: new Container(
+              ),
+              title: new Container(
 //                    padding:
 //                        EdgeInsets.only(left: 10, top: 2, right: 10, bottom: 2),
-                  child: new Row(
-                    children: <Widget>[
-                      Expanded(
-                          child: musicInfoData.musicInfoList.length <= 0
-                              ? Text("")
-                              : buildCarouselControl(context, musicInfoData)),
-                    ],
-                  ),
+                child: new Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: musicInfoData.musicInfoList.length <= 0
+                            ? Text("")
+                            : buildCarouselControl(context, musicInfoData)),
+                  ],
                 ),
-                trailing: Container(
-                  height: 80,
-                  width: 90,
-                  child: Row(
-                    children: <Widget>[
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        pressedOpacity: 1,
-                        child: AnimatedSwitcher(
-                            transitionBuilder: (child, anim) {
-                              return ScaleTransition(child: child, scale: anim);
-                            },
-                            switchInCurve: Curves.fastLinearToSlowEaseIn,
-                            switchOutCurve: Curves.fastLinearToSlowEaseIn,
-                            duration: Duration(milliseconds: 300),
-                            child: musicInfoData.musicInfoFavIDSet
-                                    .contains(musicInfoData.musicInfoModel.id)
-                                ? Container(
-                                    key: Key("play"),
-                                    child: Icon(
-                                      CupertinoIcons.heart_solid,
-                                      color: Colors.red,
-                                      size: 35,
-                                    ),
-                                  )
-                                : Container(
-                                    key: Key("pause"),
-                                    child: Icon(
-                                      CupertinoIcons.heart,
-                                      color: Colors.red,
-                                      size: 35,
-                                    ),
-                                  )),
-                        onPressed: () {
+              ),
+              trailing: Container(
+                height: 40,
+                width: 100,
+                child: Row(
+                  children: <Widget>[
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      pressedOpacity: 1,
+                      child: AnimatedSwitcher(
+                          transitionBuilder: (child, anim) {
+                            return ScaleTransition(child: child, scale: anim);
+                          },
+                          switchInCurve: Curves.fastLinearToSlowEaseIn,
+                          switchOutCurve: Curves.fastLinearToSlowEaseIn,
+                          duration: Duration(milliseconds: 300),
+                          child: musicInfoData.musicInfoFavIDSet
+                                  .contains(musicInfoData.musicInfoModel.id)
+                              ? Container(
+                                  key: Key("play"),
+                                  child: Icon(
+                                    CupertinoIcons.heart_solid,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                )
+                              : Container(
+                                  key: Key("pause"),
+                                  child: Icon(
+                                    CupertinoIcons.heart,
+                                    color: Colors.red,
+                                    size: 30,
+                                  ),
+                                )),
+                      onPressed: () {
 //                          _buttonCarouselController.nextPage(
 //                              duration: Duration(milliseconds: 300),
 //                              curve: Curves.linear);
 
-                          if (musicInfoData.musicInfoFavIDSet
-                              .contains(musicInfoData.musicInfoModel.id)) {
-                            Provider.of<MusicInfoData>(context, listen: false)
-                                .removeMusicInfoFavIDSet(
-                                    musicInfoData.musicInfoModel.id);
-                          } else {
-                            Provider.of<MusicInfoData>(context, listen: false)
-                                .addMusicInfoFavIDSet(
-                                    musicInfoData.musicInfoModel.id);
-                          }
-                        },
+                        if (musicInfoData.musicInfoFavIDSet
+                            .contains(musicInfoData.musicInfoModel.id)) {
+                          Provider.of<MusicInfoData>(context, listen: false)
+                              .removeMusicInfoFavIDSet(
+                                  musicInfoData.musicInfoModel.id);
+                        } else {
+                          Provider.of<MusicInfoData>(context, listen: false)
+                              .addMusicInfoFavIDSet(
+                                  musicInfoData.musicInfoModel.id);
+                        }
+                      },
+                    ),
+                    CupertinoButton(
+                      onPressed: () {
+                        showModalBottomSheet<void>(
+                            elevation: 15,
+                            context: context,
+                            useRootNavigator: true,
+                            isScrollControlled: true,
+                            builder: (BuildContext context) {
+                              return MusicFileListComp(
+                                statusBarHeight: 0,
+                              );
+                            });
+                      },
+                      padding: EdgeInsets.zero,
+                      child: Icon(
+                        Icons.format_list_bulleted,
+                        color: themeData.primaryColorLight,
+                        size: 30,
                       ),
-                      CupertinoButton(
-                        onPressed: () {
-                          showModalBottomSheet<void>(
-                              elevation: 15,
-                              context: context,
-                              useRootNavigator: true,
-                              isScrollControlled: true,
-                              builder: (BuildContext context) {
-                                return MusicFileListComp(
-                                  statusBarHeight: _statusBarHeight,
-                                );
-                              });
-                        },
-                        padding: EdgeInsets.zero,
-                        child: Icon(
-                          Icons.format_list_bulleted,
-                          color: themeData.primaryColor,
-                          size: 30,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              onPressed: () {
-                if (musicInfoData.playIndex == null ||
-                    musicInfoData.playIndex < 0 ||
-                    musicInfoData.musicInfoList == null ||
-                    musicInfoData.musicInfoList.length <= 0) {
-                  return;
-                }
+            ),
+          ),
+          onPressed: () {
+            if (musicInfoData.playIndex == null ||
+                musicInfoData.playIndex < 0 ||
+                musicInfoData.musicInfoList == null ||
+                musicInfoData.musicInfoList.length <= 0) {
+              return;
+            }
 
-                if (true) {
-                  showModalBottomSheet<void>(
-                      context: context,
-                      useRootNavigator: false,
-                      isScrollControlled: true,
-                      builder: (BuildContext context) {
-                        return PlayingScreen(
-                          hideAction: widget.hideAction,
-                          seekAction: seek,
-                          audioplayer: audioPlayer,
-                          musicInfoData: musicInfoData,
-                          statusBarHeight: _statusBarHeight,
-                        );
-                      });
-                } else {
-                  Navigator.of(context, rootNavigator: true)
-                      .push(CupertinoPageRoute<void>(
-                    title: "",
-                    fullscreenDialog: true,
-                    builder: (BuildContext context) => PlayingScreen(
+            if (true) {
+              showModalBottomSheet<void>(
+                  context: context,
+                  useRootNavigator: false,
+                  isScrollControlled: true,
+                  builder: (BuildContext context) {
+                    return PlayingScreen(
                       hideAction: widget.hideAction,
                       seekAction: seek,
                       audioplayer: audioPlayer,
                       musicInfoData: musicInfoData,
-                    ),
-                  ));
-                }
-              },
-            )),
+                      statusBarHeight: _statusBarHeight,
+                    );
+                  });
+            } else {
+              Navigator.of(context, rootNavigator: true)
+                  .push(CupertinoPageRoute<void>(
+                title: "",
+                fullscreenDialog: true,
+                builder: (BuildContext context) => PlayingScreen(
+                  hideAction: widget.hideAction,
+                  seekAction: seek,
+                  audioplayer: audioPlayer,
+                  musicInfoData: musicInfoData,
+                ),
+              ));
+            }
+          },
+        )),
       ),
     );
   }
@@ -452,14 +483,16 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                     maxLines: 1,
                     style: TextStyle(
                       fontSize: 13,
-                      color: themeData.textTheme.title.color,
+                      color: themeData.primaryColorLight,
                     ),
                   ),
                   Text(
                     musicInfoModel.artist,
                     maxLines: 1,
                     style: TextStyle(
-                        fontSize: 10, color: themeData.textTheme.title.color),
+                      fontSize: 10,
+                      color: themeData.primaryColorLight,
+                    ),
                   ),
                 ],
               ),

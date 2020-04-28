@@ -1,17 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/ChipScreenComp.dart';
+import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/components/rowitem/PlayListRowItem.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
-import 'package:hello_world/screens/PlayListDetailScreen.dart';
+import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
-import '../models/MusicInfoModel.dart';
-import '../services/Database.dart';
+import '../../models/MusicInfoModel.dart';
+import '../../services/Database.dart';
 
 class FavListScreen extends StatefulWidget {
   @override
@@ -69,8 +70,6 @@ class _FavListScreen extends State<FavListScreen> {
     var musicPlayListModel = await DBProvider.db
         .getMusicPlayListById(MusicPlayListModel.FAVOURITE_PLAY_LIST_ID);
 
-    print('-------------------------');
-
     setState(() {
       _musicSceenListModels = musicSceenListModels;
       _musicPlayListModels = musicPlayListModels;
@@ -87,125 +86,124 @@ class _FavListScreen extends State<FavListScreen> {
 
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(
-          "收藏",
-          style: themeData.primaryTextTheme.title,
-        ),
-        backgroundColor: themeData.backgroundColor,
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Icon(
-            Icons.more_vert,
-            color: themeData.primaryColor,
-          ),
-          onPressed: () {
-            showCupertinoModalPopup(
-              context: context,
-              builder: (BuildContext context1) {
-                return _actionSheet(context1, context);
-              },
-            );
-          },
-        ),
-      ),
       child: Scrollbar(
         child: RefreshIndicator(
           color: Colors.white,
           backgroundColor: themeData.primaryColor,
-          child: SingleChildScrollView(
-            child: Column(children: <Widget>[
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-                child: Flex(
-                  direction: Axis.horizontal,
-                  children: <Widget>[
-                    Expanded(
-                      flex: 1,
-                      child: _favPlayListInfo == null
-                          ? Container()
-                          : _buildFavList(context),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: _buildHistory100(context),
-                    ),
-                  ],
+          child: CustomScrollView(
+            slivers: <Widget>[
+              CupertinoSliverNavigationBar(
+                actionsForegroundColor: themeData.primaryColorDark,
+                backgroundColor: themeData.primaryColorLight,
+                border: null,
+                automaticallyImplyTitle: false,
+                automaticallyImplyLeading: false,
+                largeTitle: Text(
+                  "收藏",
+                  style: TextStyle(
+                    color: themeData.primaryColorDark,
+                  ),
+                ),
+                trailing: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  child: Icon(
+                    Icons.more_vert,
+                    color: themeData.primaryColor,
+                  ),
+                  onPressed: () {
+                    showCupertinoModalPopup(
+                      context: context,
+                      builder: (BuildContext context1) {
+                        return _actionSheet(context1, context);
+                      },
+                    );
+                  },
                 ),
               ),
-              _musicSceenListModels.length > 0
-                  ? Card(
-                      color: themeData.backgroundColor,
-                      elevation: 0,
-                      child: ListTile(
-                        title: Text(
-                          "场景",
+              SliverPadding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    Column(children: <Widget>[
+                      Container(
+                        child: Flex(
+                          direction: Axis.horizontal,
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: _favPlayListInfo == null
+                                  ? Container()
+                                  : _buildFavList(context),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: _buildHistory100(context),
+                            ),
+                          ],
                         ),
                       ),
-                    )
-                  : Container(),
-              _musicSceenListModels.length > 0
-                  ? Card(
-                      color: themeData.backgroundColor,
-                      elevation: 0,
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 0.0),
-                        child: Wrap(
-                          spacing: 8.0, // 主轴(水平)方向间距
-                          runSpacing: 4.0, // 纵轴（垂直）方向间距
-                          alignment: WrapAlignment.center, //沿主轴方向居中
-                          children: _musicSceenListModels
-                              .asMap()
-                              .keys
-                              .toList()
-                              .map((index) {
-                            return ChipScreenComp(
-                              refreshFunc: _refreshList,
-                              index: index,
-                              musicPlayListModel: _musicSceenListModels[index],
+                      SizedBox(
+                        height: 8,
+                      ),
+                      _musicSceenListModels.length > 0
+                          ? Text(
+                              "场景",
+                              style: themeData.primaryTextTheme.title,
+                            )
+                          : Container(),
+                      _musicSceenListModels.length > 0
+                          ? Card(
+                              color: themeData.backgroundColor,
+                              child: Padding(
+                                padding: EdgeInsets.only(bottom: 0.0),
+                                child: Wrap(
+                                  spacing: 8.0, // 主轴(水平)方向间距
+                                  runSpacing: 4.0, // 纵轴（垂直）方向间距
+                                  alignment: WrapAlignment.center, //沿主轴方向居中
+                                  children: _musicSceenListModels
+                                      .asMap()
+                                      .keys
+                                      .toList()
+                                      .map((index) {
+                                    return ChipScreenComp(
+                                      refreshFunc: _refreshList,
+                                      index: index,
+                                      musicPlayListModel:
+                                          _musicSceenListModels[index],
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            )
+                          : Container(),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "歌单",
+                            textAlign: TextAlign.left,
+                            style: themeData.primaryTextTheme.title,
+                          ),
+                        ],
+                      ),
+                      Container(
+                        child: Column(
+                          children: _musicPlayListModels.map((item) {
+                            return PlayListRowItem(
+                              index: 1,
+                              lastItem: false,
+//                  lastItem: index == _musicPlayListModels.length - 1,
+                              musicPlayListModel: item,
                             );
                           }).toList(),
                         ),
                       ),
-                    )
-                  : Container(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
-                child: Container(
-                  color: themeData.backgroundColor,
-                  child: Column(
-                    children: <Widget>[
-                      new Divider(),
-                      Card(
-                        elevation: 0,
-                        color: themeData.backgroundColor,
-                        child: ListTile(
-                          title: Text(
-                            "歌单",
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                      SizedBox(height: 70),
+                    ]),
+                  ]),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  children: _musicPlayListModels.map((item) {
-                    return PlayListRowItem(
-                      index: 1,
-                      lastItem: false,
-//                  lastItem: index == _musicPlayListModels.length - 1,
-                      musicPlayListModel: item,
-                    );
-                  }).toList(),
-                ),
-              ),
-              SizedBox(height: 70),
-            ]),
+              )
+            ],
           ),
           onRefresh: () {
             if (_isLoding) return null;
@@ -242,16 +240,16 @@ class _FavListScreen extends State<FavListScreen> {
             _addPlayList();
           },
         ),
-        CupertinoActionSheetAction(
-          child: Text(
-            '新建场景',
-          ),
-          onPressed: () {
-            Navigator.pop(context1);
-
-            _addSceen();
-          },
-        ),
+//        CupertinoActionSheetAction(
+//          child: Text(
+//            '新建场景',
+//          ),
+//          onPressed: () {
+//            Navigator.pop(context1);
+//
+//            _addSceen();
+//          },
+//        ),
       ],
       cancelButton: CupertinoActionSheetAction(
         child: Text(
@@ -273,8 +271,9 @@ class _FavListScreen extends State<FavListScreen> {
     return Card(
       elevation: 0,
       color: Colors.transparent,
-      child: Container(
-        color: Colors.transparent,
+      child: Tile(
+        selected: false,
+        radiusnum: 5.0,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () async {
@@ -291,7 +290,7 @@ class _FavListScreen extends State<FavListScreen> {
             ));
           },
           child: Container(
-            height: 150,
+            height: 130,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8.0),
               image: DecorationImage(
@@ -330,10 +329,20 @@ class _FavListScreen extends State<FavListScreen> {
                         ),
                         CupertinoButton(
                           padding: EdgeInsets.zero,
-                          child: Icon(
-                            Icons.play_circle_outline,
-                            color: themeData.primaryTextTheme.subtitle.color,
-                            size: 35,
+                          child: Tile(
+                            selected: true,
+                            blur: 3,
+                            radiusnum: 20.0,
+                            child: CircleAvatar(
+                              radius: 14,
+                              backgroundColor: themeData.primaryColorDark,
+                              foregroundColor: themeData.primaryColorLight,
+                              child: Icon(
+                                Icons.play_arrow,
+                                color: themeData.primaryColorLight,
+                                size: 18,
+                              ),
+                            ),
                           ),
                           onPressed: () async {
                             var _musicInfoModels =
@@ -361,7 +370,9 @@ class _FavListScreen extends State<FavListScreen> {
     return Card(
       elevation: 0,
       color: Colors.transparent,
-      child: Container(
+      child: Tile(
+        selected: false,
+        radiusnum: 5.0,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {},
@@ -372,7 +383,7 @@ class _FavListScreen extends State<FavListScreen> {
               top: false,
               bottom: false,
               child: Container(
-                height: 150,
+                height: 130,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8.0),
                   image: DecorationImage(
@@ -408,11 +419,20 @@ class _FavListScreen extends State<FavListScreen> {
                             ),
                             CupertinoButton(
                               padding: EdgeInsets.zero,
-                              child: Icon(
-                                Icons.play_circle_outline,
-                                color:
-                                    themeData.primaryTextTheme.subtitle.color,
-                                size: 35,
+                              child: Tile(
+                                selected: true,
+                                blur: 3,
+                                radiusnum: 20.0,
+                                child: CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: themeData.primaryColorDark,
+                                  foregroundColor: themeData.primaryColorLight,
+                                  child: Icon(
+                                    Icons.play_arrow,
+                                    color: themeData.primaryColorLight,
+                                    size: 18,
+                                  ),
+                                ),
                               ),
                               onPressed: () {},
                             ),

@@ -6,8 +6,8 @@ import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
-import '../models/MusicInfoModel.dart';
-import '../services/Database.dart';
+import '../../models/MusicInfoModel.dart';
+import '../../services/Database.dart';
 
 // 我喜欢的音乐
 // 播放列表
@@ -71,6 +71,7 @@ class _ArtistListDetailScreen extends State<ArtistListDetailScreen>
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
       navigationBar: CupertinoNavigationBar(
+        border: null,
         backgroundColor: themeData.backgroundColor,
         middle: Text(
           widget.artist,
@@ -82,7 +83,7 @@ class _ArtistListDetailScreen extends State<ArtistListDetailScreen>
         slivers: <Widget>[
           Consumer<MusicInfoData>(
             builder: (context, musicInfoData, _) => SliverPadding(
-              padding: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 70),
+              padding: EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {

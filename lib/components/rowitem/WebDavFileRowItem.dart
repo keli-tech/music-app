@@ -198,7 +198,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                                   .toStringAsFixed(2)
                                   .toString() +
                               "MB"),
-                          style: themeData.textTheme.subtitle,
+                          style: themeData.primaryTextTheme.subtitle,
                         ),
                       ],
                     ),
@@ -216,7 +216,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                           )
                         : Icon(
                             Icons.check_box,
-                            color: Colors.green,
+                            color: Colors.greenAccent,
                           )),
                 SizedBox(
                   width: 8,

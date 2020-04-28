@@ -1,10 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_world/common/Global.dart';
+import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
-import 'package:hello_world/screens/FileList2Screen.dart';
+import 'package:hello_world/screens/file/FileList2Screen.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
@@ -74,9 +74,10 @@ class FileRowItem extends StatelessWidget {
           ),
         ));
       },
-      child: Container(
-        color:
-            CupertinoDynamicColor.resolve(themeData.backgroundColor, context),
+      child: Tile(
+        selected: playId == musicInfoModels[index].id &&
+            audioPlayerState == AudioPlayerState.PLAYING,
+        radiusnum: 15.0,
         child: SafeArea(
           top: false,
           bottom: false,
@@ -144,118 +145,131 @@ class FileRowItem extends StatelessWidget {
   Widget builder(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
-    final Widget row = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        MusicControlService.play(context, musicInfoModels, index);
-      },
-      child: Container(
-        color: playId == musicInfoModels[index].id &&
-                audioPlayerState == AudioPlayerState.PLAYING
-            ? themeData.selectedRowColor
-            : themeData.cardColor,
-        child: SafeArea(
-          top: false,
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.only(
-                left: 16.0, top: 8.0, bottom: 8.0, right: 8.0),
-            child: Row(
-              children: <Widget>[
-                AnimatedSwitcher(
-                    transitionBuilder: (child, anim) {
-                      return ScaleTransition(child: child, scale: anim);
-                    },
-                    switchInCurve: Curves.fastLinearToSlowEaseIn,
-                    switchOutCurve: Curves.fastOutSlowIn,
-                    duration: Duration(milliseconds: 300),
-                    child: Container(
-                      height: 50.0,
-                      width: 50.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        image: DecorationImage(
-                          fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
-                          image: FileManager.musicAlbumPictureImage(
-                              musicInfoModels[index].artist,
-                              musicInfoModels[index].album),
+    final Widget row = Padding(
+      padding: EdgeInsets.symmetric(vertical: 5),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          MusicControlService.play(context, musicInfoModels, index);
+        },
+        child: Tile(
+          radiusnum: 15.0,
+          selected: playId == musicInfoModels[index].id &&
+              audioPlayerState == AudioPlayerState.PLAYING,
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  left: 16.0, top: 8.0, bottom: 8.0, right: 8.0),
+              child: Row(
+                children: <Widget>[
+                  AnimatedSwitcher(
+                      transitionBuilder: (child, anim) {
+                        return ScaleTransition(child: child, scale: anim);
+                      },
+                      switchInCurve: Curves.fastLinearToSlowEaseIn,
+                      switchOutCurve: Curves.fastOutSlowIn,
+                      duration: Duration(milliseconds: 300),
+                      child: Container(
+                        height: 50.0,
+                        width: 50.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4.0),
+                          image: DecorationImage(
+                            fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
+                            image: FileManager.musicAlbumPictureImage(
+                                musicInfoModels[index].artist,
+                                musicInfoModels[index].album),
+                          ),
                         ),
-                      ),
-                      child: playId == musicInfoModels[index].id &&
-                              audioPlayerState == AudioPlayerState.PLAYING
-                          ? Container(
-                              alignment: Alignment.bottomCenter,
-                              child: Container(
-                                key: Key("start"),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                  color: Colors.black54,
-                                ),
-                                child: new Image.asset(
-                                  "assets/images/playing.gif",
-                                  width: 50,
-                                ),
-                              ),
-                            )
-                          : Container(),
-                    )),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            !musicInfoFavIDSet
-                                    .contains(musicInfoModels[index].id)
-                                ? Text("")
-                                : Flex(
-                                    direction: Axis.horizontal,
-                                    children: <Widget>[
-                                      Icon(
-                                        CupertinoIcons.heart_solid,
-                                        color: Colors.red,
-                                        size: 16,
-                                      ),
-                                    ],
+                        child: playId == musicInfoModels[index].id &&
+                                audioPlayerState == AudioPlayerState.PLAYING
+                            ? Container(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  key: Key("start"),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                    color: Colors.black54,
                                   ),
-                            Expanded(
-                              child: Text(
-                                musicInfoModels[index].name,
-                                maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
-                                overflow: TextOverflow.ellipsis,
+                                  child: new Image.asset(
+                                    "assets/images/playing.gif",
+                                    width: 50,
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                      )),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              !musicInfoFavIDSet
+                                      .contains(musicInfoModels[index].id)
+                                  ? Text("")
+                                  : Flex(
+                                      direction: Axis.horizontal,
+                                      children: <Widget>[
+                                        Icon(
+                                          CupertinoIcons.heart_solid,
+                                          color: Colors.red,
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
+                              Expanded(
+                                child: Text(
+                                  musicInfoModels[index].name,
+                                  maxLines: 1,
+                                  style: playId == musicInfoModels[index].id &&
+                                          audioPlayerState ==
+                                              AudioPlayerState.PLAYING
+                                      ? themeData.textTheme.subtitle
+                                      : themeData.primaryTextTheme.title,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const Padding(padding: EdgeInsets.only(top: 8.0)),
-                        Text(
-                          musicInfoModels[index].filesize ?? "",
-                          style: themeData.primaryTextTheme.subtitle,
-                        ),
-                      ],
+                            ],
+                          ),
+                          const Padding(padding: EdgeInsets.only(top: 8.0)),
+                          Text(
+                            musicInfoModels[index].filesize ?? "",
+                            style: playId == musicInfoModels[index].id &&
+                                    audioPlayerState == AudioPlayerState.PLAYING
+                                ? themeData.textTheme.subtitle
+                                : themeData.primaryTextTheme.subtitle,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Icon(
-                    Icons.more_horiz,
-                    semanticLabel: 'Add',
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Icon(
+                      Icons.more_horiz,
+                      semanticLabel: 'Add',
+                      color: playId == musicInfoModels[index].id &&
+                              audioPlayerState == AudioPlayerState.PLAYING
+                          ? themeData.primaryColorLight
+                          : themeData.primaryColorDark,
+                    ),
+                    onPressed: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (BuildContext context1) {
+                          return _actionSheet(context1, context);
+                        },
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    showCupertinoModalPopup(
-                      context: context,
-                      builder: (BuildContext context1) {
-                        return _actionSheet(context1, context);
-                      },
-                    );
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

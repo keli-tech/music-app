@@ -5,13 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/components/AblumImageAnimation.dart';
 import 'package:hello_world/components/PlayingControlComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
-import 'package:hello_world/screens/AlbumListScreen.dart';
-import 'package:hello_world/screens/FavListScreen.dart';
-import 'package:hello_world/screens/FileList2Screen.dart';
-import 'package:hello_world/screens/PlayListDetailScreen.dart';
+import 'package:hello_world/screens/album/AlbumListScreen.dart';
+import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
+import 'package:hello_world/screens/album/TypeScreen.dart';
+import 'package:hello_world/screens/cloudservice/CloudServiceScreen.dart';
+import 'package:hello_world/screens/fav/FavListScreen.dart';
+import 'package:hello_world/screens/file/FileList2Screen.dart';
 import 'package:provider/provider.dart';
 
-import 'FileListScreen.dart';
+import 'file/FileListScreen.dart';
 
 class StructScreen extends StatefulWidget {
   static const String routeName = '/struct';
@@ -98,6 +100,7 @@ class _StructScreenState extends State<StructScreen>
   final GlobalKey<NavigatorState> firstTabNavKey = GlobalKey<NavigatorState>();
   final GlobalKey<NavigatorState> secondTabNavKey = GlobalKey<NavigatorState>();
   final GlobalKey<NavigatorState> thirdTabNavKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> forthTabNavKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -133,18 +136,19 @@ class _StructScreenState extends State<StructScreen>
                       case 2:
                         thirdTabNavKey.currentState.popUntil((r) => r.isFirst);
                         break;
+                      case 3:
+                        forthTabNavKey.currentState.popUntil((r) => r.isFirst);
+                        break;
                     }
                   }
                   _currentIndex = index;
                 },
+                activeColor: themeData.primaryColorLight,
+                inactiveColor: themeData.accentColor,
+                backgroundColor: themeData.primaryColorDark,
                 currentIndex: 0,
                 iconSize: 30,
-                backgroundColor: themeData.backgroundColor,
-                items: const <BottomNavigationBarItem>[
-//                  BottomNavigationBarItem(
-//                    icon: Icon(CupertinoIcons.music_note),
-//                    title: Text("收藏"),
-//                  ),
+                items: <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
                     icon: Icon(Icons.favorite),
                     title: Text("收藏"),
@@ -157,10 +161,14 @@ class _StructScreenState extends State<StructScreen>
                     icon: Icon(Icons.insert_drive_file),
                     title: Text("文件"),
                   ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.cloud),
+                    title: Text("云同步"),
+                  ),
                 ],
               ),
               tabBuilder: (BuildContext context, int index) {
-                assert(index >= 0 && index <= 2);
+                assert(index >= 0 && index <= 3);
                 switch (index) {
                   case 0:
                     return CupertinoTabView(
@@ -170,17 +178,10 @@ class _StructScreenState extends State<StructScreen>
                       defaultTitle: '收藏',
                     );
                     break;
-//                  case 1:
-//                    return CupertinoTabView(
-//                      builder: (BuildContext context) => PlayListScreen(),
-//                      routes: routes,
-//                      defaultTitle: '歌单',
-//                    );
-//                    break;
                   case 1:
                     return CupertinoTabView(
                       navigatorKey: secondTabNavKey,
-                      builder: (BuildContext context) => AlbumListScreen(),
+                      builder: (BuildContext context) => TypeScreen(),
                       routes: routes,
                       defaultTitle: '专辑',
                     );
@@ -191,6 +192,15 @@ class _StructScreenState extends State<StructScreen>
                       builder: (BuildContext context) => FileListScreen(),
                       routes: routes,
                       defaultTitle: '文件',
+                    );
+                    break;
+                  case 3:
+                    return CupertinoTabView(
+                      navigatorKey: forthTabNavKey,
+                      builder: (BuildContext context) {
+                        return CloudServiceScreen();
+                      },
+                      defaultTitle: '云同步',
                     );
                     break;
                 }

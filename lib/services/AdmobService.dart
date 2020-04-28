@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:admob_flutter/admob_flutter.dart';
-import 'package:hello_world/screens/AlbumListScreen.dart';
-import 'package:hello_world/screens/FileListScreen.dart';
-import 'package:hello_world/screens/MyHttpServer.dart';
+import 'package:hello_world/screens/album/AlbumListScreen.dart';
+import 'package:hello_world/screens/file/FileListScreen.dart';
+import 'package:hello_world/screens/cloudservice/MyHttpServer.dart';
 import 'package:hello_world/screens/cloudservice/LoginCloudServiceScreen.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
 import 'package:hello_world/utils/ToastUtils.dart';

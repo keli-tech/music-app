@@ -52,12 +52,13 @@ class _MusicFileListComp extends State<MusicFileListComp>
 
     ThemeData themeData = Theme.of(context);
     return Container(
-        height: height * 0.7,
+        height: height * 0.6,
         color: themeData.backgroundColor,
         padding: EdgeInsetsDirectional.only(top: widget.statusBarHeight),
         child: CupertinoPageScaffold(
           backgroundColor: themeData.backgroundColor,
           navigationBar: CupertinoNavigationBar(
+            border: null,
             backgroundColor: themeData.backgroundColor,
             leading: Container(
                 child: CupertinoButton(
@@ -81,7 +82,7 @@ class _MusicFileListComp extends State<MusicFileListComp>
               Consumer<MusicInfoData>(
                 builder: (context, musicInfoData, _) => SliverPadding(
                   padding:
-                      EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 70),
+                      EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {

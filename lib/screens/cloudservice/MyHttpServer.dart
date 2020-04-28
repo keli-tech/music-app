@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hello_world/common/Global.dart';
+import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/FileManager.dart';
@@ -15,8 +16,8 @@ import 'package:hello_world/utils/HttpServerUtils.dart';
 import 'package:http_server/http_server.dart';
 import 'package:logging/logging.dart';
 
-import '../models/MusicInfoModel.dart';
-import '../services/Database.dart';
+import '../../models/MusicInfoModel.dart';
+import '../../services/Database.dart';
 
 class MyHttpServer extends StatefulWidget {
   static const String className = 'MyHttpServer';
@@ -268,7 +269,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
         }
 
         // 保存音乐封面
-        if (picture != null || picture.imageData != null) {
+        if (picture != null && picture.imageData != null) {
           var dir = await FileManager.musicAlbumPicturePath(artist, album)
               .create(recursive: true);
           var imageFile =
@@ -403,27 +404,34 @@ class _MyHttpServerState extends State<MyHttpServer> {
               switchOutCurve: Curves.fastOutSlowIn,
               duration: Duration(milliseconds: 400),
               child: serverStarted == false
-                  ? RaisedButton(
-                      padding: EdgeInsets.only(
-                          left: 30, top: 15, right: 30, bottom: 15),
-                      key: Key("stop"),
-                      color: themeData.primaryColor,
-                      onPressed: () {
-                        _startServer();
-                      },
-                      child: Text("启动Wi-Fi同步文件服务",
-                          style: themeData.primaryTextTheme.button),
-                    )
-                  : RaisedButton(
-                      key: Key("start"),
-                      padding: EdgeInsets.only(
-                          left: 30, top: 15, right: 30, bottom: 15),
-                      color: Colors.red,
-                      onPressed: () {
-                        _stopServer();
-                      },
-                      child: Text("停止Wi-Fi同步文件服务",
-                          style: themeData.primaryTextTheme.button),
+                  ? Tile(
+                      selected: false,
+                      radiusnum: 5.0,
+                      child: RaisedButton(
+                        padding: EdgeInsets.only(
+                            left: 30, top: 15, right: 30, bottom: 15),
+                        key: Key("stop"),
+                        color: themeData.primaryColorLight,
+                        onPressed: () {
+                          _startServer();
+                        },
+                        child: Text("启动Wi-Fi同步文件服务",
+                            style: themeData.primaryTextTheme.button),
+                      ))
+                  : Tile(
+                      selected: false,
+                      radiusnum: 5.0,
+                      child: RaisedButton(
+                        key: Key("start"),
+                        padding: EdgeInsets.only(
+                            left: 30, top: 15, right: 30, bottom: 15),
+                        color: Colors.red,
+                        onPressed: () {
+                          _stopServer();
+                        },
+                        child: Text("停止Wi-Fi同步文件服务",
+                            style: themeData.primaryTextTheme.button),
+                      ),
                     ),
             ),
             SizedBox(
@@ -434,7 +442,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
                   EdgeInsets.only(left: 15, top: 15, right: 15, bottom: 15),
               child: Text(
                 "手机与电脑连接到同一个Wi-Fi网络，可以通过电脑端web浏览器来传输文件。",
-                style: themeData.textTheme.subtitle,
+                style: themeData.primaryTextTheme.subtitle,
               ),
             ),
             SizedBox(
@@ -446,12 +454,14 @@ class _MyHttpServerState extends State<MyHttpServer> {
                       ListTile(
                         title: new Text(
                           '在电脑端浏览器中输入以下 url:',
+                          style: themeData.primaryTextTheme.title,
                         ),
                       ),
                       Divider(),
                       ListTile(
                         title: new Text(
                           serverUrl,
+                          style: themeData.primaryTextTheme.title,
                         ),
                         leading: Icon(
                           Icons.desktop_mac,
@@ -469,12 +479,12 @@ class _MyHttpServerState extends State<MyHttpServer> {
                             });
 
                             Scaffold.of(context).showSnackBar(new SnackBar(
-                                backgroundColor: themeData.selectedRowColor,
+                                backgroundColor: themeData.primaryColorDark,
                                 content: Container(
                                   height: 70,
                                   child: new Text(
                                     "已复制 url !",
-                                    style: themeData.primaryTextTheme.title,
+                                    style: themeData.textTheme.title,
                                   ),
                                 )));
                           },

@@ -169,10 +169,10 @@ class AlbumImageAnimation extends StatelessWidget {
               child: Center(
                 child: Container(
                   key: Key("start"),
-                  height: 48.0,
-                  width: 48.0,
+                  height: 40.0,
+                  width: 40.0,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24.0),
+                    borderRadius: BorderRadius.circular(20.0),
                     image: DecorationImage(
                         fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
                         image: FileManager.musicAlbumPictureImage(

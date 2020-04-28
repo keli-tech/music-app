@@ -3,25 +3,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
-import 'package:hello_world/screens/ArtistListDetailScreen.dart';
+import 'package:hello_world/screens/album/ArtistListDetailScreen.dart';
 import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 
-import '../services/Database.dart';
-import 'PlayListDetailScreen.dart';
+import '../../services/Database.dart';
+import '../album/PlayListDetailScreen.dart';
 
-class AlbumListScreen extends StatefulWidget {
-  AlbumListScreen({
+class ArtistListScreen extends StatefulWidget {
+  ArtistListScreen({
     Key key,
   }) : super(key: key);
   static const String className = 'MyHttpServer';
 
   @override
-  _AlbumListScreen createState() => _AlbumListScreen();
+  _ArtistListScreen createState() => _ArtistListScreen();
 }
 
-class _AlbumListScreen extends State<AlbumListScreen> {
+class _ArtistListScreen extends State<ArtistListScreen> {
   List<MusicPlayListModel> _musicPlayListModels = [];
   List<Map<String, String>> _artistListModels = [];
   int currentControl = 0;
@@ -63,8 +63,9 @@ class _AlbumListScreen extends State<AlbumListScreen> {
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
       navigationBar: CupertinoNavigationBar(
+        border: null,
         middle: Text(
-          "专辑",
+          "歌手",
           style: themeData.primaryTextTheme.title,
         ),
         backgroundColor: themeData.backgroundColor,
@@ -72,118 +73,62 @@ class _AlbumListScreen extends State<AlbumListScreen> {
       child: RefreshIndicator(
         color: Colors.white,
         backgroundColor: themeData.primaryColor,
-        child: Container(
-          height: _windowHeight,
-          width: _windowWidth,
-          child: Column(
-            children: <Widget>[
-              Global.showAd
-                  ? Container(
-                      child: AdmobBanner(
-                        adUnitId: AdMobService.getBannerAdUnitId(
-                            AlbumListScreen.className),
-                        adSize: AdmobBannerSize.FULL_BANNER,
-                        listener:
-                            (AdmobAdEvent event, Map<String, dynamic> args) {
-                          AdMobService.handleEvent(event, args, 'Banner');
-                        },
-                      ),
-                    )
-                  : Container(),
-              Container(
-                width: _windowWidth,
-                child: CupertinoSlidingSegmentedControl(
-                  padding: EdgeInsets.all(4.0),
-                  groupValue: currentControl,
-                  onValueChanged: (int newValue) {
-                    setState(() {
-                      currentControl = newValue;
-                    });
-                  },
-                  children: {
-                    0: Container(
-                      alignment: Alignment.center,
-                      height: 35,
-                      child: Text("专辑"),
-                    ),
-                    1: Container(
-                      alignment: Alignment.center,
-                      height: 35,
-                      child: Text("歌手"),
-                    ),
-                  },
+        child: CupertinoScrollbar(
+          child: CustomScrollView(
+            semanticChildCount: _musicPlayListModels.length,
+            slivers: <Widget>[
+              SliverPadding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      Global.showAd
+                          ? Container(
+                              child: AdmobBanner(
+                                adUnitId: AdMobService.getBannerAdUnitId(
+                                    ArtistListScreen.className),
+                                adSize: AdmobBannerSize.FULL_BANNER,
+                                listener: (AdmobAdEvent event,
+                                    Map<String, dynamic> args) {
+                                  AdMobService.handleEvent(
+                                      event, args, 'Banner');
+                                },
+                              ),
+                            )
+                          : Container(),
+                    ],
+                  ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.only(
-                    left: 5.0, right: 5.0, top: 0, bottom: 30.0),
-                height: _windowHeight -
-                    _bottomBarHeight -
-                    50 -
-                    160 -
-                    AdmobBannerSize.FULL_BANNER.height,
-                width: _windowWidth,
-                child: CupertinoScrollbar(
-                    child: CustomScrollView(
-                        semanticChildCount: _musicPlayListModels.length,
-                        slivers: <Widget>[
-                      currentControl == 0
-                          ? SliverGrid(
-                              //Grid
-                              gridDelegate:
-                                  new SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                mainAxisSpacing: 10.0,
-                                crossAxisSpacing: 15.0,
-                                childAspectRatio: 1,
-                              ),
-                              delegate: new SliverChildBuilderDelegate(
-                                (BuildContext context, int index) {
-                                  //创建子widget
-                                  return Tab1RowItem(
-                                    index: index,
-                                    musicPlayListModel:
-                                        _musicPlayListModels[index],
-                                  );
-                                },
-                                childCount: _musicPlayListModels.length,
-                              ),
-                            )
-                          : SliverList(
-                              delegate: new SliverChildBuilderDelegate(
-                                (BuildContext context, int index) {
-                                  return Card(
-                                    color: Colors.transparent,
-                                    elevation: 0,
-                                    child: ListTile(
-                                      onTap: () {
-                                        Navigator.of(context)
-                                            .push(CupertinoPageRoute<void>(
-                                          title: _artistListModels[index]
-                                              ["artist"],
-                                          builder: (BuildContext context) =>
-                                              ArtistListDetailScreen(
-                                            artist: _artistListModels[index]
-                                                ["artist"],
-                                            statusBarHeight:
-                                                MediaQuery.of(context)
-                                                    .padding
-                                                    .top,
-                                          ),
-                                        ));
-                                      },
-                                      leading: Text(
-                                        '${index + 1}. ' +
-                                            _artistListModels[index]["artist"],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                childCount: _artistListModels.length,
-                              ),
-                            )
-                    ])),
-              ),
+              SliverList(
+                delegate: new SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    return Card(
+                      color: Colors.transparent,
+                      elevation: 0,
+                      child: ListTile(
+                        onTap: () {
+                          Navigator.of(context).push(CupertinoPageRoute<void>(
+                            title: _artistListModels[index]["artist"],
+                            builder: (BuildContext context) =>
+                                ArtistListDetailScreen(
+                              artist: _artistListModels[index]["artist"],
+                              statusBarHeight:
+                                  MediaQuery.of(context).padding.top,
+                            ),
+                          ));
+                        },
+                        leading: Text(
+                          '${index + 1}. ' + _artistListModels[index]["artist"],
+                          style: themeData.primaryTextTheme.title,
+                        ),
+                      ),
+                    );
+                  },
+                  childCount: _artistListModels.length,
+                ),
+              )
             ],
           ),
         ),
@@ -266,7 +211,7 @@ class Tab1RowItem extends StatelessWidget {
           top: false,
           bottom: false,
           child: Hero(
-            tag: 'AlbumListScreen' + musicPlayListModel.id.toString(),
+            tag: 'ArtistListScreen' + musicPlayListModel.id.toString(),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),

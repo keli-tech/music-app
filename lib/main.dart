@@ -3,6 +3,8 @@ import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/theme/darkTheme.dart';
 import 'package:hello_world/theme/lightTheme.dart';
+import 'package:hello_world/theme/testPinkTheme.dart';
+import 'package:hello_world/theme/testTheme.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
@@ -48,7 +50,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: lightThemeData,
+      theme: testThemeData,
       darkTheme: darkThemeData,
       home: StructScreen(),
     );
