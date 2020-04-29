@@ -42,6 +42,8 @@ class FileRowItem extends StatelessWidget {
       row = builder(context);
     }
 
+    return row;
+
     if (lastItem) {
       return row;
     }
@@ -146,7 +148,7 @@ class FileRowItem extends StatelessWidget {
     ThemeData themeData = Theme.of(context);
 
     final Widget row = Padding(
-      padding: EdgeInsets.symmetric(vertical: 5),
+      padding: EdgeInsets.only(top: 5),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {

@@ -3,11 +3,13 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/Tile.dart';
+import 'package:hello_world/components/modals/ModalFit.dart';
 import 'package:hello_world/components/modals/MusicFileListComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/PlayingScreen.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:logging/logging.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../services/EventBus.dart';
@@ -27,7 +29,7 @@ class PlayingControlComp extends StatefulWidget {
 }
 
 class _PlayingControlCompState extends State<PlayingControlComp>
-    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -383,6 +385,20 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                     ),
                     CupertinoButton(
                       onPressed: () {
+                        showCupertinoModalBottomSheet(
+                          secondAnimation: AnimationController(
+                              duration: Duration(milliseconds: 50),
+                              vsync: this),
+                          bounce: true,
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          builder: (context, scrollController) => ModalFit(
+                            scrollController: scrollController,
+                          ),
+                        );
+
+                        return;
+
                         showModalBottomSheet<void>(
                             elevation: 15,
                             context: context,

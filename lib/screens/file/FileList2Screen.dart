@@ -30,6 +30,12 @@ class _FileList2Screen extends State<FileList2Screen>
     _refreshList(widget.musicInfoModel.fullpath);
   }
 
+  @override
+  void deactivate() {
+    super.deactivate();
+    _refreshList(widget.musicInfoModel.fullpath);
+  }
+
   //销毁
   @override
   void dispose() {

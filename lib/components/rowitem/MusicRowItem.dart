@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/Tile.dart';
+import 'package:hello_world/components/modals/ModalFit.dart';
 import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
@@ -11,6 +12,7 @@ import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class MusicRowItem extends StatelessWidget {
   const MusicRowItem({
@@ -158,12 +160,25 @@ class MusicRowItem extends StatelessWidget {
                         : themeData.primaryColorDark,
                   ),
                   onPressed: () {
-                    showCupertinoModalPopup(
+
+
+                    showCupertinoModalBottomSheet(
+
+                      useRootNavigator: true,
+                      expand: false,
                       context: context,
-                      builder: (BuildContext context1) {
-                        return _actionSheet(context1, context);
-                      },
+                      backgroundColor: Colors.transparent,
+                      builder: (context, scrollController) => ModalFit(
+                        scrollController: scrollController,
+                      ),
                     );
+
+//                    showCupertinoModalPopup(
+//                      context: context,
+//                      builder: (BuildContext context1) {
+//                        return _actionSheet(context1, context);
+//                      },
+//                    );
                   },
                 ),
               ],
