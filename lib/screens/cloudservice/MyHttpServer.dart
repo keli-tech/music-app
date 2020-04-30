@@ -379,20 +379,8 @@ class _MyHttpServerState extends State<MyHttpServer> {
       width: _windowWidth,
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: <
           Widget>[
-        Global.showAd
-            ? Container(
-                child: AdmobBanner(
-                  adUnitId:
-                      AdMobService.getBannerAdUnitId(MyHttpServer.className),
-                  adSize: AdmobBannerSize.FULL_BANNER,
-                  listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-                    AdMobService.handleEvent(event, args, 'Banner');
-                  },
-                ),
-              )
-            : Container(),
         SizedBox(
-          height: 70,
+          height: 20,
         ),
         Column(
           children: <Widget>[
@@ -437,6 +425,40 @@ class _MyHttpServerState extends State<MyHttpServer> {
             SizedBox(
               height: 30,
             ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              child: Flex(
+                direction: Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Icon(
+                    Icons.desktop_mac,
+                    size: 40,
+                    color: themeData.primaryColorDark,
+                  ),
+                  Icon(
+                    Icons.compare_arrows,
+                    size: 20,
+                    color: themeData.primaryColorDark,
+                  ),
+                  Icon(
+                    Icons.wifi,
+                    size: 20,
+                    color: themeData.primaryColorDark,
+                  ),
+                  Icon(
+                    Icons.compare_arrows,
+                    size: 20,
+                    color: themeData.primaryColorDark,
+                  ),
+                  Icon(
+                    Icons.phone_iphone,
+                    size: 40,
+                    color: themeData.primaryColorDark,
+                  ),
+                ],
+              ),
+            ),
             Padding(
               padding:
                   EdgeInsets.only(left: 15, top: 15, right: 15, bottom: 15),
@@ -445,15 +467,12 @@ class _MyHttpServerState extends State<MyHttpServer> {
                 style: themeData.primaryTextTheme.subtitle,
               ),
             ),
-            SizedBox(
-              height: 30,
-            ),
             serverStarted == true
                 ? Column(
                     children: <Widget>[
                       ListTile(
                         title: new Text(
-                          '在电脑端浏览器中输入以下 url:',
+                          '在电脑端浏览器中输入以下 url，开始同步请勿退出当前页面。',
                           style: themeData.primaryTextTheme.title,
                         ),
                       ),
@@ -494,6 +513,23 @@ class _MyHttpServerState extends State<MyHttpServer> {
                   )
                 : Text(""),
           ],
+        ),
+        Divider(),
+        Global.showAd
+            ? Container(
+                padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
+                child: AdmobBanner(
+                  adUnitId:
+                      AdMobService.getBannerAdUnitId(MyHttpServer.className),
+                  adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
+                  listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+                    AdMobService.handleEvent(event, args, 'Banner');
+                  },
+                ),
+              )
+            : Container(),
+        SizedBox(
+          height: 20,
         ),
       ]),
     );

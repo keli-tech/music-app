@@ -145,7 +145,7 @@ class _StructScreenState extends State<StructScreen>
                 activeColor: themeData.primaryColorLight,
                 inactiveColor: Colors.grey,
                 backgroundColor: themeData.primaryColorDark,
-                currentIndex: 0,
+                currentIndex: _currentIndex,
                 iconSize: 30,
                 items: <BottomNavigationBarItem>[
                   BottomNavigationBarItem(

@@ -4,10 +4,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:hello_world/models/ProfileChangeNotifier.dart';
 import 'package:hello_world/services/Database.dart';
 
-enum PlayMode{
-  order,//顺序
-  repeat,//重复
-  shuffle,//随机
+enum PlayMode {
+  order, //顺序
+  repeat, //重复
+  shuffle, //随机
 }
 
 class MusicInfoData extends ProfileChangeNotifier {
@@ -18,6 +18,11 @@ class MusicInfoData extends ProfileChangeNotifier {
   MusicInfoModel get musicInfoModel => getMusicInfoModel();
 
   MusicInfoModel getMusicInfoModel() {
+    if (cnprofile.playIndex < 0) {
+      setPlayIndex(0);
+      cnprofile.playIndex = 0;
+    }
+
     return cnprofile.musicInfoList.length > cnprofile.playIndex
         ? cnprofile.musicInfoList[cnprofile.playIndex]
         : MusicInfoModel();

@@ -1,6 +1,10 @@
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/rowitem/FileRowItem.dart';
+import 'package:hello_world/screens/file/FileListScreen.dart';
+import 'package:hello_world/services/AdmobService.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/MusicInfoModel.dart';
@@ -60,16 +64,42 @@ class _FileList2Screen extends State<FileList2Screen>
         ),
         child: RefreshIndicator(
           color: Colors.white,
-          backgroundColor: themeData.primaryColor,
+          backgroundColor: themeData.primaryColorLight,
           child: CustomScrollView(
             semanticChildCount: _musicInfoModels.length,
             slivers: <Widget>[
+
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 5.0, horizontal: 8.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      Global.showAd
+                          ? Container(
+                        child: AdmobBanner(
+                          adUnitId: AdMobService.getBannerAdUnitId(
+                              FileListScreen.className),
+                          adSize: AdmobBannerSize.FULL_BANNER,
+                          listener: (AdmobAdEvent event,
+                              Map<String, dynamic> args) {
+                            AdMobService.handleEvent(
+                                event, args, 'Banner');
+                          },
+                        ),
+                      )
+                          : Container(),
+                    ],
+                  ),
+                ),
+              ),
+
               Consumer<MusicInfoData>(
                 builder: (context, musicInfoData, _) => SliverPadding(
                   // Top media padding consumed by CupertinoSliverNavigationBar.
                   // Left/Right media padding consumed by Tab1RowItem.
                   padding:
-                      EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 20),
+                      EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {

@@ -26,7 +26,7 @@ class DBProvider {
 
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "keli_music9.db");
+    String path = join(documentsDirectory.path, "keli_music.db");
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       // 文件和文件夹信息表
@@ -66,7 +66,13 @@ class DBProvider {
           "create unique index if not exists mid ON music_play_list (name, type, artist)");
 
       await db.execute(
-          "INSERT Into music_play_list (id,artist,name,type,sort,imgpath) VALUES (1, '-', '我喜欢的音乐', 'fav', 1000, '')");
+          "INSERT Into music_play_list (id,artist,name,type,sort,imgpath) "
+              "VALUES "
+              " (1, '-', '我喜欢的音乐', 'fav', 1000, '') ,"
+              " (2, '-', '运动', 'playlist', 100, '') ,"
+              " (3, '-', '古典', 'playlist', 100, '') ,"
+              " (4, '-', '热爱', 'playlist', 100, '')"
+      );
 
       await db.execute("create table if not exists music_play_list_info("
           "mpl_id INTEGER,"
@@ -428,6 +434,20 @@ class DBProvider {
         where: "artist = ? ",
         orderBy: " sort asc, updatetime desc ",
         whereArgs: [artist]);
+
+    List<MusicInfoModel> list = res.isNotEmpty
+        ? res.map((c) => MusicInfoModel.fromMap(c)).toList()
+        : [];
+    return list;
+  }
+
+  Future<List<MusicInfoModel>> getMusicInfoAll() async {
+    final db = await database;
+
+    var res = await db.query("music_info",
+        where: " type != ? ",
+        orderBy: " sort asc, updatetime desc ",
+        whereArgs: [MusicInfoModel.TYPE_FOLD]);
 
     List<MusicInfoModel> list = res.isNotEmpty
         ? res.map((c) => MusicInfoModel.fromMap(c)).toList()

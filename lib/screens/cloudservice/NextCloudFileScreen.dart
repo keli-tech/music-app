@@ -126,7 +126,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
               )
             : RefreshIndicator(
                 color: Colors.white,
-                backgroundColor: themeData.primaryColor,
+          backgroundColor: themeData.primaryColorLight,
                 child: CustomScrollView(
                   semanticChildCount: _files.length,
                   slivers: <Widget>[

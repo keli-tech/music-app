@@ -63,7 +63,7 @@ class Global {
     if (profile.playMode == null) {
       profile.playMode = PlayMode.order;
     }
-    print(profile.playMode);
+//    print(profile.playMode);
 
     profile.documentDirectory = directory.path;
 

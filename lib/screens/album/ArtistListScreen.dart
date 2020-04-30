@@ -72,7 +72,7 @@ class _ArtistListScreen extends State<ArtistListScreen> {
       ),
       child: RefreshIndicator(
         color: Colors.white,
-        backgroundColor: themeData.primaryColor,
+        backgroundColor: themeData.primaryColorLight,
         child: CupertinoScrollbar(
           child: CustomScrollView(
             semanticChildCount: _musicPlayListModels.length,

@@ -170,6 +170,54 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
               ),
             ),
           ),
+          SliverPadding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                Container(
+                  child: Center(
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(height: 40),
+                        CupertinoButton(
+                          onPressed: () {
+                            showCupertinoModalBottomSheet(
+                              expand: true,
+                              elevation: 30,
+                              context: context,
+                              backgroundColor: Colors.transparent,
+                              builder: (context, scrollController) => Material(
+                                color: Color(0xffececec),
+                                child: SafeArea(
+                                  top: false,
+                                  child: FileSelectorContainer(
+                                    level: 0,
+                                    title: "添加歌曲",
+                                    playListId: widget.musicPlayListModel.id,
+                                    statusBarHeight: widget.statusBarHeight,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Icon(
+                            Icons.add_circle,
+                            color: Colors.white60,
+                            size: 150,
+                          ),
+                        ),
+                        Text(
+                          "添加歌曲",
+                          style: themeData.primaryTextTheme.subtitle,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+          )
         ],
       ),
     );

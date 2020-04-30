@@ -19,7 +19,6 @@ class ToastUtils {
             textColor: Colors.white,
             fontSize: 13.0)
         .then((res) {
-      print(res);
       showing = false;
     });
   }

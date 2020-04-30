@@ -52,12 +52,12 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
   void initState() {
     super.initState();
 
-//    _urlTextController =
-//        TextEditingController(text: widget.cloudServiceModel.url);
-//    _accountTextController =
-//        TextEditingController(text: widget.cloudServiceModel.account);
-//    _passwordTextController =
-//        TextEditingController(text: widget.cloudServiceModel.password);
+    _urlTextController =
+        TextEditingController(text: widget.cloudServiceModel.url);
+    _accountTextController =
+        TextEditingController(text: widget.cloudServiceModel.account);
+    _passwordTextController =
+        TextEditingController(text: widget.cloudServiceModel.password);
   }
 
   //销毁
@@ -101,6 +101,8 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                 height: 20,
               ),
               CupertinoTextField(
+                style: themeData.primaryTextTheme.title,
+                autofocus: true,
                 controller: _urlTextController,
                 prefix: const Icon(
                   Icons.http,
@@ -110,7 +112,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6.0, vertical: 12.0),
                 clearButtonMode: OverlayVisibilityMode.editing,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization: TextCapitalization.none,
                 decoration: const BoxDecoration(
                   border: Border(
                       bottom:
@@ -119,6 +121,8 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                 placeholder: 'http://192.168.10.100:8081/',
               ),
               CupertinoTextField(
+                style: themeData.primaryTextTheme.title,
+                autofocus: false,
                 controller: _accountTextController,
                 prefix: const Icon(
                   CupertinoIcons.person_solid,
@@ -128,7 +132,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6.0, vertical: 12.0),
                 clearButtonMode: OverlayVisibilityMode.editing,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization: TextCapitalization.none,
                 decoration: const BoxDecoration(
                   border: Border(
                       bottom:
@@ -137,6 +141,8 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                 placeholder: '用户名',
               ),
               CupertinoTextField(
+                style: themeData.primaryTextTheme.title,
+                autofocus: false,
                 controller: _passwordTextController,
                 prefix: const Icon(
                   Icons.title,
@@ -146,7 +152,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6.0, vertical: 12.0),
                 clearButtonMode: OverlayVisibilityMode.editing,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization: TextCapitalization.none,
                 decoration: const BoxDecoration(
                   border: Border(
                       bottom:

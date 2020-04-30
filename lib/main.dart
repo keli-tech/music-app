@@ -1,12 +1,14 @@
 //import 'package:firebase_admob/firebase_admob.dart';
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hello_world/screens/StructScreen.dart';
 import 'package:hello_world/theme/testTheme.dart';
 import 'package:logging/logging.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'common/Global.dart';
 import 'models/MusicInfoModel.dart';
 
@@ -19,8 +21,7 @@ void main() {
   if (bool.fromEnvironment("dart.vm.product")) {
     Logger.root.level = Level.WARNING;
   } else {
-//    _logger.root.level = Level.ALL;
-    Logger.root.level = Level.WARNING;
+    Logger.root.level = Level.ALL;
   }
   Logger.root.onRecord.listen((record) {
     print(
@@ -62,8 +63,18 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en'),
+        const Locale.fromSubtags(languageCode: 'zh'),
+      ],
       theme: testThemeData,
       darkTheme: testThemeData,
+//      home: StructScreen(),
       home: Navigator(
         onGenerateRoute: (settings) => MaterialWithModalsPageRoute(
             settings: settings,

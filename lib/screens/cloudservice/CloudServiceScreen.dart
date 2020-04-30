@@ -1,11 +1,15 @@
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/screens/cloudservice/LoginCloudServiceScreen.dart';
 import 'package:hello_world/screens/cloudservice/MyHttpServer.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
+import 'package:hello_world/screens/file/FileListScreen.dart';
+import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -69,6 +73,19 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
               sliver: SliverList(
                 delegate: SliverChildListDelegate(
                   [
+                    Global.showAd
+                        ? Container(
+                            child: AdmobBanner(
+                              adUnitId: AdMobService.getBannerAdUnitId(
+                                  FileListScreen.className),
+                              adSize: AdmobBannerSize.FULL_BANNER,
+                              listener: (AdmobAdEvent event,
+                                  Map<String, dynamic> args) {
+                                AdMobService.handleEvent(event, args, 'Banner');
+                              },
+                            ),
+                          )
+                        : Container(),
                     Material(
                       color: themeData.backgroundColor,
                       child: Center(
@@ -137,7 +154,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                   color: themeData.primaryColor,
                                 ),
                                 onTap: () async {
-                                  const url = 'https://keli.tech/music/help';
+                                  const url = 'https://keli.tech/music#help';
                                   if (await canLaunch(url)) {
                                     await launch(url);
                                   } else {
@@ -146,7 +163,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                 },
                               ),
                             ),
-                            SizedBox(height: 20),
+                            SizedBox(height: 70),
                           ],
                         ),
                       ),

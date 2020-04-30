@@ -89,7 +89,7 @@ class _FavListScreen extends State<FavListScreen> {
       child: Scrollbar(
         child: RefreshIndicator(
           color: Colors.white,
-          backgroundColor: themeData.primaryColor,
+          backgroundColor: themeData.primaryColorLight,
           child: CustomScrollView(
             slivers: <Widget>[
               CupertinoSliverNavigationBar(
@@ -383,6 +383,7 @@ class _FavListScreen extends State<FavListScreen> {
                             var _musicInfoModels =
                                 await DBProvider.db.getFavMusicInfoList();
 
+                            ToastUtils.show("开始播放我喜欢的音乐");
                             MusicControlService.play(
                                 context, _musicInfoModels, 0);
                           },
@@ -446,7 +447,7 @@ class _FavListScreen extends State<FavListScreen> {
                             ),
                             Expanded(
                               child: Text(
-                                '最近100首播放',
+                                '播放全部文件',
                                 maxLines: 1,
                                 style: themeData.textTheme.title,
                                 overflow: TextOverflow.ellipsis,
@@ -469,7 +470,14 @@ class _FavListScreen extends State<FavListScreen> {
                                   ),
                                 ),
                               ),
-                              onPressed: () {},
+                              onPressed: () async {
+                                var _musicInfoModels =
+                                    await DBProvider.db.getMusicInfoAll();
+                                print(_musicInfoModels.length);
+
+                                MusicControlService.play(
+                                    context, _musicInfoModels, 0);
+                              },
                             ),
                           ])),
                     ],
@@ -489,20 +497,21 @@ class _FavListScreen extends State<FavListScreen> {
         context: context,
         builder: (BuildContext context1) => CupertinoAlertDialog(
               title: const Text('请输入歌单名'),
-              content: CupertinoTextField(
-                controller: _chatTextController,
-                suffixMode: OverlayVisibilityMode.editing,
-                textCapitalization: TextCapitalization.sentences,
-                clearButtonMode: OverlayVisibilityMode.editing,
-                keyboardType: TextInputType.text,
-                autocorrect: false,
-                autofocus: true,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 0.0,
-                    color: CupertinoColors.inactiveGray,
+              content: Card(
+                elevation: 0,
+                color: Colors.transparent,
+                child: TextField(
+                  controller: _chatTextController,
+                  textCapitalization: TextCapitalization.sentences,
+                  keyboardType: TextInputType.text,
+                  autocorrect: false,
+                  autofocus: true,
+                  cursorColor: Colors.black12,
+                  decoration: InputDecoration(
+                    hintText: '请输入歌单名',
+                    hintStyle: TextStyle(color: Colors.grey),
+                    hintMaxLines: 1,
                   ),
-                  color: Colors.white,
                 ),
               ),
               actions: <Widget>[

@@ -1,10 +1,14 @@
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/screens/album/AlbumListScreen.dart';
 import 'package:hello_world/screens/album/ArtistListScreen.dart';
+import 'package:hello_world/screens/cloudservice/LoginCloudServiceScreen.dart';
+import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/CloudService.dart';
 
 class TypeScreen extends StatefulWidget {
@@ -72,6 +76,20 @@ class _TypeScreen extends State<TypeScreen> {
                       child: Center(
                         child: Column(
                           children: <Widget>[
+                            Global.showAd
+                                ? Container(
+                                    child: AdmobBanner(
+                                      adUnitId: AdMobService.getBannerAdUnitId(
+                                          LoginCloudServiceScreen.className),
+                                      adSize: AdmobBannerSize.FULL_BANNER,
+                                      listener: (AdmobAdEvent event,
+                                          Map<String, dynamic> args) {
+                                        AdMobService.handleEvent(
+                                            event, args, 'Banner');
+                                      },
+                                    ),
+                                  )
+                                : Container(),
                             SizedBox(height: 10),
                             Tile(
                               selected: false,
