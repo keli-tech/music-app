@@ -8,6 +8,7 @@ import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/services/AdmobService.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/Database.dart';
@@ -108,7 +109,7 @@ class _AlbumListScreen extends State<AlbumListScreen> {
                           left: 15,
                           top: 10,
                           right: 15,
-                          bottom: _bottomBarHeight + 50),
+                          bottom: _bottomBarHeight + 70),
                       sliver: SliverGrid(
                         //Grid
                         gridDelegate:
@@ -147,41 +148,6 @@ class _AlbumListScreen extends State<AlbumListScreen> {
           },
         ));
   }
-
-  // 底部弹出菜单actionSheet
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
-    ThemeData themeData = Theme.of(context);
-    var windowHeight = MediaQuery.of(context).size.height;
-
-    return new CupertinoActionSheet(
-      actions: <Widget>[
-        CupertinoActionSheetAction(
-          child: Text(
-            '新建歌单',
-          ),
-          onPressed: () {
-            Navigator.of(context1).pop();
-          },
-        ),
-        CupertinoActionSheetAction(
-          child: Text(
-            '歌单排序',
-          ),
-          onPressed: () {
-            Navigator.pop(context1);
-          },
-        ),
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
-        ),
-        onPressed: () {
-          Navigator.of(context1).pop();
-        },
-      ),
-    );
-  }
 }
 
 class Tab1RowItem extends StatelessWidget {
@@ -196,8 +162,8 @@ class Tab1RowItem extends StatelessWidget {
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        Navigator.of(context).push(CupertinoPageRoute<void>(
-          title: musicPlayListModel.name,
+        Navigator.of(context, rootNavigator: true)
+            .push(MaterialWithModalsPageRoute<void>(
           builder: (BuildContext context) => PlayListDetailScreen(
             musicPlayListModel: musicPlayListModel,
             statusBarHeight: MediaQuery.of(context).padding.top,

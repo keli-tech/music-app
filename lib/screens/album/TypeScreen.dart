@@ -55,7 +55,7 @@ class _TypeScreen extends State<TypeScreen> {
               automaticallyImplyTitle: false,
               automaticallyImplyLeading: false,
               largeTitle: Text(
-                "云同步",
+                "分类",
                 style: TextStyle(
                   color: themeData.primaryColorDark,
                 ),

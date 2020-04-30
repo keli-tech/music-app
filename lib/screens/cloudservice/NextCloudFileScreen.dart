@@ -10,6 +10,7 @@ import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
 import 'package:hello_world/utils/webdav/file.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 class NextCloudFileScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class NextCloudFileScreen extends StatefulWidget {
     Key key,
     this.cloudServiceModel,
     this.path,
+    this.level,
     this.filePath,
     this.title,
   }) : super(key: key);
@@ -28,6 +30,7 @@ class NextCloudFileScreen extends StatefulWidget {
   String path = "/";
   String title = "";
   String filePath = "";
+  int level = 0;
 
   CloudServiceModel cloudServiceModel;
 
@@ -96,6 +99,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
     return CupertinoPageScaffold(
         backgroundColor: themeData.backgroundColor,
         navigationBar: CupertinoNavigationBar(
+          border: null,
           backgroundColor: themeData.backgroundColor,
           middle: Text(
             widget.title,
@@ -104,12 +108,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () {
-              showCupertinoModalPopup(
-                context: context,
-                builder: (BuildContext context1) {
-                  return _actionSheet(context1, context);
-                },
-              );
+              _actionSheet(context);
             },
             child: Icon(
               Icons.more_vert,
@@ -163,6 +162,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
                           delegate: SliverChildBuilderDelegate(
                             (BuildContext context, int index) {
                               return WebDavFileRowItem(
+                                level: widget.level,
                                 lastItem: index == _files.length - 1,
                                 index: index,
                                 file: _files[index],
@@ -185,53 +185,91 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
               ));
   }
 
-  // 底部弹出菜单actionSheet
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
-    ThemeData themeData = Theme.of(context);
+  _actionSheet(BuildContext context1) {
+    ThemeData themeData = Theme.of(context1);
+    showCupertinoModalBottomSheet(
+      expand: false,
+      useRootNavigator: true,
+      bounce: true,
+      elevation: 10,
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context, scrollController) => Material(
+        color: Color(0xffececec),
+        child: SafeArea(
+          top: false,
+          child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            ListTile(
+              title: Text(widget.title),
+              trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Icon(
+                  CupertinoIcons.clear_circled_solid,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+            new Divider(color: Colors.grey),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white,
+                ),
+                padding: EdgeInsets.only(left: 15),
+                child: GestureDetector(
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text("退出账号"),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.exit_to_app,
+                          color: Colors.black45,
+                          size: 30,
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    var updateValue = {
+                      "password": "",
+                      "signedin": false,
+                      "updatetime": 0,
+                    };
 
-    return new CupertinoActionSheet(
-      actions: <Widget>[
-//        CupertinoActionSheetAction(
-//          child: Text(
-//            '下载本页文件',
-//          ),
-//          onPressed: () {
-//            Navigator.of(context1).pop();
-//
-//            // download
-//          },
-//        ),
-        CupertinoActionSheetAction(
-          child: Text(
-            '退出账号',
-          ),
-          onPressed: () {
-            var updateValue = {
-              "password": "",
-              "signedin": false,
-              "updatetime": 0,
-            };
-            CloudService.cs
-                .updateCloudService(widget.cloudServiceModel.id, updateValue)
-                .then((res) {
-              if (res > 0) {
-                Navigator.of(context1).pop();
-                Navigator.of(context).pop();
-                ToastUtils.show("已成功退出");
-              }
-            });
+                    Navigator.of(context).pop();
 
-            // download
-          },
+                    CloudService.cs
+                        .updateCloudService(
+                            widget.cloudServiceModel.id, updateValue)
+                        .then((res) {
+                      if (res > 0) {
+
+                        for (int i = 0; i <= widget.level; i++) {
+                          Navigator.of(context1).pop();
+                        }
+
+                        ToastUtils.show("已成功退出");
+                      }
+                    });
+                  },
+                ),
+              ),
+            ),
+            new Divider(),
+            Padding(
+              padding: EdgeInsets.only(bottom: 170),
+            ),
+          ]),
         ),
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
-        ),
-        onPressed: () {
-          Navigator.of(context1).pop();
-        },
       ),
     );
   }

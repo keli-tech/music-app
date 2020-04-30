@@ -18,14 +18,15 @@ const _themes = <MaterialColor>[
 class Global {
   static SharedPreferences _prefs;
   static Profile profile = Profile();
-  // 广告开关
-  static bool showAd = false;
 
   // 可选的主题列表
   static List<MaterialColor> get themes => _themes;
 
   // 是否为release版
   static bool get isRelease => bool.fromEnvironment("dart.vm.product");
+
+  // 广告开关
+  static bool showAd = isRelease;
 
   //初始化全局信息，会在APP启动时执行
   static Future init() async {
@@ -59,10 +60,15 @@ class Global {
     if (profile.playIndex == null) {
       profile.playIndex = 0;
     }
+    if (profile.playMode == null) {
+      profile.playMode = PlayMode.order;
+    }
+    print(profile.playMode);
 
     profile.documentDirectory = directory.path;
-    Logger logger = new Logger("Global");
-//    logger.info(profile.toJson().toString());
+
+    Logger _logger = new Logger("Global");
+    _logger.info(profile.toJson().toString());
   }
 
   // 持久化Profile信息

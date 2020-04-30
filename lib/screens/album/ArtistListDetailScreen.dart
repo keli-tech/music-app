@@ -83,7 +83,8 @@ class _ArtistListDetailScreen extends State<ArtistListDetailScreen>
         slivers: <Widget>[
           Consumer<MusicInfoData>(
             builder: (context, musicInfoData, _) => SliverPadding(
-              padding: EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
+              padding:
+                  EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {

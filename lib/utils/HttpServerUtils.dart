@@ -1,27 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
 
-class HttpServerUtils{
-
-  static response(HttpRequest httpRequest,int code, String msg, Map data){
-
+class HttpServerUtils {
+  static response(HttpRequest httpRequest, int code, String msg, Map data) {
     var musicInfoJson = "{}";
 
     Responses response =
-    new Responses(Data: data, Code: 200, Message: "Success");
+        new Responses(Data: data, Code: 200, Message: "Success");
     musicInfoJson = jsonEncode(response);
 
     httpRequest.response
       ..headers.clear()
       ..headers.contentType =
-      new ContentType("application", "json", charset: "UTF-8")
+          new ContentType("application", "json", charset: "UTF-8")
       ..headers.set("Accept-Ranges", "bytes")
       ..headers.set("Connection", "keep-alive")
       ..headers.set("Content-Length", utf8.encode(musicInfoJson).length)
       ..add(utf8.encode(musicInfoJson))
       ..close();
   }
-
 }
 
 class Responses {

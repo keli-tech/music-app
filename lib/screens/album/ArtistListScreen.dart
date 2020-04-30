@@ -101,34 +101,38 @@ class _ArtistListScreen extends State<ArtistListScreen> {
                   ),
                 ),
               ),
-              SliverList(
-                delegate: new SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    return Card(
-                      color: Colors.transparent,
-                      elevation: 0,
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.of(context).push(CupertinoPageRoute<void>(
-                            title: _artistListModels[index]["artist"],
-                            builder: (BuildContext context) =>
-                                ArtistListDetailScreen(
-                              artist: _artistListModels[index]["artist"],
-                              statusBarHeight:
-                                  MediaQuery.of(context).padding.top,
-                            ),
-                          ));
-                        },
-                        leading: Text(
-                          '${index + 1}. ' + _artistListModels[index]["artist"],
-                          style: themeData.primaryTextTheme.title,
+              SliverPadding(
+                padding: const EdgeInsets.only(bottom: 70.0),
+                sliver: SliverList(
+                  delegate: new SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      return Card(
+                        color: Colors.transparent,
+                        elevation: 0,
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.of(context).push(CupertinoPageRoute<void>(
+                              title: _artistListModels[index]["artist"],
+                              builder: (BuildContext context) =>
+                                  ArtistListDetailScreen(
+                                artist: _artistListModels[index]["artist"],
+                                statusBarHeight:
+                                    MediaQuery.of(context).padding.top,
+                              ),
+                            ));
+                          },
+                          leading: Text(
+                            '${index + 1}. ' +
+                                _artistListModels[index]["artist"],
+                            style: themeData.primaryTextTheme.title,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  childCount: _artistListModels.length,
+                      );
+                    },
+                    childCount: _artistListModels.length,
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -144,41 +148,6 @@ class _ArtistListScreen extends State<ArtistListScreen> {
           }).catchError((error) {
             print(error);
           });
-        },
-      ),
-    );
-  }
-
-  // 底部弹出菜单actionSheet
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
-    ThemeData themeData = Theme.of(context);
-    var windowHeight = MediaQuery.of(context).size.height;
-
-    return new CupertinoActionSheet(
-      actions: <Widget>[
-        CupertinoActionSheetAction(
-          child: Text(
-            '新建歌单',
-          ),
-          onPressed: () {
-            Navigator.of(context1).pop();
-          },
-        ),
-        CupertinoActionSheetAction(
-          child: Text(
-            '歌单排序',
-          ),
-          onPressed: () {
-            Navigator.pop(context1);
-          },
-        ),
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
-        ),
-        onPressed: () {
-          Navigator.of(context1).pop();
         },
       ),
     );

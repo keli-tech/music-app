@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hello_world/components/modals/FileSelectorComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
-import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FileSelectorContainer extends StatefulWidget {
   FileSelectorContainer(
@@ -13,6 +11,7 @@ class FileSelectorContainer extends StatefulWidget {
       this.title,
       this.musicInfoModel,
       this.playListId,
+      this.level,
       this.statusBarHeight})
       : super(key: key);
 
@@ -20,6 +19,7 @@ class FileSelectorContainer extends StatefulWidget {
   int playListId;
   String title;
   double statusBarHeight;
+  int level = 0;
 
   @override
   _FileSelectorContainer createState() => _FileSelectorContainer();
@@ -72,82 +72,46 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-
+    double _windowHeight = MediaQuery.of(context).size.height;
     return Container(
-      color: themeData.backgroundColor,
-      padding: EdgeInsetsDirectional.only(top: widget.statusBarHeight),
-      child: Column(
-        children: <Widget>[
-          Flexible(
-            child: CupertinoTabView(
-                builder: (BuildContext context) => buildWidget(context)),
+      child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+        ListTile(
+          title: Text(widget.title),
+          trailing: CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: Icon(
+              CupertinoIcons.clear_circled_solid,
+              color: Colors.grey,
+              size: 30,
+            ),
+            onPressed: () {
+//              Navigator.of(context).pop();
+              for (int i = 0; i <= widget.level; i++) {
+                Navigator.of(context).pop();
+              }
+            },
           ),
-        ],
-      ),
-
-//          CupertinoTabView(
-//              builder: (BuildContext context) => buildWidget(context))
-    );
-  }
-
-  Widget buildWidget(BuildContext buildContext) {
-    ThemeData themeData = Theme.of(context);
-    return Scaffold(
-      backgroundColor: themeData.backgroundColor,
-      appBar: CupertinoNavigationBar(
-        backgroundColor: themeData.backgroundColor,
-        leading: Container(
-            child: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Icon(
-            Icons.keyboard_arrow_down,
-            size: 40,
-            color: themeData.primaryColor,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        )),
-        middle: Text(
-          widget.title,
-          style: themeData.primaryTextTheme.title,
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Text(
-            "完成",
-            style: themeData.primaryTextTheme.title,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: Scrollbar(
-        child: ListView(
+        new Divider(color: Colors.grey),
+        Flexible(
+          child: Container(
+            child: Scrollbar(
+              child: ListView(
 //          reverse: _reverse,
-          scrollDirection: Axis.vertical,
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          children: listItems.map<Widget>((item) {
-            if (item.musicInfoModel.type == MusicInfoModel.TYPE_FOLD) {
-              return buildFoldListTile(item);
-            } else {
-              return buildListTile(item);
-            }
-          }).toList(),
+                scrollDirection: Axis.vertical,
+                children: listItems.map<Widget>((item) {
+                  if (item.musicInfoModel.type == MusicInfoModel.TYPE_FOLD) {
+                    return buildFoldListTile(item);
+                  } else {
+                    return buildListTile(item);
+                  }
+                }).toList(),
+              ),
+            ),
+          ),
         ),
-      ),
+      ]),
     );
-  }
-
-  void _onReorder(int oldIndex, int newIndex) {
-    setState(() {
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
-      }
-      final _ListItem item = listItems.removeAt(oldIndex);
-      listItems.insert(newIndex, item);
-    });
   }
 
   // 文件夹
@@ -156,14 +120,24 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
     Widget listTile;
     listTile = ListTile(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute<void>(
-          builder: (BuildContext context) => FileSelectorComp(
-            level: 1,
-            playListId: widget.playListId,
-            title: _listItem.musicInfoModel.name,
-            musicInfoModel: _listItem.musicInfoModel,
+        showCupertinoModalBottomSheet(
+          expand: true,
+          elevation: 30,
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (context, scrollController) => Material(
+            color: Color(0xffececec),
+            child: SafeArea(
+              top: false,
+              child: FileSelectorContainer(
+                level: widget.level + 1,
+                playListId: widget.playListId,
+                title: _listItem.musicInfoModel.name,
+                musicInfoModel: _listItem.musicInfoModel,
+              ),
+            ),
           ),
-        ));
+        );
       },
       key: Key(_listItem.musicInfoModel.id.toString()),
       isThreeLine: false,
@@ -199,7 +173,8 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
     Widget listTile = CheckboxListTile(
       key: Key(_listItem.musicInfoModel.id.toString()),
       isThreeLine: false,
-      activeColor: themeData.primaryColor,
+      checkColor: themeData.primaryColorLight,
+      activeColor: themeData.primaryColorDark,
       value: _listItem.checkState ?? false,
       onChanged: (bool newChecked) {
         if (newChecked) {
@@ -208,7 +183,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
                   widget.playListId, _listItem.musicInfoModel.id)
               .then((res) {
             if (res > 0) {
-              ToastUtils.show("已添加到歌单");
+//              ToastUtils.show("已添加到歌单");
             }
           });
         } else {
@@ -216,7 +191,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
               .deleteMusicFromPlayList(
                   widget.playListId, _listItem.musicInfoModel.id)
               .then((res) {
-            if (res > 0) ToastUtils.show("已从歌单删除.");
+//            if (res > 0) ToastUtils.show("已从歌单删除.");
           });
         }
 
@@ -247,7 +222,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.0),
           image: DecorationImage(
-              fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
+              fit: BoxFit.fill,
               image: FileManager.musicAlbumPictureImage(
                   _listItem.musicInfoModel.artist,
                   _listItem.musicInfoModel.album)),

@@ -16,9 +16,11 @@ class WebDavFileRowItem extends StatefulWidget {
     this.file,
     this.filePath,
     this.downloadedFiles,
+    this.level,
     this.cloudServiceModel,
   }) : super(key: key);
 
+  final int level;
   final String filePath;
   final bool lastItem;
   final int index;
@@ -76,6 +78,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
         Navigator.of(context).push(CupertinoPageRoute<void>(
           title: widget.file.name,
           builder: (BuildContext context) => NextCloudFileScreen(
+            level: widget.level + 1,
             title: widget.file.name.toString(),
             path: widget.file.path,
             filePath: widget.filePath,
@@ -229,60 +232,5 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
     );
 
     return row;
-  }
-
-  // 底部弹出菜单actionSheet
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
-    ThemeData themeData = Theme.of(context);
-    var windowHeight = MediaQuery.of(context).size.height;
-
-    return new CupertinoActionSheet(
-      actions: <Widget>[
-        CupertinoActionSheetAction(
-          child: Text(
-            '新建歌单',
-          ),
-          onPressed: () {
-            Navigator.of(context1).pop();
-
-            showModalBottomSheet<void>(
-                context: context,
-                useRootNavigator: true,
-                isScrollControlled: true,
-                builder: (BuildContext context) {
-                  return Container(
-                    height: windowHeight,
-                  );
-                });
-          },
-        ),
-        CupertinoActionSheetAction(
-          child: Text(
-            '歌单排序',
-          ),
-          onPressed: () {
-            Navigator.pop(context1);
-
-            showModalBottomSheet<void>(
-                context: context,
-                useRootNavigator: true,
-                isScrollControlled: true,
-                builder: (BuildContext context) {
-                  return Container(
-                    height: windowHeight,
-                  );
-                });
-          },
-        ),
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
-        ),
-        onPressed: () {
-          Navigator.of(context1).pop();
-        },
-      ),
-    );
   }
 }

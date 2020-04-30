@@ -8,9 +8,11 @@ import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/screens/album/ArtistListDetailScreen.dart';
 import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/services/Database.dart';
+import 'package:hello_world/services/EventBus.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class MusicRowItem extends StatelessWidget {
   const MusicRowItem({
@@ -45,7 +47,12 @@ class MusicRowItem extends StatelessWidget {
 
     final Widget row = GestureDetector(
       onTap: () {
-        MusicControlService.play(context, musicInfoModels, index);
+        if (playId == musicInfoModels[index].id &&
+            audioPlayerState == AudioPlayerState.PLAYING) {
+          eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.show_player));
+        } else {
+          MusicControlService.play(context, musicInfoModels, index);
+        }
       },
       child: Tile(
         selected: playId == musicInfoModels[index].id &&
@@ -105,7 +112,10 @@ class MusicRowItem extends StatelessWidget {
                         Row(
                           children: <Widget>[
                             !musicInfoFavIDSet.contains(_musicInfoModel.id)
-                                ? Text("")
+                                ? Text(
+                                    "",
+                                    style: themeData.textTheme.subtitle,
+                                  )
                                 : Flex(
                                     direction: Axis.horizontal,
                                     children: <Widget>[
@@ -158,12 +168,7 @@ class MusicRowItem extends StatelessWidget {
                         : themeData.primaryColorDark,
                   ),
                   onPressed: () {
-                    showCupertinoModalPopup(
-                      context: context,
-                      builder: (BuildContext context1) {
-                        return _actionSheet(context1, context);
-                      },
-                    );
+                    _actionSheet(context);
                   },
                 ),
               ],
@@ -173,9 +178,8 @@ class MusicRowItem extends StatelessWidget {
       ),
     );
 
-    if (lastItem) {
-      return row;
-    }
+    return row;
+    if (lastItem) {}
 
     return Column(
       children: <Widget>[
@@ -190,158 +194,281 @@ class MusicRowItem extends StatelessWidget {
     );
   }
 
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
+  _actionSheet(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-    var windowHeight = MediaQuery.of(context).size.height;
-    List<Widget> actionSheets = [];
-
-    actionSheets.add(CupertinoActionSheetAction(
-        child: Text(
-          '查看专辑',
-        ),
-        onPressed: () async {
-          Navigator.pop(context1);
-
-          String album = musicInfoModels[index].album;
-          String artist = musicInfoModels[index].artist;
-
-          MusicPlayListModel musicPlayListModel =
-              await DBProvider.db.getMusicPlayListByArtistName(artist, album);
-          if (musicPlayListModel.id > 0) {
-            Navigator.of(context, rootNavigator: true)
-                .push(MaterialPageRoute<void>(
-              builder: (BuildContext context) => PlayListDetailScreen(
-                musicPlayListModel: musicPlayListModel,
-                statusBarHeight: this.statusBarHeight,
+    showCupertinoModalBottomSheet(
+      expand: true,
+      elevation: 30,
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context, scrollController) => Material(
+        color: Color(0xffececec),
+        child: SafeArea(
+          top: false,
+          child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            ListTile(
+              title: Text(musicInfoModels[index].name),
+              trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Icon(
+                  CupertinoIcons.clear_circled_solid,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-            ));
-          }
-        }));
-
-    actionSheets.add(CupertinoActionSheetAction(
-        child: Text(
-          '查看歌手',
-        ),
-        onPressed: () {
-          Navigator.pop(context1);
-
-          Navigator.of(context, rootNavigator: true)
-              .push(MaterialPageRoute<void>(
-            builder: (BuildContext context) => ArtistListDetailScreen(
-              artist: musicInfoModels[index].artist,
-              statusBarHeight: statusBarHeight,
             ),
-          ));
-        }));
-
-    actionSheets.add(CupertinoActionSheetAction(
-      child: Text(
-        '收藏到歌单',
-      ),
-      onPressed: () {
-        Navigator.pop(context1);
-
-        showModalBottomSheet<void>(
-            context: context,
-            useRootNavigator: false,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              return PlayListSelectorContainer(
-                title: "收藏到歌单",
-                mid: musicInfoModels[index].id,
-                statusBarHeight: statusBarHeight,
-              );
-            });
-
-//        showCupertinoModalPopup(
-//            context: context,
-//            builder: (BuildContext context) {
-//              return PlayListSelectorContainer(
-//                title: "添加到歌单",
-//                playListId: mplID,
-//                statusBarHeight: statusBarHeight,
-//              );
-//            });
-      },
-    ));
-    if (mplID != null && mplID > 0) {
-      actionSheets.add(CupertinoActionSheetAction(
-        child: Text(
-          '从歌单删除',
-        ),
-        isDestructiveAction: true,
-        onPressed: () {
-          Navigator.of(context1).pop();
-
-          DBProvider.db
-              .deleteMusicFromPlayList(mplID, musicInfoModels[index].id)
-              .then((onValue) {
-            if (onValue > 0) {
-              refreshFunction();
-              ToastUtils.show("已从歌单删除.");
-            }
-          });
-        },
-      ));
-    }
-
-    actionSheets.add(CupertinoActionSheetAction(
-        child: Text(
-          '删除音乐文件',
-        ),
-        isDestructiveAction: true,
-        onPressed: () {
-          Navigator.of(context1).pop();
-
-          showCupertinoDialog<String>(
-            context: context1,
-            builder: (BuildContext context1) => CupertinoAlertDialog(
-              title: const Text('删除确认'),
-              content: Text('是否删除\"' + musicInfoModels[index].fullpath + '\"?'),
-              actions: <Widget>[
-                CupertinoDialogAction(
-                  child: Text(
-                    '取消',
+            new Divider(color: Colors.grey),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: GestureDetector(
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Colors.white),
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  height: 50,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(child: Text("查看专辑")),
+                      Icon(
+                        Icons.create_new_folder,
+                        color: Colors.black45,
+                        size: 30,
+                      ),
+                    ],
                   ),
-                  isDefaultAction: true,
-                  onPressed: () => Navigator.pop(context1, 'Cancel'),
                 ),
-                CupertinoDialogAction(
-                  child: Text(
-                    '删除',
-                  ),
-                  isDestructiveAction: true,
-                  onPressed: () {
-                    DBProvider.db
-                        .deleteMusic(musicInfoModels[index].id)
-                        .then((onValue) {
-                      FileManager.musicFile(musicInfoModels[index].fullpath)
-                          .delete();
+                onTap: () async {
+                  String album = musicInfoModels[index].album;
+                  String artist = musicInfoModels[index].artist;
 
-                      ToastUtils.show("已删除文件");
+                  MusicPlayListModel musicPlayListModel = await DBProvider.db
+                      .getMusicPlayListByArtistName(artist, album);
 
-                      Navigator.pop(context1);
-                    });
-                  },
-                ),
-              ],
+                  if (musicPlayListModel.id > 0) {
+                    Navigator.of(context).pop();
+
+                    Navigator.of(context, rootNavigator: true)
+                        .push(MaterialWithModalsPageRoute<void>(
+                      builder: (BuildContext context) => PlayListDetailScreen(
+                        musicPlayListModel: musicPlayListModel,
+                        statusBarHeight: this.statusBarHeight,
+                      ),
+                    ));
+                  }
+                },
+              ),
             ),
-          ).then((String value) {
-            if (value != null) {
+            new Divider(),
+            Padding(
+              padding: EdgeInsets.only(left: 15, right: 15),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.white),
+                padding: EdgeInsets.only(left: 15, right: 15),
+                child: Column(
+                  children: <Widget>[
+                    GestureDetector(
+                      child: Container(
+                        height: 50,
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(child: Text("查看歌手")),
+                            Icon(
+                              Icons.text_fields,
+                              color: Colors.black45,
+                              size: 30,
+                            ),
+                          ],
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.of(context, rootNavigator: true)
+                            .push(MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                              ArtistListDetailScreen(
+                            artist: musicInfoModels[index].artist,
+                            statusBarHeight: statusBarHeight,
+                          ),
+                        ));
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Divider(),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: GestureDetector(
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Colors.white),
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  height: 50,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: Text(
+                        '收藏到歌单',
+                      )),
+                      Icon(
+                        Icons.favorite,
+                        color: Colors.black45,
+                        size: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  showCupertinoModalBottomSheet(
+                    expand: true,
+                    elevation: 30,
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: (context, scrollController) => Material(
+                      color: Color(0xffececec),
+                      child: SafeArea(
+                        top: false,
+                        child: PlayListSelectorContainer(
+                          title: "收藏到歌单",
+                          mid: musicInfoModels[index].id,
+                          statusBarHeight: statusBarHeight,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            new Divider(),
+            (mplID != null && mplID > 0)
+                ? Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
+                    child: GestureDetector(
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                            color: Colors.white),
+                        padding: EdgeInsets.only(left: 15, right: 15),
+                        height: 50,
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                                child: Text(
+                              '从歌单删除',
+                              style: TextStyle(
+                                color: themeData.errorColor,
+                              ),
+                            )),
+                            Icon(
+                              Icons.delete,
+                              color: Colors.black45,
+                              size: 30,
+                            ),
+                          ],
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+
+                        DBProvider.db
+                            .deleteMusicFromPlayList(
+                                mplID, musicInfoModels[index].id)
+                            .then((onValue) {
+                          if (onValue > 0) {
+                            refreshFunction();
+                            ToastUtils.show("已从歌单删除.");
+                          }
+                        });
+                      },
+                    ),
+                  )
+                : Container(),
+            Divider(),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: GestureDetector(
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Colors.white),
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  height: 50,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: Text(
+                        '删除音乐文件',
+                        style: TextStyle(
+                          color: themeData.errorColor,
+                        ),
+                      )),
+                      Icon(
+                        Icons.delete_forever,
+                        color: Colors.black45,
+                        size: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop();
+
+                  showCupertinoDialog<String>(
+                    context: context,
+                    builder: (BuildContext context1) => CupertinoAlertDialog(
+                      title: const Text('删除确认'),
+                      content: Text(
+                          '是否删除\"' + musicInfoModels[index].fullpath + '\"?'),
+                      actions: <Widget>[
+                        CupertinoDialogAction(
+                          child: Text(
+                            '取消',
+                          ),
+                          isDefaultAction: true,
+                          onPressed: () => Navigator.pop(context1, 'Cancel'),
+                        ),
+                        CupertinoDialogAction(
+                          child: Text(
+                            '删除',
+                          ),
+                          isDestructiveAction: true,
+                          onPressed: () {
+                            DBProvider.db
+                                .deleteMusic(musicInfoModels[index].id)
+                                .then((onValue) {
+                              FileManager.musicFile(
+                                      musicInfoModels[index].fullpath)
+                                  .delete();
+
+                              ToastUtils.show("已删除文件");
+
+                              Navigator.pop(context1);
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ).then((String value) {
+                    if (value != null) {
 //                setState(() { lastSelectedValue = value; });
-            }
-          });
-        }));
-
-    return new CupertinoActionSheet(
-      actions: actionSheets,
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
+                    }
+                  });
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 130),
+            ),
+          ]),
         ),
-        onPressed: () {
-          Navigator.of(context1).pop();
-        },
       ),
     );
   }

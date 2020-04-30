@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +10,8 @@ import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/PlayingScreen.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:logging/logging.dart';
+import 'package:lottie/lottie.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../services/EventBus.dart';
@@ -50,6 +54,8 @@ class _PlayingControlCompState extends State<PlayingControlComp>
     syncstatus: true,
   );
 
+  static List<int> playIndexStack = [];
+
   Animation<double> animation;
   AnimationController controller;
 
@@ -71,6 +77,12 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   void _initMusicPlayerEvent() {
     _musicplayerEvent = eventBus.on<MusicPlayerEventBus>().listen((event) {
       _logger.info(event.musicPlayerEvent);
+
+      if (event.musicPlayerEvent == MusicPlayerEvent.show_player) {
+        var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
+
+        _showPlayer(musicInfoData);
+      }
 
       var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
       if (event.musicPlayerEvent == MusicPlayerEvent.play ||
@@ -103,7 +115,10 @@ class _PlayingControlCompState extends State<PlayingControlComp>
       } else if (event.musicPlayerEvent == MusicPlayerEvent.stop) {
         audioPlayer.pause();
       } else if (event.musicPlayerEvent == MusicPlayerEvent.last) {
-      } else if (event.musicPlayerEvent == MusicPlayerEvent.next) {}
+        _playPrevious(context);
+      } else if (event.musicPlayerEvent == MusicPlayerEvent.next) {
+        _playNext(context, false);
+      }
     });
   }
 
@@ -146,8 +161,6 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   // 初始化监听事件
   void _initEvent() {
     _eventBusOn = eventBus.on<AudioPlayerEvent>().listen((event) {
-//      _logger.info("audio player event:" + event.audioPlayerState.toString());
-
       if (_musicPlayAction != event.audioPlayerState) {
         _musicPlayAction = event.audioPlayerState;
 
@@ -162,7 +175,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
 
     audioPlayer.onPlayerCommand.listen((onData) {
       if (onData == PlayerControlCommand.NEXT_TRACK) {
-        _playNext(context);
+        _playNext(context, false);
       } else if (onData == PlayerControlCommand.PREVIOUS_TRACK) {
         _playPrevious(context);
       } else {
@@ -205,7 +218,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
     });
 
     audioPlayer.onPlayerCompletion.listen((onData) {
-      _playNext(context);
+      _playNext(context, true);
     });
   }
 
@@ -252,197 +265,166 @@ class _PlayingControlCompState extends State<PlayingControlComp>
       bottom: 50 + _bottomBarHeight,
       child: Consumer<MusicInfoData>(
         builder: (context, musicInfoData, _) => Container(
-            child: new FlatButton(
-          padding: EdgeInsets.zero,
-          child: Container(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: themeData.primaryColorLight,
-                  // 向上阴影
-                  offset: Offset(0.0, -4.0),
-                  blurRadius: 1.0,
-                  spreadRadius: 0.30,
-                ),
-                BoxShadow(
-                  color: Color(0x6aFFFFFF),
-                  // 向上阴影
-                  offset: Offset(0.0, -12.0),
-                  blurRadius: 20.0,
-                  spreadRadius: 2.0,
-                ),
-                BoxShadow(
-                  color: Color(0x6aFFFFFF),
-                  offset: Offset(10.0, 0.0),
-                  blurRadius: 15.0,
-                  spreadRadius: 2.0,
-                ),
-                BoxShadow(
-                  color: Color(0x6aFFFFFF),
-                  // 向上阴影
-                  offset: Offset(-10.0, 0.0),
-                  blurRadius: 15.0,
-                  spreadRadius: 2.0,
-                ),
-              ],
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0),
-                  topRight: Radius.circular(30.0)),
-              color: themeData.primaryColorDark,
-            ),
-            child: ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Container(
-                width: 80,
-                height: 50,
-                child: CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  pressedOpacity: 1,
-                  child: Tile(
-                    selected: false,
-                    radiusnum: 50,
-                    blur: 4,
-                    child: Icon(
-                      _musicPlayAction == AudioPlayerState.PLAYING
-                          ? Icons.pause_circle_filled
-                          : Icons.play_circle_filled,
-                      size: 35,
-                      color: themeData.primaryColorDark,
-                    ),
+          child: new FlatButton(
+            padding: EdgeInsets.zero,
+            child: Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: themeData.primaryColorLight,
+                    // 向上阴影
+                    offset: Offset(0.0, -1.0),
+                    blurRadius: 1.0,
+                    spreadRadius: 0.30,
                   ),
-                  onPressed: () {
-                    if (_musicPlayAction == AudioPlayerState.PLAYING) {
-                      eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.stop));
-                    } else {
-                      eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
-                    }
-                  },
-                ),
+//                  BoxShadow(
+//                    color: Color(0x6aFFFFFF),
+//                    // 向上阴影
+//                    offset: Offset(0.0, -12.0),
+//                    blurRadius: 20.0,
+//                    spreadRadius: 2.0,
+//                  ),
+//                  BoxShadow(
+//                    color: Color(0x6aFFFFFF),
+//                    offset: Offset(10.0, 0.0),
+//                    blurRadius: 15.0,
+//                    spreadRadius: 2.0,
+//                  ),
+//                  BoxShadow(
+//                    color: Color(0x6aFFFFFF),
+//                    // 向上阴影
+//                    offset: Offset(-10.0, 0.0),
+//                    blurRadius: 15.0,
+//                    spreadRadius: 2.0,
+//                  ),
+                ],
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30.0),
+                    topRight: Radius.circular(30.0)),
+                color: themeData.primaryColorDark,
               ),
-              title: new Container(
-//                    padding:
-//                        EdgeInsets.only(left: 10, top: 2, right: 10, bottom: 2),
-                child: new Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: musicInfoData.musicInfoList.length <= 0
-                            ? Text("")
-                            : buildCarouselControl(context, musicInfoData)),
-                  ],
-                ),
-              ),
-              trailing: Container(
-                height: 40,
-                width: 100,
-                child: Row(
-                  children: <Widget>[
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      pressedOpacity: 1,
-                      child: AnimatedSwitcher(
-                          transitionBuilder: (child, anim) {
-                            return ScaleTransition(child: child, scale: anim);
-                          },
-                          switchInCurve: Curves.fastLinearToSlowEaseIn,
-                          switchOutCurve: Curves.fastLinearToSlowEaseIn,
-                          duration: Duration(milliseconds: 300),
-                          child: musicInfoData.musicInfoFavIDSet
-                                  .contains(musicInfoData.musicInfoModel.id)
-                              ? Container(
-                                  key: Key("play"),
-                                  child: Icon(
-                                    CupertinoIcons.heart_solid,
-                                    color: Colors.red,
-                                    size: 30,
-                                  ),
-                                )
-                              : Container(
-                                  key: Key("pause"),
-                                  child: Icon(
-                                    CupertinoIcons.heart,
-                                    color: Colors.red,
-                                    size: 30,
-                                  ),
-                                )),
-                      onPressed: () {
-//                          _buttonCarouselController.nextPage(
-//                              duration: Duration(milliseconds: 300),
-//                              curve: Curves.linear);
-
-                        if (musicInfoData.musicInfoFavIDSet
-                            .contains(musicInfoData.musicInfoModel.id)) {
-                          Provider.of<MusicInfoData>(context, listen: false)
-                              .removeMusicInfoFavIDSet(
-                                  musicInfoData.musicInfoModel.id);
-                        } else {
-                          Provider.of<MusicInfoData>(context, listen: false)
-                              .addMusicInfoFavIDSet(
-                                  musicInfoData.musicInfoModel.id);
-                        }
-                      },
-                    ),
-                    CupertinoButton(
-                      onPressed: () {
-                        showModalBottomSheet<void>(
-                            elevation: 15,
-                            context: context,
-                            useRootNavigator: true,
-                            isScrollControlled: true,
-                            builder: (BuildContext context) {
-                              return MusicFileListComp(
-                                statusBarHeight: 0,
-                              );
-                            });
-                      },
-                      padding: EdgeInsets.zero,
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  width: 80,
+                  height: 50,
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    pressedOpacity: 1,
+                    child: Tile(
+                      selected: false,
+                      radiusnum: 50,
+                      blur: 4,
                       child: Icon(
-                        Icons.format_list_bulleted,
-                        color: themeData.primaryColorLight,
-                        size: 30,
+                        _musicPlayAction == AudioPlayerState.PLAYING
+                            ? Icons.pause_circle_filled
+                            : Icons.play_circle_filled,
+                        size: 35,
+                        color: themeData.primaryColorDark,
                       ),
                     ),
-                  ],
+                    onPressed: () {
+                      if (_musicPlayAction == AudioPlayerState.PLAYING) {
+                        eventBus
+                            .fire(MusicPlayerEventBus(MusicPlayerEvent.stop));
+                      } else {
+                        eventBus
+                            .fire(MusicPlayerEventBus(MusicPlayerEvent.play));
+                      }
+                    },
+                  ),
+                ),
+                title: new Container(
+//                    padding:
+//                        EdgeInsets.only(left: 10, top: 2, right: 10, bottom: 2),
+                  child: new Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: musicInfoData.musicInfoList.length <= 0
+                              ? Text("")
+                              : buildCarouselControl(context, musicInfoData)),
+                    ],
+                  ),
+                ),
+                trailing: Container(
+                  height: 40,
+                  width: 100,
+                  child: Row(
+                    children: <Widget>[
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        pressedOpacity: 1,
+                        child: AnimatedSwitcher(
+                            transitionBuilder: (child, anim) {
+                              return ScaleTransition(child: child, scale: anim);
+                            },
+                            switchInCurve: Curves.fastLinearToSlowEaseIn,
+                            switchOutCurve: Curves.fastLinearToSlowEaseIn,
+                            duration: Duration(milliseconds: 300),
+                            child: musicInfoData.musicInfoFavIDSet
+                                    .contains(musicInfoData.musicInfoModel.id)
+                                ? Container(
+                                    key: Key("play"),
+                                    child: Transform.scale(
+                                      scale: 1.4,
+                                      child: Lottie.asset(
+                                        'assets/lf20_3ngy1x.json',
+                                        repeat: false,
+                                        animate: true,
+                                        reverse: false,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    key: Key("pause"),
+                                    child: Icon(
+                                      CupertinoIcons.heart,
+                                      color: Colors.red,
+                                      size: 32,
+                                    ),
+                                  )),
+                        onPressed: () {
+                          if (musicInfoData.musicInfoFavIDSet
+                              .contains(musicInfoData.musicInfoModel.id)) {
+                            Provider.of<MusicInfoData>(context, listen: false)
+                                .removeMusicInfoFavIDSet(
+                                    musicInfoData.musicInfoModel.id);
+                          } else {
+                            Provider.of<MusicInfoData>(context, listen: false)
+                                .addMusicInfoFavIDSet(
+                                    musicInfoData.musicInfoModel.id);
+                          }
+                        },
+                      ),
+                      CupertinoButton(
+                        onPressed: () {
+                          _showMusicFileListComp(context);
+                        },
+                        padding: EdgeInsets.zero,
+                        child: Icon(
+                          Icons.format_list_bulleted,
+                          color: themeData.primaryColorLight,
+                          size: 30,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          onPressed: () {
-            if (musicInfoData.playIndex == null ||
-                musicInfoData.playIndex < 0 ||
-                musicInfoData.musicInfoList == null ||
-                musicInfoData.musicInfoList.length <= 0) {
-              return;
-            }
+            onPressed: () {
+              if (musicInfoData.playIndex == null ||
+                  musicInfoData.playIndex < 0 ||
+                  musicInfoData.musicInfoList == null ||
+                  musicInfoData.musicInfoList.length <= 0) {
+                return;
+              }
 
-            if (true) {
-              showModalBottomSheet<void>(
-                  context: context,
-                  useRootNavigator: false,
-                  isScrollControlled: true,
-                  builder: (BuildContext context) {
-                    return PlayingScreen(
-                      hideAction: widget.hideAction,
-                      seekAction: seek,
-                      audioplayer: audioPlayer,
-                      musicInfoData: musicInfoData,
-                      statusBarHeight: _statusBarHeight,
-                    );
-                  });
-            } else {
-              Navigator.of(context, rootNavigator: true)
-                  .push(CupertinoPageRoute<void>(
-                title: "",
-                fullscreenDialog: true,
-                builder: (BuildContext context) => PlayingScreen(
-                  hideAction: widget.hideAction,
-                  seekAction: seek,
-                  audioplayer: audioPlayer,
-                  musicInfoData: musicInfoData,
-                ),
-              ));
-            }
-          },
-        )),
+              _showPlayer(musicInfoData);
+            },
+          ),
+        ),
       ),
     );
   }
@@ -504,36 +486,85 @@ class _PlayingControlCompState extends State<PlayingControlComp>
     return _carouselControl;
   }
 
-  void _playNext(BuildContext context) {
+  // 上一首
+  void _playPrevious(BuildContext context) {
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
-    int newIndex =
-        musicInfoData.playIndex < musicInfoData.musicInfoList.length - 1
-            ? musicInfoData.playIndex + 1
-            : 0;
+
+    int oldIndex = musicInfoData.playIndex;
+    // 顺序 new index
+    int newIndex = musicInfoData.playIndex == 0
+        ? musicInfoData.musicInfoList.length - 1
+        : musicInfoData.playIndex - 1;
+    PlayMode playMode = musicInfoData.playMode;
+    if (playMode == PlayMode.repeat) {
+      // 随机模式的， 上一首 和顺序的一致；
+      // do nothing
+    } else if (playMode == PlayMode.order) {
+      // 顺序 new index
+      // do nothing
+    } else if (playMode == PlayMode.shuffle) {
+      if (playIndexStack.length > 0) {
+        newIndex = playIndexStack.removeLast();
+      } else {
+        // 没有则和顺序一致；
+      }
+    }
+    // 播放上一首，不增加到 stack 中；
+
     if (newIndex == musicInfoData.playIndex) {
       audioPlayer.seek(Duration(microseconds: 0));
       setState(() => _position = Duration(microseconds: 0));
     }
 
     Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
-
     controller.reset();
     controller.forward();
     eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
   }
 
-  void _playPrevious(BuildContext context) {
+  void _playNext(BuildContext context, bool completed) {
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
-    int newIndex = musicInfoData.playIndex == 0
-        ? musicInfoData.musicInfoList.length - 1
-        : musicInfoData.playIndex - 1;
+
+    int oldIndex = musicInfoData.playIndex;
+    int newIndex =
+        musicInfoData.playIndex < musicInfoData.musicInfoList.length - 1
+            ? musicInfoData.playIndex + 1
+            : 0;
+    PlayMode playMode = musicInfoData.playMode;
+    if (playMode == PlayMode.repeat) {
+      if (completed) {
+        newIndex = oldIndex;
+      } else {
+        // do nothing
+      }
+    } else if (playMode == PlayMode.order) {
+      // do nothing
+    } else if (playMode == PlayMode.shuffle) {
+      int length = musicInfoData.musicInfoList.length;
+      Set<int> allSet = {};
+      for (int i = 0; i < length; i++) {
+        allSet.add(i);
+      }
+      Set<int> remindSet = allSet.difference(playIndexStack.toSet());
+      if (remindSet.length <= 1) {
+        // 全部播放一遍了，则清除，重新来；
+        playIndexStack.clear();
+        remindSet = allSet.difference(playIndexStack.toSet());
+      }
+
+      var rr = Random(new DateTime.now().millisecondsSinceEpoch);
+      int ind = rr.nextInt(remindSet.length);
+      newIndex = remindSet.toList().getRange(ind - 1, ind).first;
+    }
+    // 添加记录.
+    playIndexStack.add(oldIndex);
+
     if (newIndex == musicInfoData.playIndex) {
       audioPlayer.seek(Duration(microseconds: 0));
       setState(() => _position = Duration(microseconds: 0));
     }
 
     Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
-
     controller.reset();
     controller.forward();
     eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
@@ -541,5 +572,38 @@ class _PlayingControlCompState extends State<PlayingControlComp>
 
   void seek(Duration position) {
     audioPlayer.seek(position);
+  }
+
+  _showMusicFileListComp(BuildContext context) {
+    showCupertinoModalBottomSheet(
+      expand: true,
+      context: context,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      builder: (context, scrollController) => Material(
+        color: Color(0xffececec),
+        child: SafeArea(
+          top: false,
+          child: MusicFileListComp(
+            colorReverse: true,
+          ),
+        ),
+      ),
+    );
+  }
+
+  _showPlayer(MusicInfoData musicInfoData) {
+    showModalBottomSheet<void>(
+        context: context,
+        useRootNavigator: true,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return PlayingScreen(
+            hideAction: widget.hideAction,
+            seekAction: seek,
+            audioplayer: audioPlayer,
+            musicInfoData: musicInfoData,
+          );
+        });
   }
 }

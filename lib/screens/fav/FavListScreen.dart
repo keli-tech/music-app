@@ -9,6 +9,7 @@ import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
 import 'package:logging/logging.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/MusicInfoModel.dart';
@@ -80,7 +81,6 @@ class _FavListScreen extends State<FavListScreen> {
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
     var windowHeight = MediaQuery.of(context).size.height;
     var windowWidth = MediaQuery.of(context).size.width;
 
@@ -111,18 +111,20 @@ class _FavListScreen extends State<FavListScreen> {
                     color: themeData.primaryColor,
                   ),
                   onPressed: () {
-                    showCupertinoModalPopup(
-                      context: context,
-                      builder: (BuildContext context1) {
-                        return _actionSheet(context1, context);
-                      },
-                    );
+                    _actionSheet(context);
+
+//                    showCupertinoModalPopup(
+//                      context: context,
+//                      builder: (BuildContext context1) {
+//                        return _actionSheet(context1, context);
+//                      },
+//                    );
                   },
                 ),
               ),
               SliverPadding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 15.0),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     Column(children: <Widget>[
@@ -224,40 +226,73 @@ class _FavListScreen extends State<FavListScreen> {
   }
 
   // 底部弹出菜单actionSheet
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
+  _actionSheet(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-    var windowHeight = MediaQuery.of(context).size.height;
-
-    return new CupertinoActionSheet(
-      actions: <Widget>[
-        CupertinoActionSheetAction(
-          child: Text(
-            '新建歌单',
-          ),
-          onPressed: () {
-            Navigator.of(context1).pop();
-
-            _addPlayList();
-          },
+    showCupertinoModalBottomSheet(
+      expand: false,
+      useRootNavigator: true,
+      bounce: true,
+      elevation: 10,
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context, scrollController) => Material(
+        color: Color(0xffececec),
+        child: SafeArea(
+          top: false,
+          child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            ListTile(
+              title: Text("收藏"),
+//              subtitle: Text("收藏"),
+              trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Icon(
+                  CupertinoIcons.clear_circled_solid,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+            new Divider(color: Colors.grey),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: GestureDetector(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.white,
+                  ),
+                  padding: EdgeInsets.only(left: 15),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text("新建歌单"),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Icon(
+                          Icons.create_new_folder,
+                          color: Colors.black45,
+                          size: 30,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _addPlayList();
+                },
+              ),
+            ),
+            new Divider(),
+            Padding(
+              padding: EdgeInsets.only(bottom: 170),
+            ),
+          ]),
         ),
-//        CupertinoActionSheetAction(
-//          child: Text(
-//            '新建场景',
-//          ),
-//          onPressed: () {
-//            Navigator.pop(context1);
-//
-//            _addSceen();
-//          },
-//        ),
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
-        ),
-        onPressed: () {
-          Navigator.of(context1).pop();
-        },
       ),
     );
   }
@@ -281,8 +316,8 @@ class _FavListScreen extends State<FavListScreen> {
             var musicPlayListModel = await DBProvider.db.getMusicPlayListById(
                 MusicPlayListModel.FAVOURITE_PLAY_LIST_ID);
 
-            Navigator.of(context).push(CupertinoPageRoute<void>(
-              title: "我喜欢的音乐",
+            Navigator.of(context, rootNavigator: true)
+                .push(MaterialWithModalsPageRoute<void>(
               builder: (BuildContext context) => PlayListDetailScreen(
                 musicPlayListModel: musicPlayListModel,
                 statusBarHeight: MediaQuery.of(context).padding.top,
@@ -323,7 +358,7 @@ class _FavListScreen extends State<FavListScreen> {
                           child: Text(
                             '我喜欢的音乐',
                             maxLines: 1,
-                            style: themeData.primaryTextTheme.title,
+                            style: themeData.textTheme.title,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -413,7 +448,7 @@ class _FavListScreen extends State<FavListScreen> {
                               child: Text(
                                 '最近100首播放',
                                 maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
+                                style: themeData.textTheme.title,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),

@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  characters:
+    dependency: transitive
+    description:
+      name: characters
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   charcode:
     dependency: transitive
     description:
@@ -184,6 +191,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.11.4"
+  lottie:
+    dependency: "direct main"
+    description:
+      name: lottie
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.3"
   matcher:
     dependency: transitive
     description:
@@ -205,6 +219,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.9.6+3"
+  modal_bottom_sheet:
+    dependency: "direct main"
+    description:
+      path: "dependencies/modal_bottom_sheet-0.1.5"
+      relative: true
+    source: path
+    version: "0.1.5"
   nested:
     dependency: transitive
     description:

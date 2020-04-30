@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:hello_world/components/rowitem/MusicColorReverseRowItem.dart';
 import 'package:hello_world/components/rowitem/MusicRowItem.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:logging/logging.dart';
@@ -12,19 +11,18 @@ import 'package:provider/provider.dart';
 // 播放列表
 // 专辑
 class MusicFileListComp extends StatefulWidget {
-  MusicFileListComp({Key key, this.statusBarHeight}) : super(key: key);
+  MusicFileListComp({Key key, this.statusBarHeight, this.colorReverse})
+      : super(key: key);
   static const String routeName = '/playlist/detail';
 
   @override
   _MusicFileListComp createState() => _MusicFileListComp();
 
   double statusBarHeight;
+  bool colorReverse;
 }
 
-class _MusicFileListComp extends State<MusicFileListComp>
-    with SingleTickerProviderStateMixin {
-  List<MusicInfoModel> _musicInfoModels = [];
-  File _image;
+class _MusicFileListComp extends State<MusicFileListComp> {
   Logger _logger = new Logger("MusicFileListComp");
 
   @override
@@ -35,7 +33,7 @@ class _MusicFileListComp extends State<MusicFileListComp>
 //  @override
 //  void deactivate() {
 //    super.deactivate();
-//    _logger.info("deactivate");
+//    __logger.info("deactivate");
 //    _refreshList();
 //  }
 
@@ -48,87 +46,67 @@ class _MusicFileListComp extends State<MusicFileListComp>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final width = size.width;
-    final height = size.height;
+    double _windowHeight = MediaQuery.of(context).size.height;
 
     ThemeData themeData = Theme.of(context);
     return Container(
-        height: height * 0.6,
-        color: themeData.backgroundColor,
-        padding: EdgeInsetsDirectional.only(top: widget.statusBarHeight),
-        child: CupertinoPageScaffold(
-          backgroundColor: themeData.backgroundColor,
-          navigationBar: CupertinoNavigationBar(
-            border: null,
-            backgroundColor: themeData.backgroundColor,
-            leading: Container(
-                child: CupertinoButton(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            title: Text("当前播放列表"),
+            trailing: CupertinoButton(
               padding: EdgeInsets.zero,
               child: Icon(
-                Icons.keyboard_arrow_down,
-                size: 40,
-                color: themeData.primaryColor,
+                CupertinoIcons.clear_circled_solid,
+                color: Colors.grey,
+                size: 30,
               ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
-            )),
-            middle: Text(
-              "当前播放列表",
-              style: themeData.primaryTextTheme.title,
             ),
           ),
-          child: CustomScrollView(
-            slivers: <Widget>[
-              Consumer<MusicInfoData>(
-                builder: (context, musicInfoData, _) => SliverPadding(
-                  padding:
-                      EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
-                        return MusicRowItem(
+          new Divider(color: Colors.grey),
+          Flexible(
+            child: Container(
+              child: Consumer<MusicInfoData>(
+                builder: (context, musicInfoData, _) => ListView.builder(
+                    padding: EdgeInsets.only(
+                      left: 15,
+                      right: 15,
+                    ),
+                    shrinkWrap: true,
+                    itemCount: musicInfoData.musicInfoList.length,
+                    itemBuilder: (context, index) {
+                      if (widget.colorReverse != null && widget.colorReverse) {
+                        return MusicColorReverseRowItem(
                           statusBarHeight: widget.statusBarHeight,
-                          lastItem: index == musicInfoData.musicInfoList.length - 1,
+                          lastItem:
+                              index == musicInfoData.musicInfoList.length - 1,
                           index: index,
-                          musicInfoModels:  musicInfoData.musicInfoList,
+                          musicInfoModels: musicInfoData.musicInfoList,
                           playId: musicInfoData.musicInfoModel.id,
                           audioPlayerState: musicInfoData.audioPlayerState,
                           musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,
                         );
-                      },
-                      childCount: musicInfoData.musicInfoList.length,
-                    ),
-                  ),
-                ),
+                      } else {
+                        return MusicRowItem(
+                          statusBarHeight: widget.statusBarHeight,
+                          lastItem:
+                              index == musicInfoData.musicInfoList.length - 1,
+                          index: index,
+                          musicInfoModels: musicInfoData.musicInfoList,
+                          playId: musicInfoData.musicInfoModel.id,
+                          audioPlayerState: musicInfoData.audioPlayerState,
+                          musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,
+                        );
+                      }
+                    }),
               ),
-            ],
+            ),
           ),
-        ));
-  }
-
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
-    ThemeData themeData = Theme.of(context);
-    var windowHeight = MediaQuery.of(context).size.height;
-    List<Widget> actionSheets = [];
-
-    actionSheets.add(CupertinoActionSheetAction(
-      child: Text(
-        '添加歌曲',
-      ),
-      onPressed: () {
-        Navigator.of(context1).pop();
-      },
-    ));
-
-    return new CupertinoActionSheet(
-      actions: actionSheets,
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
-        ),
-        onPressed: () {
-          Navigator.of(context1).pop();
-        },
+        ],
       ),
     );
   }

@@ -11,6 +11,7 @@ class AudioPlayerEvent {
 }
 
 enum MusicPlayerEvent {
+  show_player,
   // 底部滑动播放栏控制上下
   scroll_play,
   // 其他播放

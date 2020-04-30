@@ -26,7 +26,7 @@ final ThemeData testThemeData = ThemeData(
   cardColor: Color(0xffffffff),
   dividerColor: Color(0x5fFFFFFF),
   highlightColor: Color(0xccEEEEEE),
-  splashColor:Color(0xaa4285fd3),
+  splashColor: Color(0xaa4285fd3),
   selectedRowColor: Color(0xfff4f4f4),
   unselectedWidgetColor: Color(0x8a000000),
   disabledColor: Color(0x61000000),

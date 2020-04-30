@@ -4,6 +4,12 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:hello_world/models/ProfileChangeNotifier.dart';
 import 'package:hello_world/services/Database.dart';
 
+enum PlayMode{
+  order,//顺序
+  repeat,//重复
+  shuffle,//随机
+}
+
 class MusicInfoData extends ProfileChangeNotifier {
   AudioPlayerState _audioPlayerState = AudioPlayerState.STOPPED;
   Set<int> _musicInfoFavIDSet = Set<int>();
@@ -24,6 +30,13 @@ class MusicInfoData extends ProfileChangeNotifier {
   int get playIndex => cnprofile.playIndex;
 
   AudioPlayerState get audioPlayerState => _audioPlayerState;
+
+  PlayMode get playMode => cnprofile.playMode;
+
+  setPlayMode(PlayMode playMode) {
+    cnprofile.playMode = playMode;
+    notifyListeners();
+  }
 
   setAudioPlayerState(AudioPlayerState audioPlayerState) {
     _audioPlayerState = audioPlayerState;

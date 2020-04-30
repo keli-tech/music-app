@@ -14,13 +14,12 @@ class DBProvider {
   DBProvider._();
 
   static final DBProvider db = DBProvider._();
-  static Logger logger = new Logger("");
+  static Logger _logger = new Logger("DBProvider");
 
   Database _database;
 
   Future<Database> get database async {
     if (_database != null) return _database;
-    // if _database is null we instantiate it
     _database = await initDB();
     return _database;
   }
@@ -289,7 +288,7 @@ class DBProvider {
   deleteMusicPlayList(int id) async {
     try {
       final db = await database;
-      logger.info("delete play list id: $id");
+      _logger.info("delete play list id: $id");
 
       List<MusicInfoModel> musicInfos = await getMusicInfoByPlayListId(id);
       if (musicInfos.length > 0) {
@@ -310,7 +309,7 @@ class DBProvider {
         return [];
       }
     } catch (error) {
-      logger.warning(error);
+      _logger.warning(error);
       return [];
     }
   }
@@ -376,7 +375,7 @@ class DBProvider {
           mid,
           new DateTime.now().millisecondsSinceEpoch,
         ]);
-    logger.info("insert plid:$plid, mid:$mid");
+    _logger.info("insert plid:$plid, mid:$mid");
     return raw;
   }
 
@@ -388,7 +387,7 @@ class DBProvider {
       plid,
       mid,
     ]);
-    logger.info("delete plid:$plid, mid:$mid");
+    _logger.info("delete plid:$plid, mid:$mid");
     return raw;
   }
 

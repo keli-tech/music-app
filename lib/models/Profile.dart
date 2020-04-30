@@ -8,6 +8,7 @@ class Profile {
   List<MusicInfoModel> musicInfoList = [];
   List<MusicInfoModel> musicInfoFavList = [];
   int playIndex = 0;
+  PlayMode playMode;
 
   String documentDirectory;
 
@@ -18,6 +19,7 @@ class Profile {
     this.musicInfoFavList,
     this.playIndex,
     this.documentDirectory,
+    this.playMode,
   });
 
   factory Profile.fromMap(Map<String, dynamic> json) {
@@ -35,7 +37,18 @@ class Profile {
       musicInfoList: musicInfoList,
       musicInfoFavList: json["musicInfoFavList"],
       playIndex: json["playIndex"],
+      playMode: getPlayModeFromString(json["playMode"]),
+      documentDirectory: json["documentDirectory"],
     );
+  }
+
+  static PlayMode getPlayModeFromString(String statusAsString) {
+    for (PlayMode element in PlayMode.values) {
+      if (element.toString() == statusAsString) {
+        return element;
+      }
+    }
+    return null;
   }
 
   Map<String, dynamic> toMap() => {
@@ -44,6 +57,7 @@ class Profile {
         "musicInfoList": musicInfoList,
         "musicInfoFavList": musicInfoFavList,
         "playIndex": playIndex,
+        "playMode": playMode.toString(),
         "documentDirectory": documentDirectory,
       };
 
@@ -59,6 +73,11 @@ class Profile {
 
   String toJson() {
     final dyn = this.toMap();
-    return json.encode(dyn);
+    try {
+      return json.encode(dyn);
+    } catch (error) {
+      print(error);
+      return "";
+    }
   }
 }

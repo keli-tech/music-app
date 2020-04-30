@@ -6,6 +6,7 @@ import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class PlayListRowItem extends StatelessWidget {
   const PlayListRowItem({
@@ -24,8 +25,8 @@ class PlayListRowItem extends StatelessWidget {
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        Navigator.of(context).push(CupertinoPageRoute<void>(
-          title: musicPlayListModel.name,
+        Navigator.of(context, rootNavigator: true)
+            .push(MaterialWithModalsPageRoute<void>(
           builder: (BuildContext context) => PlayListDetailScreen(
             musicPlayListModel: musicPlayListModel,
             statusBarHeight: MediaQuery.of(context).padding.top,
@@ -115,8 +116,8 @@ class PlayListRowItem extends StatelessWidget {
       ),
     );
 
+    return row;
     if (lastItem) {
-      return row;
     }
 
     return Column(

@@ -46,6 +46,10 @@ dependencies:
   intl:
   image:
   url_launcher:
+  lottie: ^0.3.3
+  modal_bottom_sheet:
+    path: ./dependencies/modal_bottom_sheet-0.1.5
+
 
 dev_dependencies:
   flutter_test:

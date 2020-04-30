@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/components/AblumImageAnimation.dart';
 import 'package:hello_world/components/PlayingControlComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
-import 'package:hello_world/screens/album/AlbumListScreen.dart';
 import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/screens/album/TypeScreen.dart';
 import 'package:hello_world/screens/cloudservice/CloudServiceScreen.dart';
@@ -144,7 +143,7 @@ class _StructScreenState extends State<StructScreen>
                   _currentIndex = index;
                 },
                 activeColor: themeData.primaryColorLight,
-                inactiveColor: themeData.accentColor,
+                inactiveColor: Colors.grey,
                 backgroundColor: themeData.primaryColorDark,
                 currentIndex: 0,
                 iconSize: 30,
@@ -155,7 +154,7 @@ class _StructScreenState extends State<StructScreen>
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.album),
-                    title: Text("专辑"),
+                    title: Text("分类"),
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.insert_drive_file),
@@ -183,7 +182,7 @@ class _StructScreenState extends State<StructScreen>
                       navigatorKey: secondTabNavKey,
                       builder: (BuildContext context) => TypeScreen(),
                       routes: routes,
-                      defaultTitle: '专辑',
+                      defaultTitle: '分类',
                     );
                     break;
                   case 2:

@@ -9,6 +9,7 @@ import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FileRowItem extends StatelessWidget {
   const FileRowItem({
@@ -42,6 +43,7 @@ class FileRowItem extends StatelessWidget {
       row = builder(context);
     }
 
+    return row;
     if (lastItem) {
       return row;
     }
@@ -124,12 +126,7 @@ class FileRowItem extends StatelessWidget {
                     semanticLabel: 'Add',
                   ),
                   onPressed: () {
-                    showCupertinoModalPopup(
-                      context: context,
-                      builder: (BuildContext context1) {
-                        return _actionSheet(context1, context);
-                      },
-                    );
+                    _actionSheet(context);
                   },
                 ),
               ],
@@ -260,12 +257,7 @@ class FileRowItem extends StatelessWidget {
                           : themeData.primaryColorDark,
                     ),
                     onPressed: () {
-                      showCupertinoModalPopup(
-                        context: context,
-                        builder: (BuildContext context1) {
-                          return _actionSheet(context1, context);
-                        },
-                      );
+                      _actionSheet(context);
                     },
                   ),
                 ],
@@ -279,98 +271,156 @@ class FileRowItem extends StatelessWidget {
     return row;
   }
 
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
+  _actionSheet(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-    var windowHeight = MediaQuery.of(context).size.height;
-    List<Widget> actionSheets = [];
-
-    actionSheets.add(CupertinoActionSheetAction(
-      child: Text(
-        '收藏到歌单',
-      ),
-      onPressed: () {
-        Navigator.pop(context1);
-
-        showModalBottomSheet<void>(
-            context: context,
-            useRootNavigator: false,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              return PlayListSelectorContainer(
-                title: "收藏到歌单",
-                mid: musicInfoModels[index].id,
-                statusBarHeight: statusBarHeight,
-              );
-            });
-
-//        showCupertinoModalPopup(
-//            context: context,
-//            builder: (BuildContext context) {
-//              return PlayListSelectorContainer(
-//                title: "添加到歌单",
-//                playListId: mplID,
-//                statusBarHeight: statusBarHeight,
-//              );
-//            });
-      },
-    ));
-    actionSheets.add(CupertinoActionSheetAction(
-        child: Text(
-          '删除音乐文件',
-        ),
-        isDestructiveAction: true,
-        onPressed: () {
-          Navigator.of(context1).pop();
-
-          showCupertinoDialog<String>(
-            context: context1,
-            builder: (BuildContext context1) => CupertinoAlertDialog(
-              title: const Text('删除确认'),
-              content: Text('是否删除\"' + musicInfoModels[index].fullpath + '\"?'),
-              actions: <Widget>[
-                CupertinoDialogAction(
-                  child: Text(
-                    '取消',
-                  ),
-                  isDefaultAction: true,
-                  onPressed: () => Navigator.pop(context1, 'Cancel'),
+    showCupertinoModalBottomSheet(
+      useRootNavigator: true,
+      expand: true,
+      elevation: 30,
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context, scrollController) => Material(
+        color: Color(0xffececec),
+        child: SafeArea(
+          top: false,
+          child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            ListTile(
+              title: Text(musicInfoModels[index].name),
+              trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Icon(
+                  CupertinoIcons.clear_circled_solid,
+                  color: Colors.grey,
+                  size: 30,
                 ),
-                CupertinoDialogAction(
-                  child: Text(
-                    '删除',
-                  ),
-                  isDestructiveAction: true,
-                  onPressed: () {
-                    DBProvider.db
-                        .deleteMusic(musicInfoModels[index].id)
-                        .then((onValue) {
-                      FileManager.musicFile(musicInfoModels[index].fullpath)
-                          .delete();
-
-                      ToastUtils.show("已删除文件");
-
-                      Navigator.pop(context1);
-                    });
-                  },
-                ),
-              ],
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
-          ).then((String value) {
-            if (value != null) {
-//                setState(() { lastSelectedValue = value; });
-            }
-          });
-        }));
+            Divider(color: Colors.grey),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: GestureDetector(
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Colors.white),
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  height: 50,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: Text(
+                        '收藏到歌单',
+                      )),
+                      Icon(
+                        Icons.favorite,
+                        color: Colors.black45,
+                        size: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  showCupertinoModalBottomSheet(
+                    expand: true,
+                    elevation: 30,
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: (context, scrollController) => Material(
+                      color: Color(0xffececec),
+                      child: SafeArea(
+                        top: false,
+                        child: PlayListSelectorContainer(
+                          title: "收藏到歌单",
+                          mid: musicInfoModels[index].id,
+                          statusBarHeight: statusBarHeight,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            new Divider(),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: GestureDetector(
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Colors.white),
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  height: 50,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: Text(
+                        '删除音乐文件',
+                        style: TextStyle(
+                          color: themeData.errorColor,
+                        ),
+                      )),
+                      Icon(
+                        Icons.delete_forever,
+                        color: Colors.black45,
+                        size: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop();
 
-    return new CupertinoActionSheet(
-      actions: actionSheets,
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
+                  showCupertinoDialog<String>(
+                    context: context,
+                    builder: (BuildContext context1) => CupertinoAlertDialog(
+                      title: const Text('删除确认'),
+                      content: Text(
+                          '是否删除\"' + musicInfoModels[index].fullpath + '\"?'),
+                      actions: <Widget>[
+                        CupertinoDialogAction(
+                          child: Text(
+                            '取消',
+                          ),
+                          isDefaultAction: true,
+                          onPressed: () => Navigator.pop(context1, 'Cancel'),
+                        ),
+                        CupertinoDialogAction(
+                          child: Text(
+                            '删除',
+                          ),
+                          isDestructiveAction: true,
+                          onPressed: () {
+                            DBProvider.db
+                                .deleteMusic(musicInfoModels[index].id)
+                                .then((onValue) {
+                              FileManager.musicFile(
+                                      musicInfoModels[index].fullpath)
+                                  .delete();
+
+                              ToastUtils.show("已删除文件");
+
+                              Navigator.pop(context1);
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ).then((String value) {
+                    if (value != null) {
+//                setState(() { lastSelectedValue = value; });
+                    }
+                  });
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 130),
+            ),
+          ]),
         ),
-        onPressed: () {
-          Navigator.of(context1).pop();
-        },
       ),
     );
   }

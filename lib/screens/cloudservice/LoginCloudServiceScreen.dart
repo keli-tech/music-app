@@ -52,12 +52,12 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
   void initState() {
     super.initState();
 
-    _urlTextController =
-        TextEditingController(text: widget.cloudServiceModel.url);
-    _accountTextController =
-        TextEditingController(text: widget.cloudServiceModel.account);
-    _passwordTextController =
-        TextEditingController(text: widget.cloudServiceModel.password);
+//    _urlTextController =
+//        TextEditingController(text: widget.cloudServiceModel.url);
+//    _accountTextController =
+//        TextEditingController(text: widget.cloudServiceModel.account);
+//    _passwordTextController =
+//        TextEditingController(text: widget.cloudServiceModel.password);
   }
 
   //销毁
@@ -73,6 +73,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
     return CupertinoPageScaffold(
         backgroundColor: themeData.backgroundColor,
         navigationBar: CupertinoNavigationBar(
+          border: null,
           backgroundColor: themeData.backgroundColor,
           middle: Text(
             widget.title,
@@ -163,9 +164,10 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                   padding:
                       EdgeInsets.only(left: 30, top: 15, right: 30, bottom: 15),
                   color: themeData.primaryColorDark,
-                  child: Text("连接", style: TextStyle(
-                    color: themeData.primaryColorLight,
-                  )),
+                  child: Text("连接",
+                      style: TextStyle(
+                        color: themeData.primaryColorLight,
+                      )),
                   onPressed: () {
                     String host = _urlTextController.text.trim();
                     String account = _accountTextController.text.trim();
@@ -245,6 +247,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                             CupertinoPageRoute<void>(
                                 builder: (BuildContext context) =>
                                     NextCloudFileScreen(
+                                      level: 0,
                                       title: uri.host,
                                       path: indexPath,
                                       filePath:

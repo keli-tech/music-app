@@ -55,97 +55,69 @@ class _PlayListSelectorContainer extends State<PlayListSelectorContainer>
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-
+    double _windowHeight = MediaQuery.of(context).size.height;
     return Container(
-      color: themeData.backgroundColor,
-      padding: EdgeInsetsDirectional.only(top: widget.statusBarHeight),
-      child: Column(
-        children: <Widget>[
-          Flexible(
-            child: CupertinoTabView(
-                builder: (BuildContext context) => buildWidget(context)),
+      child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+        ListTile(
+          title: Text(widget.title),
+          trailing: CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: Icon(
+              CupertinoIcons.clear_circled_solid,
+              color: Colors.grey,
+              size: 30,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-        ],
-      ),
-
-//          CupertinoTabView(
-//              builder: (BuildContext context) => buildWidget(context))
-    );
-  }
-
-  Widget buildWidget(BuildContext buildContext) {
-    ThemeData themeData = Theme.of(context);
-    return Scaffold(
-      backgroundColor: themeData.backgroundColor,
-      appBar: CupertinoNavigationBar(
-        backgroundColor: themeData.backgroundColor,
-        leading: Container(
-            child: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Icon(
-            Icons.keyboard_arrow_down,
-            size: 40,
-            color: themeData.primaryColor,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        )),
-        middle: Text(
-          widget.title,
-          style: themeData.primaryTextTheme.title,
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Text(
-            "完成",
-            style: themeData.primaryTextTheme.title,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: Scrollbar(
-        child: ListView(
+        new Divider(color: Colors.grey),
+        Flexible(
+          child: Container(
+            child: Scrollbar(
+              child: ListView(
 //          reverse: _reverse,
-          scrollDirection: Axis.vertical,
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          children: _musicPlayListModels.map<Widget>((item) {
-            return ListTile(
-              contentPadding:
-                  EdgeInsets.only(left: 10, right: 10, bottom: 5, top: 2),
-              leading: Container(
-                  key: Key("start"),
-                  height: 50.0,
-                  width: 50.0,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5.0),
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: FileManager.musicAlbumPictureImage(
-                            item.artist, item.imgpath),
-                      ))),
-              isThreeLine: false,
-              title: Text(
-                item.name,
-                style: themeData.primaryTextTheme.title,
-              ),
-              onTap: () {
-                DBProvider.db
-                    .addMusicToPlayList(item.id, widget.mid)
-                    .then((onValue) {
-                  if (onValue > 0) {
-                    ToastUtils.show("收藏成功");
-                  }
-                });
+                scrollDirection: Axis.vertical,
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                children: _musicPlayListModels.map<Widget>((item) {
+                  return ListTile(
+                    contentPadding:
+                        EdgeInsets.only(left: 10, right: 10, bottom: 5, top: 2),
+                    leading: Container(
+                        key: Key("start"),
+                        height: 50.0,
+                        width: 50.0,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: FileManager.musicAlbumPictureImage(
+                                  item.artist, item.imgpath),
+                            ))),
+                    isThreeLine: false,
+                    title: Text(
+                      item.name,
+                      style: themeData.textTheme.title,
+                    ),
+                    onTap: () {
+                      DBProvider.db
+                          .addMusicToPlayList(item.id, widget.mid)
+                          .then((onValue) {
+                        if (onValue > 0) {
+                          ToastUtils.show("收藏成功");
+                        }
+                      });
 
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
+                      Navigator.of(context).pop();
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
         ),
-      ),
+      ]),
     );
   }
 }

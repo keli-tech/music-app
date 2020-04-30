@@ -12,6 +12,8 @@ import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:logging/logging.dart';
+import 'package:lottie/lottie.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
 import '../common/RotateTransform.dart';
@@ -26,14 +28,12 @@ class PlayingScreen extends StatefulWidget {
     this.musicInfoData,
     this.seekAction,
     this.audioplayer,
-    this.statusBarHeight,
   }) : super(key: key);
 
   final String title;
   int showMusicScreen;
   AudioPlayer audioplayer;
   MusicInfoData musicInfoData;
-  double statusBarHeight;
 
   Future<Null> Function() hideAction;
   Function(Duration) seekAction;
@@ -44,8 +44,8 @@ class PlayingScreen extends StatefulWidget {
 
 class _PlayingScreenState extends State<PlayingScreen>
     with SingleTickerProviderStateMixin {
-  Duration _position = new Duration();
-  Duration _maxDuration = new Duration(seconds: 1);
+  Duration _position = new Duration(seconds: 0);
+  Duration _maxDuration = new Duration(seconds: 0);
   String _currentDurationTime = "";
   String _durationTime = "";
   bool _syncSlide = true;
@@ -59,11 +59,11 @@ class _PlayingScreenState extends State<PlayingScreen>
   var _eventBusOn;
   Timer periodicTimer;
 
-  var logger = new Logger("PlayingScreen");
+  var _logger = new Logger("PlayingScreen");
 
   @override
   void initState() {
-    logger.info("init state");
+    _logger.info("init state");
 
     setState(() {
       _audioPlayerState = widget.musicInfoData.audioPlayerState;
@@ -85,9 +85,8 @@ class _PlayingScreenState extends State<PlayingScreen>
     this._eventBusOn.cancel();
     _animationController.dispose();
     periodicTimer.cancel();
-    logger.info("dispose");
+    _logger.info("dispose");
 
-    widget.hideAction();
     super.dispose();
   }
 
@@ -199,13 +198,14 @@ class _PlayingScreenState extends State<PlayingScreen>
                                   color: Colors.transparent,
                                   onPressed: _playPauseAction,
                                   child: CircleAvatar(
+                                    backgroundColor: Colors.black12,
                                     backgroundImage: AssetImage(
                                         "assets/images/heijiao-record.png"),
-                                    radius: _windowWidth * 0.50,
+                                    radius: _windowWidth * 0.45,
                                     child: Center(
                                       child: Container(
-                                        height: _windowWidth * 0.625,
-                                        width: _windowWidth * 0.625,
+                                        height: _windowWidth * 0.525,
+                                        width: _windowWidth * 0.525,
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(
                                               _windowWidth * 0.315),
@@ -239,99 +239,98 @@ class _PlayingScreenState extends State<PlayingScreen>
                       ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].title} - ${musicInfoData.musicInfoList[musicInfoData.playIndex].artist}'
                       : "",
                   style: themeData.primaryTextTheme.headline,
+                  maxLines: 2,
                 ),
-                ListTile(
-                  leading: CupertinoButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-//                      widget.hideAction();
-                    },
-                    child: Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 30,
-                      color: themeData.primaryTextTheme.headline.color,
+                Card(
+                  color: Colors.transparent,
+                  elevation: 0,
+                  child: ListTile(
+                    leading: CupertinoButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        widget.hideAction();
+                      },
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 30,
+                        color: themeData.primaryTextTheme.headline.color,
+                      ),
                     ),
-                  ),
-                  title: Center(
-                    child: Text(
-                      musicInfoData.musicInfoList.length > 0
-                          ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].album}'
-                          : "",
-                      style: themeData.primaryTextTheme.subhead,
+                    title: Center(
+                      child: Text(
+                        musicInfoData.musicInfoList.length > 0
+                            ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].album}'
+                            : "",
+                        style: themeData.primaryTextTheme.subhead,
+                      ),
                     ),
-                  ),
-                  trailing: CupertinoButton(
-                    onPressed: () {
-                      showCupertinoModalPopup(
-                        context: context,
-                        builder: (BuildContext context1) {
-                          return _actionSheet(context1, context);
-                        },
-                      );
-                    },
-                    child: Icon(
-                      Icons.more_vert,
-                      size: 30,
-                      color: themeData.primaryTextTheme.headline.color,
+                    trailing: CupertinoButton(
+                      onPressed: () {
+                        _actionSheet(context);
+                      },
+                      child: Icon(
+                        Icons.more_vert,
+                        size: 30,
+                        color: themeData.primaryTextTheme.headline.color,
+                      ),
                     ),
                   ),
                 ),
                 // 进度条
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        width: 55,
-                        child: Text(
-                          _currentDurationTime,
-                          style: themeData.primaryTextTheme.subhead,
-                        ),
-                      ),
-                      Container(
-                        width: _windowWidth - 130,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: new CupertinoSlider(
-                          activeColor:
-                              themeData.primaryTextTheme.headline.color,
-                          value: _position.inSeconds.toDouble(),
-                          min: 0.0,
-                          max: _maxDuration.inSeconds.toDouble(),
-                          onChanged: (double value) {
-                            Duration curPosition =
-                                new Duration(seconds: value.toInt());
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: <
+                    Widget>[
+                  Container(
+                    width: 55,
+                    child: Text(
+                      _currentDurationTime,
+                      style: themeData.primaryTextTheme.subhead,
+                    ),
+                  ),
+                  Container(
+                    width: _windowWidth - 130,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: new CupertinoSlider(
+                      activeColor: themeData.primaryTextTheme.headline.color,
+                      value: _position.inSeconds.toDouble(),
+                      min: 0.0,
+                      max: _maxDuration != null && _maxDuration.inSeconds > 0.0
+                          ? _maxDuration.inSeconds.toDouble()
+                          : 1.0,
+                      onChanged: (double value) {
+                        Duration curPosition =
+                            new Duration(seconds: value.toInt());
 
-                            setState(() {
-                              _position = curPosition;
-                            });
-                          },
-                          onChangeStart: (double val) {
-                            setState(() {
-                              _syncSlide = false;
-                            });
-                          },
-                          onChangeEnd: (double val) {
-                            logger
-                                .info("change end :" + val.toInt().toString());
-                            Duration curPosition =
-                                new Duration(milliseconds: val.toInt());
+                        setState(() {
+                          _position = curPosition;
+                        });
+                      },
+                      onChangeStart: (double val) {
+                        setState(() {
+                          _syncSlide = false;
+                        });
+                      },
+                      onChangeEnd: (double val) {
+                        _logger.info("change end :" + val.toInt().toString());
+                        Duration curPosition =
+                            new Duration(milliseconds: val.toInt());
 
-                            widget.seekAction(curPosition);
-                            widget.audioplayer.resume();
-                            setState(() {
+                        widget.seekAction(curPosition);
+                        widget.audioplayer.resume();
+                        setState(() {
 //                      _position = curPosition;
-                              _syncSlide = true;
-                            });
-                          },
-                        ),
-                      ),
-                      Container(
-                        width: 55,
-                        child: Text(
-                          _durationTime,
-                          style: themeData.primaryTextTheme.subhead,
-                        ),
-                      ),
-                    ]),
+                          _syncSlide = true;
+                        });
+                      },
+                    ),
+                  ),
+                  Container(
+                    width: 55,
+                    child: Text(
+                      _durationTime,
+                      style: themeData.primaryTextTheme.subhead,
+                    ),
+                  ),
+                ]),
 
                 // 控制器
                 Row(
@@ -344,12 +343,29 @@ class _PlayingScreenState extends State<PlayingScreen>
                         pressedOpacity: 1,
                         padding: EdgeInsets.zero,
                         child: Icon(
-                          Icons.repeat,
+                          musicInfoData.playMode == PlayMode.order
+                              ? Icons.repeat
+                              : (musicInfoData.playMode == PlayMode.repeat
+                                  ? Icons.repeat_one
+                                  : CupertinoIcons.shuffle_thick),
                           color: themeData.primaryTextTheme.headline.color,
                         ),
                         onPressed: () {
-//                          widget.hideAction();
-                          Navigator.pop(context);
+                          switch (musicInfoData.playMode) {
+                            case PlayMode.order:
+                              Provider.of<MusicInfoData>(context, listen: false)
+                                  .setPlayMode(PlayMode.repeat);
+                              break;
+                            case PlayMode.repeat:
+                              Provider.of<MusicInfoData>(context, listen: false)
+                                  .setPlayMode(PlayMode.shuffle);
+                              break;
+                            case PlayMode.shuffle:
+                              Provider.of<MusicInfoData>(context, listen: false)
+                                  .setPlayMode(PlayMode.order);
+                              break;
+                            default:
+                          }
                         },
                       ),
                     ),
@@ -379,10 +395,15 @@ class _PlayingScreenState extends State<PlayingScreen>
                                   .contains(musicInfoData.musicInfoModel.id)
                               ? Container(
                                   key: Key("play"),
-                                  child: Icon(
-                                    CupertinoIcons.heart_solid,
-                                    color: Colors.red,
-                                    size: 30,
+                                  child: Transform.scale(
+                                    scale: 1.4,
+                                    child: Lottie.asset(
+                                      'assets/lf20_3ngy1x.json',
+                                      repeat: false,
+                                      animate: true,
+                                      reverse: false,
+                                      fit: BoxFit.fill,
+                                    ),
                                   ),
                                 )
                               : Container(
@@ -390,7 +411,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                                   child: Icon(
                                     CupertinoIcons.heart,
                                     color: Colors.red,
-                                    size: 30,
+                                    size: 32,
                                   ),
                                 ),
                         ),
@@ -504,44 +525,20 @@ class _PlayingScreenState extends State<PlayingScreen>
     }
   }
 
-  // 上一首
+  // 上一首, 发通知
   void _playPrev(BuildContext context) {
-    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
-    int newIndex = musicInfoData.playIndex == 0
-        ? musicInfoData.musicInfoList.length - 1
-        : musicInfoData.playIndex - 1;
-
-    if (newIndex == musicInfoData.playIndex) {
-      widget.audioplayer.seek(Duration(microseconds: 0));
-      setState(() => _position = Duration(microseconds: 0));
-    }
-
-    Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
-
+    eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.last));
     _animationController.reset();
     _animationController.forward();
     syncSlide();
-    eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
   }
 
-  // 下一首
+  // 下一首， 发通知
   void _playNext(BuildContext context) {
-    var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
-    int newIndex =
-        musicInfoData.playIndex < musicInfoData.musicInfoList.length - 1
-            ? musicInfoData.playIndex + 1
-            : 0;
-    if (newIndex == musicInfoData.playIndex) {
-      widget.audioplayer.seek(Duration(microseconds: 0));
-      setState(() => _position = Duration(microseconds: 0));
-    }
-
-    Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
-
+    eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.next));
     _animationController.reset();
     _animationController.forward();
     syncSlide();
-    eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
   }
 
   void syncSlide() async {
@@ -573,91 +570,165 @@ class _PlayingScreenState extends State<PlayingScreen>
     }
   }
 
-  Widget _actionSheet(BuildContext context1, BuildContext context) {
-    ThemeData themeData = Theme.of(context);
-    var windowHeight = MediaQuery.of(context).size.height;
-    List<Widget> actionSheets = [];
+  _actionSheet(BuildContext context) {
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
 
-    actionSheets.add(CupertinoActionSheetAction(
-        child: Text(
-          '查看专辑',
-        ),
-        onPressed: () async {
-          Navigator.pop(context1);
-
-          String album = musicInfoData.musicInfoModel.album;
-          String artist = musicInfoData.musicInfoModel.artist;
-
-          MusicPlayListModel musicPlayListModel =
-              await DBProvider.db.getMusicPlayListByArtistName(artist, album);
-          if (musicPlayListModel.id > 0) {
-            Navigator.of(context, rootNavigator: true)
-                .push(MaterialPageRoute<void>(
-              builder: (BuildContext context) => PlayListDetailScreen(
-                musicPlayListModel: musicPlayListModel,
-                statusBarHeight: widget.statusBarHeight,
+    ThemeData themeData = Theme.of(context);
+    showCupertinoModalBottomSheet(
+      expand: true,
+      elevation: 30,
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context, scrollController) => Material(
+        color: Color(0xffececec),
+        child: SafeArea(
+          top: false,
+          child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            ListTile(
+              title: Text(musicInfoData.musicInfoModel.name),
+              trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Icon(
+                  CupertinoIcons.clear_circled_solid,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-            ));
-          }
-        }));
-
-    actionSheets.add(CupertinoActionSheetAction(
-        child: Text(
-          '查看歌手',
-        ),
-        onPressed: () {
-          Navigator.pop(context1);
-
-          Navigator.of(context, rootNavigator: true)
-              .push(MaterialPageRoute<void>(
-            builder: (BuildContext context) => ArtistListDetailScreen(
-              artist: musicInfoData.musicInfoModel.artist,
-              statusBarHeight: widget.statusBarHeight,
             ),
-          ));
-        }));
+            new Divider(color: Colors.grey),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.white),
+                padding: EdgeInsets.only(left: 15, right: 15),
+                height: 50,
+                child: GestureDetector(
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(child: Text("查看专辑")),
+                      Icon(
+                        Icons.create_new_folder,
+                        color: Colors.black45,
+                        size: 30,
+                      ),
+                    ],
+                  ),
+                  onTap: () async {
+                    String album = musicInfoData.musicInfoModel.album;
+                    String artist = musicInfoData.musicInfoModel.artist;
 
-    actionSheets.add(CupertinoActionSheetAction(
-      child: Text(
-        '收藏到歌单',
-      ),
-      onPressed: () {
-        Navigator.pop(context1);
+                    MusicPlayListModel musicPlayListModel = await DBProvider.db
+                        .getMusicPlayListByArtistName(artist, album);
 
-        showModalBottomSheet<void>(
-            context: context,
-            useRootNavigator: false,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              return PlayListSelectorContainer(
-                title: "收藏到歌单",
-                mid: musicInfoData.musicInfoModel.id,
-                statusBarHeight: widget.statusBarHeight,
-              );
-            });
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
 
-//        showCupertinoModalPopup(
-//            context: context,
-//            builder: (BuildContext context) {
-//              return PlayListSelectorContainer(
-//                title: "添加到歌单",
-//                playListId: mplID,
-//                statusBarHeight: statusBarHeight,
-//              );
-//            });
-      },
-    ));
+                    Navigator.of(context, rootNavigator: true)
+                        .push(MaterialWithModalsPageRoute<void>(
+                      builder: (BuildContext context) => PlayListDetailScreen(
+                        musicPlayListModel: musicPlayListModel,
+                      ),
+                    ));
+                  },
+                ),
+              ),
+            ),
+            new Divider(),
+            Padding(
+              padding: EdgeInsets.only(left: 15, right: 15),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.white),
+                padding: EdgeInsets.only(left: 15, right: 15),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      height: 50,
+                      child: GestureDetector(
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(child: Text("查看歌手")),
+                            Icon(
+                              Icons.text_fields,
+                              color: Colors.black45,
+                              size: 30,
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
 
-    return new CupertinoActionSheet(
-      actions: actionSheets,
-      cancelButton: CupertinoActionSheetAction(
-        child: Text(
-          '取消',
+                          Navigator.of(context, rootNavigator: true)
+                              .push(MaterialPageRoute<void>(
+                            builder: (BuildContext context) =>
+                                ArtistListDetailScreen(
+                              artist: musicInfoData.musicInfoModel.artist,
+                            ),
+                          ));
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Divider(),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.white),
+                padding: EdgeInsets.only(left: 15, right: 15),
+                height: 50,
+                child: GestureDetector(
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: Text(
+                        '收藏到歌单',
+                      )),
+                      Icon(
+                        Icons.favorite,
+                        color: Colors.black45,
+                        size: 30,
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    showCupertinoModalBottomSheet(
+                      expand: true,
+                      elevation: 30,
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      builder: (context, scrollController) => Material(
+                        color: Color(0xffececec),
+                        child: SafeArea(
+                          top: false,
+                          child: PlayListSelectorContainer(
+                            title: "收藏到歌单",
+                            mid: musicInfoData.musicInfoModel.id,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            new Divider(),
+            Padding(
+              padding: EdgeInsets.only(bottom: 130),
+            ),
+          ]),
         ),
-        onPressed: () {
-          Navigator.of(context1).pop();
-        },
       ),
     );
   }

@@ -213,6 +213,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
               ).push(CupertinoPageRoute<void>(
                 title: item.name,
                 builder: (BuildContext context) => NextCloudFileScreen(
+                  level: 0,
                   title: item.name,
                   path: indexPath,
                   filePath: "/${item.name.toLowerCase()}/",

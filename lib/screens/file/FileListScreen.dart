@@ -109,7 +109,10 @@ class _FileListScreen extends State<FileListScreen>
                   Consumer<MusicInfoData>(
                     builder: (context, musicInfoData, _) => SliverPadding(
                       padding: EdgeInsets.only(
-                          left: 15, top: 10, right: 15, bottom: _bottomBarHeight + 50),
+                          left: 15,
+                          top: 10,
+                          right: 15,
+                          bottom: _bottomBarHeight + 50),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (BuildContext context, int index) {

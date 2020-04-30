@@ -7,7 +7,6 @@ import 'package:hello_world/common/Global.dart';
 import 'package:logging/logging.dart';
 
 class FileManager {
-
   static Logger _logger = new Logger("FileManager");
 
   // service = '/nextcloud/' 带 前后缀
@@ -22,7 +21,7 @@ class FileManager {
   static File localFile(String fileName) {
     final path = Global.profile.documentDirectory;
 
-//    _logger.info('$path$fileName');
+//    __logger.info('$path$fileName');
     return File('$path$fileName');
   }
 
