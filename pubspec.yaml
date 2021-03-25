@@ -24,29 +24,28 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   #  audioplayers: ^0.15.1
   audioplayers:
-    path: ./dependencies/audioplayers-0.14.2
-  cupertino_icons: ^0.1.2
-  event_bus: ^1.1.1
+  cupertino_icons: ^1.0.2
+  event_bus: ^2.0.0
   shared_preferences:
   sqflite:
   path:
   http_server:
-  provider: ^4.0.4
-  dart_tags: ^0.2.3
-  carousel_slider: ^2.0.0
+  provider: ^5.0.0
+  dart_tags: ^0.3.1
+  carousel_slider: ^3.0.0
   image_picker:
-  fluttertoast: ^4.0.0
+  fluttertoast: ^8.0.3
   logging:
   #  nextcloud:
   #    path: ./dependencies/nextcloud-1.0.16
   webdav:
   mime:
-  admob_flutter: "^1.0.0-beta.2"
-  http: ^0.12.0+4
+#  admob_flutter: ^2.0.0-nullsafety.0
+  http: ^0.13.1
   intl:
   image:
   url_launcher:
-  modal_bottom_sheet: ^0.1.5
+  modal_bottom_sheet: ^2.0.0
 
 
 dev_dependencies:

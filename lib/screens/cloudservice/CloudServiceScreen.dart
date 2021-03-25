@@ -51,7 +51,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
         child: CustomScrollView(
           slivers: <Widget>[
             CupertinoSliverNavigationBar(
-              actionsForegroundColor: themeData.primaryColorDark,
+              //actionsForegroundColor: themeData.primaryColorDark,
               backgroundColor: themeData.primaryColorLight,
               border: null,
               automaticallyImplyTitle: false,

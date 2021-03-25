@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:admob_flutter/admob_flutter.dart';
+// import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/common/Global.dart';
@@ -8,7 +8,7 @@ import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
-import 'package:hello_world/services/AdmobService.dart';
+// import 'package:hello_world/services/AdmobService.dart3';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
@@ -85,15 +85,15 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
             children: <Widget>[
               Global.showAd
                   ? Container(
-                      child: AdmobBanner(
-                        adUnitId: AdMobService.getBannerAdUnitId(
-                            LoginCloudServiceScreen.className),
-                        adSize: AdmobBannerSize.FULL_BANNER,
-                        listener:
-                            (AdmobAdEvent event, Map<String, dynamic> args) {
-                          AdMobService.handleEvent(event, args, 'Banner');
-                        },
-                      ),
+                      // child: AdmobBanner(
+                      //   adUnitId: AdMobService.getBannerAdUnitId(
+                      //       LoginCloudServiceScreen.className),
+                      //   adSize: AdmobBannerSize.FULL_BANNER,
+                      //   listener:
+                      //       (AdmobAdEvent event, Map<String, dynamic> args) {
+                      //     AdMobService.handleEvent(event, args, 'Banner');
+                      //   },
+                      // ),
                     )
                   : Container(),
               SizedBox(

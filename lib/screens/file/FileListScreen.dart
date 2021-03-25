@@ -1,10 +1,10 @@
 //import 'package:firebase_admob/firebase_admob.dart';
-import 'package:admob_flutter/admob_flutter.dart';
+// import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/rowitem/FileRowItem.dart';
-import 'package:hello_world/services/AdmobService.dart';
+// import 'package:hello_world/services/AdmobService.dart3';
 import 'package:provider/provider.dart';
 
 import '../../models/MusicInfoModel.dart';
@@ -25,16 +25,16 @@ class _FileListScreen extends State<FileListScreen>
 
   bool _isLoding = false;
 
-  AdmobBannerSize bannerSize;
-  AdmobInterstitial interstitialAd;
-  AdmobReward rewardAd;
+  // AdmobBannerSize bannerSize;
+  // AdmobInterstitial interstitialAd;
+  // AdmobReward rewardAd;
 
   @override
   void initState() {
     super.initState();
 
     _refreshList(path);
-    bannerSize = AdmobBannerSize.FULL_BANNER;
+    // bannerSize = AdmobBannerSize.FULL_BANNER;
   }
 
   @override
@@ -70,7 +70,7 @@ class _FileListScreen extends State<FileListScreen>
                 semanticChildCount: _musicInfoModels.length,
                 slivers: <Widget>[
                   CupertinoSliverNavigationBar(
-                    actionsForegroundColor: themeData.primaryColorDark,
+                    //actionsForegroundColor: themeData.primaryColorDark,
                     backgroundColor: themeData.primaryColorLight,
                     border: null,
                     automaticallyImplyTitle: false,
@@ -90,16 +90,16 @@ class _FileListScreen extends State<FileListScreen>
                         [
                           Global.showAd
                               ? Container(
-                                  child: AdmobBanner(
-                                    adUnitId: AdMobService.getBannerAdUnitId(
-                                        FileListScreen.className),
-                                    adSize: bannerSize,
-                                    listener: (AdmobAdEvent event,
-                                        Map<String, dynamic> args) {
-                                      AdMobService.handleEvent(
-                                          event, args, 'Banner');
-                                    },
-                                  ),
+                                  // child:
+                                  // AdmobBanner( adUnitId: AdMobService.getBannerAdUnitId(
+                                  //       FileListScreen.className),
+                                  //   adSize: bannerSize,
+                                  //   listener: (AdmobAdEvent event,
+                                  //       Map<String, dynamic> args) {
+                                  //     AdMobService.handleEvent(
+                                  //         event, args, 'Banner');
+                                  //   },
+                                  // ),
                                 )
                               : Container(),
                         ],

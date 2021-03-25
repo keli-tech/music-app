@@ -73,6 +73,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
   void _initMusicPlayerEvent() {
     _musicplayerEvent = eventBus.on<MusicPlayerEventBus>().listen((event) {
       _logger.info(event.musicPlayerEvent);
+      _logger.info(111);
 
       var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
       if (event.musicPlayerEvent == MusicPlayerEvent.play ||
@@ -392,9 +393,10 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                           bounce: true,
                           context: context,
                           backgroundColor: Colors.transparent,
-                          builder: (context, scrollController) => ModalFit(
-                            scrollController: scrollController,
-                          ),
+                          // todo
+                          // builder: (context, scrollController) => ModalFit(
+                          //   scrollController: scrollController,
+                          // ),
                         );
 
                         return;

@@ -49,7 +49,7 @@ class _TypeScreen extends State<TypeScreen> {
         child: CustomScrollView(
           slivers: <Widget>[
             CupertinoSliverNavigationBar(
-              actionsForegroundColor: themeData.primaryColorDark,
+              //actionsForegroundColor: themeData.primaryColorDark,
               backgroundColor: themeData.primaryColorLight,
               border: null,
               automaticallyImplyTitle: false,

@@ -225,8 +225,9 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
           ),
           onPressed: () async {
             Navigator.pop(context1);
-            File imageFile =
-                await ImagePicker.pickImage(source: ImageSource.gallery);
+            // todo
+            File imageFile = null;
+            // await ImagePicker.pickImage(source: ImageSource.gallery);
 
             if (imageFile != null) {
               var updateValue = {

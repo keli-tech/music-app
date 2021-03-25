@@ -1,10 +1,10 @@
-import 'package:admob_flutter/admob_flutter.dart';
+// import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/screens/album/ArtistListDetailScreen.dart';
-import 'package:hello_world/services/AdmobService.dart';
+// import 'package:hello_world/services/AdmobService.dart3';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 
@@ -85,16 +85,16 @@ class _ArtistListScreen extends State<ArtistListScreen> {
                     [
                       Global.showAd
                           ? Container(
-                              child: AdmobBanner(
-                                adUnitId: AdMobService.getBannerAdUnitId(
-                                    ArtistListScreen.className),
-                                adSize: AdmobBannerSize.FULL_BANNER,
-                                listener: (AdmobAdEvent event,
-                                    Map<String, dynamic> args) {
-                                  AdMobService.handleEvent(
-                                      event, args, 'Banner');
-                                },
-                              ),
+                              // child: AdmobBanner(
+                              //   adUnitId: AdMobService.getBannerAdUnitId(
+                              //       ArtistListScreen.className),
+                              //   adSize: AdmobBannerSize.FULL_BANNER,
+                              //   listener: (AdmobAdEvent event,
+                              //       Map<String, dynamic> args) {
+                              //     AdMobService.handleEvent(
+                              //         event, args, 'Banner');
+                              //   },
+                              // ),
                             )
                           : Container(),
                     ],

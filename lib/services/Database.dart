@@ -397,7 +397,7 @@ class DBProvider {
 
     var res = await db.rawQuery(
         "select count(1) as cc from music_info where name = '${newMusicInfo.name}' and path = '${newMusicInfo.path}'");
-    if (res != null && res.length > 0 && res[0]['cc'] >= 1) {
+    if (res != null && res.length > 0 && res[0]['cc'].toString() != "0") {
       return 0;
     } else {
       var raw = await db.rawInsert(
@@ -479,7 +479,9 @@ class DBProvider {
                 "where t1.mi_id = $id and t2.type ='" +
             MusicPlayListModel.TYPE_ALBUM +
             "' limit 1");
-    if (albumCountRes != null && albumCountRes[0]["count"] <= 1) {
+    if (albumCountRes != null &&
+        (albumCountRes[0]["count"].toString() == "1" ||
+            albumCountRes[0]["count"].toString() == "0")) {
       deleteMusicPlayList(albumCountRes[0]["mpl_id"]);
     }
 
