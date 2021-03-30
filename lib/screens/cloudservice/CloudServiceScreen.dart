@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dart_tags/dart_tags.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -285,12 +286,18 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                   color: themeData.primaryColor,
                                 ),
                                 onTap: () async {
-                                  const url = 'https://keli.tech/music/help';
-                                  if (await canLaunch(url)) {
-                                    await launch(url);
-                                  } else {
-                                    print('Could not launch $url');
-                                  }
+                                  // const url = 'https://keli.tech/music/help';
+                                  // if (await canLaunch(url)) {
+                                  //   await launch(url);
+                                  // } else {
+                                  //   print('Could not launch $url');
+                                  // }
+
+                                  FilePickerResult result = await FilePicker.platform.pickFiles(
+                                    type: FileType.custom,
+                                    allowedExtensions: ['mp3', 'pdf', 'doc'],
+                                  );
+                                  _logger.info(result);
                                 },
                               ),
                             ),
