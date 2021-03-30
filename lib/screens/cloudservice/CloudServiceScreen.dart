@@ -1,12 +1,21 @@
+import 'dart:io';
+
+import 'package:dart_tags/dart_tags.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
+import 'package:hello_world/models/MusicInfoModel.dart';
+import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/screens/cloudservice/LoginCloudServiceScreen.dart';
 import 'package:hello_world/screens/cloudservice/MyHttpServer.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
 import 'package:hello_world/services/CloudService.dart';
+import 'package:hello_world/services/Database.dart';
+import 'package:hello_world/services/FileManager.dart';
+import 'package:logging/logging.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CloudServiceScreen extends StatefulWidget {
@@ -16,6 +25,7 @@ class CloudServiceScreen extends StatefulWidget {
 
 class _CloudServiceScreen extends State<CloudServiceScreen> {
   List<CloudServiceModel> _cloudServiceModels = [];
+  Logger _logger = new Logger("CloudServiceScreen");
 
   @override
   void initState() {
@@ -119,6 +129,144 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                               children: buildService(context),
                             ),
                             new Divider(),
+                            Tile(
+                              selected: false,
+                              radiusnum: 15.0,
+                              child: new ListTile(
+                                title: new Text(
+                                  '本地文件',
+                                  style: themeData.primaryTextTheme.title,
+                                ),
+                                leading: new Icon(
+                                  Icons.help,
+                                  size: 40,
+                                  color: themeData.primaryColor,
+                                ),
+                                trailing: Icon(
+                                  Icons.chevron_right,
+                                  color: themeData.primaryColor,
+                                ),
+                                onTap: () async {
+                                  final typeGroup = XTypeGroup(
+                                      label: 'mp3', extensions: ['pdf', 'mp3']);
+                                  final files = await openFiles(
+                                      acceptedTypeGroups: [typeGroup]);
+                                  _logger.info(files);
+
+                                  var a = files.map((file2) {
+                                    _logger.info(file2.path);
+
+                                    File fileUploaded = File(file2.path);
+
+                                    var file =
+                                        FileManager.localFile("/" + file2.name);
+
+                                    // 保存文件
+                                    file
+                                        .writeAsBytes(
+                                            fileUploaded.readAsBytesSync(),
+                                            mode: FileMode.WRITE)
+                                        .then((_) async {
+                                      int fileLength = await file.length();
+                                      String fileSize = Uri.decodeComponent(
+                                          (fileLength / 1024 / 1024)
+                                                  .toStringAsFixed(2)
+                                                  .toString() +
+                                              "MB");
+
+                                      // 保存到数据库
+                                      // todo bugfix, 部分无tab mp3 未读取到 tag，会卡住, 比如flac
+                                      TagProcessor tp = new TagProcessor();
+
+                                      var l = await tp.getTagsFromByteArray(
+                                          file.readAsBytes());
+
+                                      AttachedPicture picture;
+                                      String title = file2.name;
+                                      String artist = "未知";
+                                      String album = "未知";
+
+                                      l.forEach((f) {
+                                        if (f.tags != null &&
+                                            f.tags.containsKey("picture")) {
+                                          _logger.info(f.tags["picture"]);
+                                          //
+                                          // 保存音乐文件表
+                                          // picture = f.tags["picture"].cast(AttachedPicture);
+                                          picture = (f.tags['picture'] as Map)
+                                              .values
+                                              .first;
+
+                                          _logger.info(picture);
+
+                                          title = f.tags["title"];
+                                          artist = f.tags["artist"];
+                                          album = f.tags["album"];
+                                        }
+                                      });
+
+                                      MusicInfoModel newMusicInfo =
+                                          MusicInfoModel(
+                                        name: file2.name,
+                                        path: "/",
+                                        fullpath: "/" + file2.name,
+                                        type: file2.name
+                                            .split(".")
+                                            .last
+                                            .toLowerCase(),
+                                        syncstatus: true,
+                                        title: title,
+                                        artist: artist,
+                                        filesize: fileSize,
+                                        album: album,
+                                        sort: 100,
+                                        updatetime: new DateTime.now()
+                                            .millisecondsSinceEpoch,
+                                      );
+                                      int newMid = await DBProvider.db
+                                          .newMusicInfo(newMusicInfo);
+
+                                      // 添加到专辑表
+                                      MusicPlayListModel newMusicPlayListModel =
+                                          MusicPlayListModel(
+                                        name: album,
+                                        type: MusicPlayListModel.TYPE_ALBUM,
+                                        artist: artist,
+                                        sort: 100,
+                                      );
+                                      int newPlid = await DBProvider.db
+                                          .newMusicPlayList(
+                                              newMusicPlayListModel);
+                                      if (newPlid > 0 && newMid > 0) {
+                                        // 保存到列表
+                                        await DBProvider.db.addMusicToPlayList(
+                                            newPlid, newMid);
+                                      }
+
+                                      // 保存音乐封面
+                                      if (picture != null &&
+                                          picture.imageData != null) {
+                                        var dir = await FileManager
+                                                .musicAlbumPicturePath(
+                                                    artist, album)
+                                            .create(recursive: true);
+                                        var imageFile = await FileManager
+                                            .musicAlbumPictureFile(
+                                                artist, album);
+                                        imageFile
+                                            .writeAsBytes(picture.imageData,
+                                                mode: FileMode.WRITE)
+                                            .then((_) async {});
+                                      }
+                                    });
+
+                                    return 1;
+                                  });
+
+                                  _logger.info(a);
+                                },
+                              ),
+                            ),
                             Tile(
                               selected: false,
                               radiusnum: 15.0,

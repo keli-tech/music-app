@@ -1,6 +1,8 @@
 PODS:
   - audioplayers (0.0.1):
     - FlutterMacOS
+  - file_selector_macos (0.0.1):
+    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
@@ -17,6 +19,7 @@ PODS:
 
 DEPENDENCIES:
   - audioplayers (from `Flutter/ephemeral/.symlinks/plugins/audioplayers/macos`)
+  - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
@@ -30,6 +33,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   audioplayers:
     :path: Flutter/ephemeral/.symlinks/plugins/audioplayers/macos
+  file_selector_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   path_provider_macos:
@@ -43,6 +48,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   audioplayers: 8b48e22684b6e0d9df143b2d1bbd61dca9dab6b4
+  file_selector_macos: ff6dc948d4ddd34e8602a1f60b7d0b4cc6051a47
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   path_provider_macos: a0a3fd666cb7cd0448e936fb4abad4052961002b

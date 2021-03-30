@@ -393,10 +393,8 @@ class _PlayingControlCompState extends State<PlayingControlComp>
                           bounce: true,
                           context: context,
                           backgroundColor: Colors.transparent,
-                          // todo
-                          // builder: (context, scrollController) => ModalFit(
-                          //   scrollController: scrollController,
-                          // ),
+                          builder: (context) => ModalFit(
+                          ),
                         );
 
                         return;

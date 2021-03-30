@@ -34,7 +34,7 @@ class Profile {
       musicInfo: MusicInfoModel.fromJson(jsonEncode(json["musicInfo"])),
       musicInfoList: musicInfoList,
       musicInfoFavList: json["musicInfoFavList"],
-      playIndex: json["playIndex"],
+      playIndex: json["playIndex"] + 3,
     );
   }
 

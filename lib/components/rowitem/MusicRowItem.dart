@@ -162,24 +162,23 @@ class MusicRowItem extends StatelessWidget {
                   onPressed: () {
 
 
-                    showCupertinoModalBottomSheet(
-
-                      useRootNavigator: true,
-                      expand: false,
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      // todo
-                      // builder: (context, scrollController) => ModalFit(
-                      //   scrollController: scrollController,
+                    // showCupertinoModalBottomSheet(
+                    //
+                    //   useRootNavigator: true,
+                    //   expand: false,
+                    //   context: context,
+                    //   backgroundColor: Colors.transparent,
+                    //   builder: (context) => ModalFit(
+                    //     scrollController: scrollController,
                       // ),
-                    );
+                    // );
 
-//                    showCupertinoModalPopup(
-//                      context: context,
-//                      builder: (BuildContext context1) {
-//                        return _actionSheet(context1, context);
-//                      },
-//                    );
+                   showCupertinoModalPopup(
+                     context: context,
+                     builder: (BuildContext context1) {
+                       return _actionSheet(context1, context);
+                     },
+                   );
                   },
                 ),
               ],

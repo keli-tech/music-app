@@ -232,10 +232,14 @@ class _MyHttpServerState extends State<MyHttpServer> {
         l.forEach((f) {
           if (f.tags != null && f.tags.containsKey("picture")) {
             
-            // _logger.info(f.tags["picture"]);
+            _logger.info(f.tags["picture"]);
             //
             // 保存音乐文件表
             // picture = f.tags["picture"].cast(AttachedPicture);
+            picture = (f.tags['picture'] as Map).values.first;
+
+            _logger.info(picture);
+
             title = f.tags["title"];
             artist = f.tags["artist"];
             album = f.tags["album"];
