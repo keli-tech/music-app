@@ -78,7 +78,7 @@ class _TypeScreen extends State<TypeScreen> {
                               radiusnum: 15.0,
                               child: new ListTile(
                                   title: new Text('专辑',
-                                      style: themeData.primaryTextTheme.title),
+                                      style: themeData.primaryTextTheme.headline6),
                                   leading: new Icon(Icons.album,
                                       size: 40, color: themeData.primaryColor),
                                   trailing: Icon(Icons.chevron_right,
@@ -96,7 +96,7 @@ class _TypeScreen extends State<TypeScreen> {
                               radiusnum: 15.0,
                               child: new ListTile(
                                   title: new Text('歌手',
-                                      style: themeData.primaryTextTheme.title),
+                                      style: themeData.primaryTextTheme.headline6),
                                   leading: new Icon(Icons.person_pin,
                                       size: 40, color: themeData.primaryColor),
                                   trailing: Icon(Icons.chevron_right,

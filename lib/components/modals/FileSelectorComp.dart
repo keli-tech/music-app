@@ -107,7 +107,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
           ),
           middle: Text(
             widget.title,
-            style: themeData.primaryTextTheme.title,
+            style: themeData.primaryTextTheme.headline6,
           ),
           trailing: CupertinoButton(
               padding: EdgeInsets.zero,
@@ -118,7 +118,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
               },
               child: Text(
                 "完成",
-                style: themeData.primaryTextTheme.title,
+                style: themeData.primaryTextTheme.headline6,
               )),
         ),
         body: Scrollbar(

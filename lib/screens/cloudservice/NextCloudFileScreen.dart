@@ -99,7 +99,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
           backgroundColor: themeData.backgroundColor,
           middle: Text(
             widget.title,
-            style: themeData.primaryTextTheme.title,
+            style: themeData.primaryTextTheme.headline6,
           ),
           trailing: CupertinoButton(
             padding: EdgeInsets.zero,

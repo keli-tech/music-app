@@ -11,13 +11,12 @@ import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/screens/cloudservice/LoginCloudServiceScreen.dart';
-import 'package:hello_world/screens/cloudservice/MyHttpServer.dart';
+import 'package:hello_world/screens/cloudservice/WifiHttpServer.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:logging/logging.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class CloudServiceScreen extends StatefulWidget {
   @override
@@ -92,11 +91,11 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                               child: new ListTile(
                                 title: new Text(
                                   'Wi-Fi同步文件',
-                                  style: themeData.primaryTextTheme.title,
+                                  style: themeData.primaryTextTheme.headline6,
                                 ),
                                 subtitle: Text(
                                   '手机与电脑连接到同一个Wi-Fi网络，可以通过电脑端web浏览器来传输文件。',
-                                  style: themeData.primaryTextTheme.subtitle,
+                                  style: themeData.primaryTextTheme.subtitle2,
                                 ),
                                 leading: new Icon(
                                   Icons.wifi,
@@ -111,7 +110,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                       .push(CupertinoPageRoute<void>(
                                     title: "Wi-Fi同步文件",
                                     builder: (BuildContext context) =>
-                                        MyHttpServer(
+                                        WifiHttpServer(
                                             // color: color,
                                             // colorName: colorName,
                                             // index: index,
@@ -123,7 +122,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                             ListTile(
                               title: new Text(
                                 '云服务',
-                                style: themeData.primaryTextTheme.title,
+                                style: themeData.primaryTextTheme.headline6,
                               ),
                             ),
                             Column(
@@ -136,7 +135,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                               child: new ListTile(
                                 title: new Text(
                                   '本地文件',
-                                  style: themeData.primaryTextTheme.title,
+                                  style: themeData.primaryTextTheme.headline6,
                                 ),
                                 leading: new Icon(
                                   Icons.help,
@@ -251,8 +250,8 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                                 .musicAlbumPicturePath(
                                                     artist, album)
                                             .create(recursive: true);
-                                        var imageFile = await FileManager
-                                            .musicAlbumPictureFile(
+                                        var imageFile =
+                                            FileManager.musicAlbumPictureFile(
                                                 artist, album);
                                         imageFile
                                             .writeAsBytes(picture.imageData,
@@ -274,7 +273,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                               child: new ListTile(
                                 title: new Text(
                                   '帮助文档',
-                                  style: themeData.primaryTextTheme.title,
+                                  style: themeData.primaryTextTheme.headline6,
                                 ),
                                 leading: new Icon(
                                   Icons.help,
@@ -293,7 +292,8 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                   //   print('Could not launch $url');
                                   // }
 
-                                  FilePickerResult result = await FilePicker.platform.pickFiles(
+                                  FilePickerResult result =
+                                      await FilePicker.platform.pickFiles(
                                     type: FileType.custom,
                                     allowedExtensions: ['mp3', 'pdf', 'doc'],
                                   );
@@ -326,11 +326,11 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
         child: ListTile(
           title: new Text(
             item.name,
-            style: themeData.primaryTextTheme.title,
+            style: themeData.primaryTextTheme.headline6,
           ),
           subtitle: Text(
             item.signedin ? '已连接:' + item.url : '请登录',
-            style: themeData.primaryTextTheme.subtitle,
+            style: themeData.primaryTextTheme.subtitle2,
             maxLines: 1,
           ),
           leading: Container(

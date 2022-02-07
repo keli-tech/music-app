@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../common/Global.dart';
 import 'Profile.dart';
 
+// 通知
 class ProfileChangeNotifier extends ChangeNotifier {
   Profile get cnprofile => Global.profile;
 

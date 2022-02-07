@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/components/AblumImageAnimation.dart';
 import 'package:hello_world/components/PlayingControlComp.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
-import 'package:hello_world/screens/album/AlbumListScreen.dart';
 import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/screens/album/TypeScreen.dart';
 import 'package:hello_world/screens/cloudservice/CloudServiceScreen.dart';
@@ -15,6 +14,7 @@ import 'package:provider/provider.dart';
 
 import 'file/FileListScreen.dart';
 
+// 主页
 class StructScreen extends StatefulWidget {
   static const String routeName = '/struct';
 
@@ -38,6 +38,8 @@ class _StructScreenState extends State<StructScreen>
 
   Animation<double> animation;
   AnimationController controller;
+
+// 是否展示 
   bool _showIcon = false;
   int _currentIndex = 0;
 
@@ -53,12 +55,12 @@ class _StructScreenState extends State<StructScreen>
 
   Future<Null> _playAnimation() async {
     try {
-      await _controller.reset();
+      _controller.reset();
       setState(() {
         _showIcon = true;
       });
       await _controller.forward().orCancel;
-      await _controller.reset();
+      _controller.reset();
       setState(() {
         _showIcon = false;
       });
@@ -75,7 +77,7 @@ class _StructScreenState extends State<StructScreen>
     animation = new Tween(begin: 0.0, end: 720.0).animate(controller);
     animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        //动画执行结束时, 继续正像执行动画
+        //动画执行结束时, 继续正向执行动画
         controller.reset();
 
         controller.forward();
@@ -119,7 +121,7 @@ class _StructScreenState extends State<StructScreen>
           // Prevent swipe popping of this page. Use explicit exit buttons only.
           onWillPop: () => Future<bool>.value(true),
           child: DefaultTextStyle(
-            style: themeData.textTheme.body1,
+            style: themeData.textTheme.bodyText2,
             child: CupertinoTabScaffold(
               backgroundColor: themeData.backgroundColor,
               tabBar: CupertinoTabBar(
@@ -151,19 +153,19 @@ class _StructScreenState extends State<StructScreen>
                 items: <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
                     icon: Icon(Icons.favorite),
-                    title: Text("收藏"),
+                    label: "收藏",
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.album),
-                    title: Text("专辑"),
+                    label: "专辑",
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.insert_drive_file),
-                    title: Text("文件"),
+                    label: "文件",
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.cloud),
-                    title: Text("云同步"),
+                    label: "云同步",
                   ),
                 ],
               ),
@@ -209,8 +211,7 @@ class _StructScreenState extends State<StructScreen>
             ),
           ),
         ),
-        _showIcon
-            ? Consumer<MusicInfoData>(
+        _showIcon ? Consumer<MusicInfoData>(
                 builder: (context, musicInfoData, _) => Hero(
                   tag: "playing",
                   child: AlbumImageAnimation(

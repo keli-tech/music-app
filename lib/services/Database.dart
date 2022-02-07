@@ -25,6 +25,7 @@ class DBProvider {
     return _database;
   }
 
+// 初始化数据库
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "keli_music9.db");
@@ -115,7 +116,7 @@ class DBProvider {
     return res.isNotEmpty ? MusicPlayListModel.fromMap(res.first) : null;
   }
 
-  //根据播放列表
+  // 查询艺术家获取列表
   Future<MusicPlayListModel> getMusicPlayListByArtistName(
       String artist, String name) async {
     final db = await database;
@@ -190,7 +191,7 @@ class DBProvider {
     return list;
   }
 
-  //根据专辑
+  // 根据专辑
   Future<List<Map<String, String>>> getArtists() async {
     final db = await database;
 
@@ -217,7 +218,7 @@ class DBProvider {
     return list;
   }
 
-  //根据专辑
+  // 获取所有专辑列表
   Future<List<MusicPlayListModel>> getAlbum() async {
     final db = await database;
 
@@ -246,6 +247,7 @@ class DBProvider {
     return res;
   }
 
+// 新建播放列表
   Future<int> newMusicPlayList(MusicPlayListModel newMusicPlayListModel) async {
     final db = await database;
     int retID;
@@ -315,7 +317,7 @@ class DBProvider {
     }
   }
 
-  //我喜欢的音乐文件列表
+  // 我喜欢的音乐文件列表
   Future<List<MusicInfoModel>> getFavMusicInfoList() async {
     final db = await database;
 

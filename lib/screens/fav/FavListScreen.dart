@@ -149,7 +149,7 @@ class _FavListScreen extends State<FavListScreen> {
                       _musicSceenListModels.length > 0
                           ? Text(
                               "场景",
-                              style: themeData.primaryTextTheme.title,
+                              style: themeData.primaryTextTheme.headline6,
                             )
                           : Container(),
                       _musicSceenListModels.length > 0
@@ -182,7 +182,7 @@ class _FavListScreen extends State<FavListScreen> {
                           Text(
                             "歌单",
                             textAlign: TextAlign.left,
-                            style: themeData.primaryTextTheme.title,
+                            style: themeData.primaryTextTheme.headline6,
                           ),
                         ],
                       ),
@@ -323,7 +323,7 @@ class _FavListScreen extends State<FavListScreen> {
                           child: Text(
                             '我喜欢的音乐',
                             maxLines: 1,
-                            style: themeData.primaryTextTheme.title,
+                            style: themeData.primaryTextTheme.headline6,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -413,7 +413,7 @@ class _FavListScreen extends State<FavListScreen> {
                               child: Text(
                                 '最近100首播放',
                                 maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
+                                style: themeData.primaryTextTheme.headline6,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),

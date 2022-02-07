@@ -126,8 +126,8 @@ class MusicRowItem extends StatelessWidget {
                                 style: playId == musicInfoModels[index].id &&
                                         audioPlayerState ==
                                             AudioPlayerState.PLAYING
-                                    ? themeData.textTheme.title
-                                    : themeData.primaryTextTheme.title,
+                                    ? themeData.textTheme.headline6
+                                    : themeData.primaryTextTheme.headline6,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -141,8 +141,8 @@ class MusicRowItem extends StatelessWidget {
                               : "",
                           style: playId == musicInfoModels[index].id &&
                                   audioPlayerState == AudioPlayerState.PLAYING
-                              ? themeData.textTheme.subtitle
-                              : themeData.primaryTextTheme.subtitle,
+                              ? themeData.textTheme.subtitle2
+                              : themeData.primaryTextTheme.subtitle2,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

@@ -60,7 +60,7 @@ class _FileList2Screen extends State<FileList2Screen>
           border: null,
           middle: Text(
             widget.musicInfoModel.name,
-            style: themeData.primaryTextTheme.title,
+            style: themeData.primaryTextTheme.headline6,
           ),
           backgroundColor: themeData.backgroundColor,
         ),

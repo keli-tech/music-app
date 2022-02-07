@@ -94,7 +94,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
               children: <Widget>[
                 Text(
                   (widget.index + 1).toString() + '.',
-                  style: themeData.primaryTextTheme.title,
+                  style: themeData.primaryTextTheme.headline6,
                 ),
                 SizedBox(
                   width: 5,
@@ -116,7 +116,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                             Expanded(
                               child: Text(
                                 widget.file.name,
-                                style: themeData.primaryTextTheme.title,
+                                style: themeData.primaryTextTheme.headline6,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -172,7 +172,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
               children: <Widget>[
                 Text(
                   (widget.index + 1).toString() + '.',
-                  style: themeData.primaryTextTheme.title,
+                  style: themeData.primaryTextTheme.headline6,
                 ),
                 Expanded(
                   child: Padding(
@@ -185,7 +185,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                             Expanded(
                               child: Text(
                                 widget.file.name,
-                                style: themeData.primaryTextTheme.title,
+                                style: themeData.primaryTextTheme.headline6,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -198,7 +198,7 @@ class _WebDavFileRowItem extends State<WebDavFileRowItem> {
                                   .toStringAsFixed(2)
                                   .toString() +
                               "MB"),
-                          style: themeData.primaryTextTheme.subtitle,
+                          style: themeData.primaryTextTheme.subtitle2,
                         ),
                       ],
                     ),

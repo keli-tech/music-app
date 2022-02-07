@@ -76,7 +76,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
           backgroundColor: themeData.backgroundColor,
           middle: Text(
             widget.title,
-            style: themeData.primaryTextTheme.title,
+            style: themeData.primaryTextTheme.headline6,
           ),
         ),
         child: Container(
@@ -196,7 +196,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                         };
 
                         final localpath =
-                            await FileManager.localPathDirectory();
+                            FileManager.localPathDirectory();
                         var dir = await new Directory(localpath +
                                 widget.cloudServiceModel.name.toLowerCase() +
                                 "/")

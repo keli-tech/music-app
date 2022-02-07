@@ -11,11 +11,12 @@ import 'package:hello_world/services/MusicControlService.dart';
 import '../../services/Database.dart';
 import '../album/PlayListDetailScreen.dart';
 
+// 艺术家页面
 class ArtistListScreen extends StatefulWidget {
   ArtistListScreen({
     Key key,
   }) : super(key: key);
-  static const String className = 'MyHttpServer';
+  static const String className = 'ArtistListScreen';
 
   @override
   _ArtistListScreen createState() => _ArtistListScreen();
@@ -56,9 +57,6 @@ class _ArtistListScreen extends State<ArtistListScreen> {
   @override
   Widget build(BuildContext context) {
     ThemeData themeData = Theme.of(context);
-    var _windowHeight = MediaQuery.of(context).size.height;
-    var _windowWidth = MediaQuery.of(context).size.width;
-    var _bottomBarHeight = MediaQuery.of(context).padding.bottom;
 
     return CupertinoPageScaffold(
       backgroundColor: themeData.backgroundColor,
@@ -66,7 +64,7 @@ class _ArtistListScreen extends State<ArtistListScreen> {
         border: null,
         middle: Text(
           "歌手",
-          style: themeData.primaryTextTheme.title,
+          style: themeData.primaryTextTheme.headline6,
         ),
         backgroundColor: themeData.backgroundColor,
       ),
@@ -121,7 +119,7 @@ class _ArtistListScreen extends State<ArtistListScreen> {
                         },
                         leading: Text(
                           '${index + 1}. ' + _artistListModels[index]["artist"],
-                          style: themeData.primaryTextTheme.title,
+                          style: themeData.primaryTextTheme.headline6,
                         ),
                       ),
                     );
@@ -244,13 +242,13 @@ class Tab1RowItem extends StatelessWidget {
                                 Text(
                                   '${musicPlayListModel.name}',
                                   maxLines: 1,
-                                  style: themeData.primaryTextTheme.title,
+                                  style: themeData.primaryTextTheme.headline6,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   '${musicPlayListModel.artist}',
                                   maxLines: 1,
-                                  style: themeData.primaryTextTheme.subtitle,
+                                  style: themeData.primaryTextTheme.subtitle2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -260,7 +258,7 @@ class Tab1RowItem extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             child: Icon(
                               Icons.play_circle_outline,
-                              color: themeData.primaryTextTheme.title.color,
+                              color: themeData.primaryTextTheme.headline6.color,
                               size: 30,
                             ),
                             onPressed: () async {

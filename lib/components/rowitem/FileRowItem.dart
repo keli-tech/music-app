@@ -109,7 +109,7 @@ class FileRowItem extends StatelessWidget {
                               child: Text(
                                 musicInfoModels[index].name,
                                 maxLines: 1,
-                                style: themeData.primaryTextTheme.title,
+                                style: themeData.primaryTextTheme.headline6,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -232,8 +232,8 @@ class FileRowItem extends StatelessWidget {
                                   style: playId == musicInfoModels[index].id &&
                                           audioPlayerState ==
                                               AudioPlayerState.PLAYING
-                                      ? themeData.textTheme.subtitle
-                                      : themeData.primaryTextTheme.title,
+                                      ? themeData.textTheme.subtitle2
+                                      : themeData.primaryTextTheme.headline6,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -244,8 +244,8 @@ class FileRowItem extends StatelessWidget {
                             musicInfoModels[index].filesize ?? "",
                             style: playId == musicInfoModels[index].id &&
                                     audioPlayerState == AudioPlayerState.PLAYING
-                                ? themeData.textTheme.subtitle
-                                : themeData.primaryTextTheme.subtitle,
+                                ? themeData.textTheme.subtitle2
+                                : themeData.primaryTextTheme.subtitle2,
                           ),
                         ],
                       ),

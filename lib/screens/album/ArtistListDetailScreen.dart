@@ -30,7 +30,7 @@ class ArtistListDetailScreen extends StatefulWidget {
 class _ArtistListDetailScreen extends State<ArtistListDetailScreen>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
-  Logger _logger = new Logger("ArtistListDetailScreen");
+  Logger _logger = new Logger(ArtistListDetailScreen.routeName);
 
   @override
   void initState() {
@@ -75,7 +75,7 @@ class _ArtistListDetailScreen extends State<ArtistListDetailScreen>
         backgroundColor: themeData.backgroundColor,
         middle: Text(
           widget.artist,
-          style: themeData.primaryTextTheme.title,
+          style: themeData.primaryTextTheme.headline6,
         ),
       ),
       child: CustomScrollView(

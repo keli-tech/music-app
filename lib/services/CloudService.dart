@@ -100,7 +100,7 @@ class CloudService {
 
     bool res = true;
     await client.download(webDavFile.path).then((data) async {
-      var file = await FileManager.localCloudFile(filePath, webDavFile.name);
+      var file = FileManager.localCloudFile(filePath, webDavFile.name);
 
       await file.writeAsBytes(data, mode: FileMode.WRITE).then((_) async {
         MusicInfoModel musicInfoModel = await analyseMusicFile(file);
@@ -155,7 +155,7 @@ class CloudService {
 
     TagProcessor tp = new TagProcessor();
     await tp.getTagsFromByteArray(file.readAsBytes()).then((tags) async {
-      await tags.forEach((tagInfo) async {
+      tags.forEach((tagInfo) async {
         if (tagInfo.tags != null) {
           artist = tagInfo.tags["artist"] ?? "";
           title = tagInfo.tags["title"] ?? "";
@@ -170,10 +170,10 @@ class CloudService {
       });
     });
 
-    var dir = await FileManager.musicAlbumPicturePath(artist, album)
+    var dir = FileManager.musicAlbumPicturePath(artist, album)
         .createSync(recursive: true);
 
-    var imageFile = await FileManager.musicAlbumPictureFile(artist, album);
+    var imageFile = FileManager.musicAlbumPictureFile(artist, album);
     imageFile
         .writeAsBytes(picture.imageData, mode: FileMode.WRITE)
         .then((_) async {});

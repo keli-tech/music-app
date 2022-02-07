@@ -17,7 +17,7 @@ class AlbumListScreen extends StatefulWidget {
   AlbumListScreen({
     Key key,
   }) : super(key: key);
-  static const String className = 'MyHttpServer';
+  static const String className = 'AlbumListScreen';
 
   @override
   _AlbumListScreen createState() => _AlbumListScreen();
@@ -67,7 +67,7 @@ class _AlbumListScreen extends State<AlbumListScreen> {
           border: null,
           middle: Text(
             "专辑",
-            style: themeData.primaryTextTheme.title,
+            style: themeData.primaryTextTheme.headline6,
           ),
           backgroundColor: themeData.backgroundColor,
         ),
@@ -243,13 +243,13 @@ class Tab1RowItem extends StatelessWidget {
                                 Text(
                                   '${musicPlayListModel.name}',
                                   maxLines: 1,
-                                  style: themeData.textTheme.title,
+                                  style: themeData.textTheme.headline6,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   '${musicPlayListModel.artist}',
                                   maxLines: 1,
-                                  style: themeData.textTheme.subtitle,
+                                  style: themeData.textTheme.subtitle2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -263,7 +263,7 @@ class Tab1RowItem extends StatelessWidget {
                               radiusnum: 20,
                               child: Icon(
                                 Icons.play_circle_outline,
-                                color: themeData.primaryTextTheme.title.color,
+                                color: themeData.primaryTextTheme.headline6.color,
                                 size: 25,
                               ),
                             ),

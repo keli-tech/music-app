@@ -29,19 +29,19 @@ class FileManager {
   static String localPathDirectory() {
     final path = Global.profile.documentDirectory;
 
-    return '${path}/';
+    return '$path/';
   }
 
   static String musicFilePath(String fullpath) {
     final path = Global.profile.documentDirectory;
 
-    return '${path}/' + fullpath;
+    return '$path/' + fullpath;
   }
 
   static File musicFile(String fullpath) {
     final path = Global.profile.documentDirectory;
 
-    var file = ('${path}/' + fullpath);
+    var file = ('$path/' + fullpath);
     return File(file);
   }
 

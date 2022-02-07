@@ -110,13 +110,13 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
         )),
         middle: Text(
           widget.title,
-          style: themeData.primaryTextTheme.title,
+          style: themeData.primaryTextTheme.headline6,
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           child: Text(
             "完成",
-            style: themeData.primaryTextTheme.title,
+            style: themeData.primaryTextTheme.headline6,
           ),
           onPressed: () {
             Navigator.of(context).pop();

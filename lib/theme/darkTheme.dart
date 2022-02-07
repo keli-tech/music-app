@@ -79,55 +79,55 @@ final ThemeData darkThemeData = ThemeData(
     ),
   ),
   textTheme: TextTheme(
-    display4: TextStyle(
+    headline1: TextStyle(
       color: Color(0xb3ffffff),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display3: TextStyle(
+    headline2: TextStyle(
       color: Color(0xb3ffffff),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display2: TextStyle(
+    headline3: TextStyle(
       color: Color(0xb3ffffff),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display1: TextStyle(
+    headline4: TextStyle(
       color: Color(0xb3ffffff),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    headline: TextStyle(
+    headline5: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    title: TextStyle(
+    headline6: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    subhead: TextStyle(
+    subtitle1: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    body2: TextStyle(
+    bodyText1: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    body1: TextStyle(
+    bodyText2: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
@@ -145,7 +145,7 @@ final ThemeData darkThemeData = ThemeData(
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    subtitle: TextStyle(
+    subtitle2: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
@@ -159,55 +159,55 @@ final ThemeData darkThemeData = ThemeData(
     ),
   ),
   primaryTextTheme: TextTheme(
-    display4: TextStyle(
+    headline1: TextStyle(
       color: Color(0xb3ffffff),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display3: TextStyle(
+    headline2: TextStyle(
       color: Color(0xb3ffffff),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display2: TextStyle(
+    headline3: TextStyle(
       color: Color(0xb3ffffff),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display1: TextStyle(
+    headline4: TextStyle(
       color: Color(0xb3ffffff),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    headline: TextStyle(
+    headline5: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    title: TextStyle(
+    headline6: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: 16,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    subhead: TextStyle(
+    subtitle1: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    body2: TextStyle(
+    bodyText1: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    body1: TextStyle(
+    bodyText2: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: null,
       fontWeight: FontWeight.w400,
@@ -225,7 +225,7 @@ final ThemeData darkThemeData = ThemeData(
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    subtitle: TextStyle(
+    subtitle2: TextStyle(
       color: Color(0xffd3d3d3),
       fontSize: 13,
       fontWeight: FontWeight.w400,
@@ -239,55 +239,55 @@ final ThemeData darkThemeData = ThemeData(
     ),
   ),
   accentTextTheme: TextTheme(
-    display4: TextStyle(
+    headline1: TextStyle(
       color: Color(0x8a000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display3: TextStyle(
+    headline2: TextStyle(
       color: Color(0x8a000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display2: TextStyle(
+    headline3: TextStyle(
       color: Color(0x8a000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    display1: TextStyle(
+    headline4: TextStyle(
       color: Color(0x8a000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    headline: TextStyle(
+    headline5: TextStyle(
       color: Color(0xdd000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    title: TextStyle(
+    headline6: TextStyle(
       color: Color(0xdd000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    subhead: TextStyle(
+    subtitle1: TextStyle(
       color: Color(0xdd000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    body2: TextStyle(
+    bodyText1: TextStyle(
       color: Color(0xdd000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    body1: TextStyle(
+    bodyText2: TextStyle(
       color: Color(0xdd000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
@@ -305,7 +305,7 @@ final ThemeData darkThemeData = ThemeData(
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.normal,
     ),
-    subtitle: TextStyle(
+    subtitle2: TextStyle(
       color: Color(0xff000000),
       fontSize: null,
       fontWeight: FontWeight.w400,
@@ -344,7 +344,6 @@ final ThemeData darkThemeData = ThemeData(
       fontStyle: FontStyle.normal,
     ),
     errorMaxLines: null,
-    hasFloatingPlaceholder: true,
     isDense: false,
     contentPadding: EdgeInsets.only(top: 12, bottom: 12, left: 0, right: 0),
     isCollapsed: false,
@@ -368,6 +367,7 @@ final ThemeData darkThemeData = ThemeData(
     ),
     filled: false,
     fillColor: Color(0x00000000),
+    floatingLabelBehavior: FloatingLabelBehavior.auto,
     errorBorder: UnderlineInputBorder(
       borderSide: BorderSide(
         color: Color(0xff000000),

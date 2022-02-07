@@ -44,7 +44,7 @@ class ChipScreenComp extends StatefulWidget {
 
 class _ChipScreenCompState extends State<ChipScreenComp>
     with SingleTickerProviderStateMixin {
-  var deleteFunction = null;
+  var deleteFunction;
 
   @override
   Widget build(BuildContext context) {

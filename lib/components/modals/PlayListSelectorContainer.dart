@@ -93,13 +93,13 @@ class _PlayListSelectorContainer extends State<PlayListSelectorContainer>
         )),
         middle: Text(
           widget.title,
-          style: themeData.primaryTextTheme.title,
+          style: themeData.primaryTextTheme.headline6,
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           child: Text(
             "完成",
-            style: themeData.primaryTextTheme.title,
+            style: themeData.primaryTextTheme.headline6,
           ),
           onPressed: () {
             Navigator.of(context).pop();
@@ -129,7 +129,7 @@ class _PlayListSelectorContainer extends State<PlayListSelectorContainer>
               isThreeLine: false,
               title: Text(
                 item.name,
-                style: themeData.primaryTextTheme.title,
+                style: themeData.primaryTextTheme.headline6,
               ),
               onTap: () {
                 DBProvider.db

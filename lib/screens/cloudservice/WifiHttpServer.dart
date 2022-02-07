@@ -19,18 +19,18 @@ import 'package:logging/logging.dart';
 import '../../models/MusicInfoModel.dart';
 import '../../services/Database.dart';
 
-class MyHttpServer extends StatefulWidget {
-  static const String className = 'MyHttpServer';
+class WifiHttpServer extends StatefulWidget {
+  static const String className = 'WifiHttpServer';
 
   @override
-  _MyHttpServerState createState() => _MyHttpServerState();
+  _WifiHttpServerState createState() => _WifiHttpServerState();
 }
 
-class _MyHttpServerState extends State<MyHttpServer> {
+class _WifiHttpServerState extends State<WifiHttpServer> {
   String serverUrl = "";
   HttpServer server;
   bool serverStarted = false;
-  Logger _logger = new Logger("MyHttpServer");
+  Logger _logger = new Logger(WifiHttpServer.className);
 
   @override
   void initState() {
@@ -49,7 +49,8 @@ class _MyHttpServerState extends State<MyHttpServer> {
     var hostIp = '127.0.0.1';
     for (var interface in await NetworkInterface.list()) {
       for (var addr in interface.addresses) {
-        if (addr.address.startsWith("1")) {
+        if (addr.type == InternetAddressType.IPv4 &&
+            !addr.address.startsWith("10\.")) {
           hostIp = addr.address;
           break;
         }
@@ -58,15 +59,17 @@ class _MyHttpServerState extends State<MyHttpServer> {
 
     setState(() {
       serverStarted = true;
-      serverUrl = 'http://${hostIp}:8080';
+      serverUrl = 'http://$hostIp:8080';
     });
+
+    // todo 检测端口占用情况
     server = await HttpServer.bind(
       hostIp,
       8080,
     );
 
     // runZoned 捕获异步异常
-    runZoned(() async {
+    var runZoned2 = runZoned(() async {
       await for (var request in server) {
         switch (request.uri.toString().split("?").first) {
           case '/upload':
@@ -93,6 +96,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
       print(obj);
       print(stack);
     });
+
   }
 
   _stopServer() async {
@@ -130,7 +134,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
         await DBProvider.db.deleteMusic(musicID);
 
         Responses response =
-            new Responses(Data: new Map(), Code: 200, Message: "Success");
+            new Responses(data: new Map(), code: 200, message: "Success");
         musicInfoJson = jsonEncode(response);
 
         request.response
@@ -159,7 +163,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
             await DBProvider.db.getFoldByPathName(foldPath, foldName);
         if (musicInfoModel != null && musicInfoModel.id > 0) {
           Responses response =
-              new Responses(Data: new Map(), Code: 100, Message: "Failed");
+              new Responses(data: new Map(), code: 100, message: "Failed");
           musicInfoJson = jsonEncode(response);
         } else {
           MusicInfoModel newMusicInfo = MusicInfoModel(
@@ -178,14 +182,14 @@ class _MyHttpServerState extends State<MyHttpServer> {
               .create(recursive: true);
 
           Responses response =
-              new Responses(Data: new Map(), Code: 200, Message: "Success");
+              new Responses(data: new Map(), code: 200, message: "Success");
           musicInfoJson = jsonEncode(response);
         }
       } catch (e) {
         print(e);
 
         Responses response =
-            new Responses(Data: new Map(), Code: 100, Message: "Failed");
+            new Responses(data: new Map(), code: 100, message: "Failed");
         musicInfoJson = jsonEncode(response);
       }
 
@@ -231,7 +235,6 @@ class _MyHttpServerState extends State<MyHttpServer> {
 
         l.forEach((f) {
           if (f.tags != null && f.tags.containsKey("picture")) {
-            
             _logger.info(f.tags["picture"]);
             //
             // 保存音乐文件表
@@ -279,8 +282,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
         if (picture != null && picture.imageData != null) {
           var dir = await FileManager.musicAlbumPicturePath(artist, album)
               .create(recursive: true);
-          var imageFile =
-              await FileManager.musicAlbumPictureFile(artist, album);
+          var imageFile = FileManager.musicAlbumPictureFile(artist, album);
           imageFile
               .writeAsBytes(picture.imageData, mode: FileMode.WRITE)
               .then((_) async {});
@@ -309,8 +311,8 @@ class _MyHttpServerState extends State<MyHttpServer> {
 
 // http 的静态资源资源
   _publicController(HttpRequest request) {
-    String fielPath = "assets/httpserver/public" + request.uri.path.toString();
-    String filetype = fielPath.split('.').last;
+    String filePath = "assets/httpserver/public" + request.uri.path.toString();
+    String filetype = filePath.split('.').last;
     String type1 = 'text';
     String type2 = 'html';
     if (filetype == 'html') {
@@ -333,7 +335,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
     }
 
     if (type2 == "woff" || type2 == "ttf" || type2 == "ico" || type2 == "png") {
-      rootBundle.load(fielPath).then((value) {
+      rootBundle.load(filePath).then((value) {
         request.response
           ..headers.clear()
           ..headers.contentType =
@@ -345,7 +347,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
           ..close();
       });
     } else {
-      rootBundle.load(fielPath).then((value) {
+      rootBundle.load(filePath).then((value) {
         request.response
           ..headers.clear()
           ..headers.contentType =
@@ -367,7 +369,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
       appBar: CupertinoNavigationBar(
         middle: Text(
           'Wi-Fi同步文件',
-          style: themeData.primaryTextTheme.title,
+          style: themeData.primaryTextTheme.headline6,
         ),
         backgroundColor: themeData.backgroundColor,
       ),
@@ -396,7 +398,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
                 //     AdMobService.handleEvent(event, args, 'Banner');
                 //   },
                 // ),
-              )
+                )
             : Container(),
         SizedBox(
           height: 70,
@@ -414,11 +416,13 @@ class _MyHttpServerState extends State<MyHttpServer> {
                   ? Tile(
                       selected: false,
                       radiusnum: 5.0,
-                      child: RaisedButton(
-                        padding: EdgeInsets.only(
-                            left: 30, top: 15, right: 30, bottom: 15),
+                      child: ElevatedButton(
                         key: Key("stop"),
-                        color: themeData.primaryColorLight,
+                        style: ElevatedButton.styleFrom(
+                            primary: themeData.primaryColorLight,
+                            textStyle: TextStyle(fontSize: 16), //字体
+                            padding: EdgeInsets.only(
+                                left: 30, top: 15, right: 30, bottom: 15)),
                         onPressed: () {
                           _startServer();
                         },
@@ -428,11 +432,12 @@ class _MyHttpServerState extends State<MyHttpServer> {
                   : Tile(
                       selected: false,
                       radiusnum: 5.0,
-                      child: RaisedButton(
+                      child: ElevatedButton(
                         key: Key("start"),
-                        padding: EdgeInsets.only(
-                            left: 30, top: 15, right: 30, bottom: 15),
-                        color: Colors.red,
+                        style: ElevatedButton.styleFrom(
+                            primary: Colors.red,
+                            padding: EdgeInsets.only(
+                                left: 30, top: 15, right: 30, bottom: 15)),
                         onPressed: () {
                           _stopServer();
                         },
@@ -449,7 +454,7 @@ class _MyHttpServerState extends State<MyHttpServer> {
                   EdgeInsets.only(left: 15, top: 15, right: 15, bottom: 15),
               child: Text(
                 "手机与电脑连接到同一个Wi-Fi网络，可以通过电脑端web浏览器来传输文件。",
-                style: themeData.primaryTextTheme.subtitle,
+                style: themeData.primaryTextTheme.subtitle2,
               ),
             ),
             SizedBox(
@@ -461,14 +466,14 @@ class _MyHttpServerState extends State<MyHttpServer> {
                       ListTile(
                         title: new Text(
                           '在电脑端浏览器中输入以下 url:',
-                          style: themeData.primaryTextTheme.title,
+                          style: themeData.primaryTextTheme.headline6,
                         ),
                       ),
                       Divider(),
                       ListTile(
                         title: new Text(
                           serverUrl,
-                          style: themeData.primaryTextTheme.title,
+                          style: themeData.primaryTextTheme.headline6,
                         ),
                         leading: Icon(
                           Icons.desktop_mac,
@@ -485,15 +490,16 @@ class _MyHttpServerState extends State<MyHttpServer> {
                               _logger.info("复制URL 成功。");
                             });
 
-                            Scaffold.of(context).showSnackBar(new SnackBar(
-                                backgroundColor: themeData.primaryColorDark,
-                                content: Container(
-                                  height: 70,
-                                  child: new Text(
-                                    "已复制 url !",
-                                    style: themeData.textTheme.title,
-                                  ),
-                                )));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(new SnackBar(
+                                    backgroundColor: themeData.primaryColorDark,
+                                    content: Container(
+                                      height: 70,
+                                      child: new Text(
+                                        "已复制 url !",
+                                        style: themeData.textTheme.headline6,
+                                      ),
+                                    )));
                           },
                         ),
                       ),

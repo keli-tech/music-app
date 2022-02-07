@@ -73,7 +73,7 @@ class _PlayingScreenState extends State<PlayingScreen>
 
     syncSlide();
     periodicTimer = Timer.periodic(new Duration(seconds: 1), (timer) async {
-      await syncSlide();
+      syncSlide();
     });
 
     super.initState();
@@ -238,7 +238,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                   musicInfoData.musicInfoList.length > 0
                       ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].title} - ${musicInfoData.musicInfoList[musicInfoData.playIndex].artist}'
                       : "",
-                  style: themeData.primaryTextTheme.headline,
+                  style: themeData.primaryTextTheme.headline5,
                 ),
                 ListTile(
                   leading: CupertinoButton(
@@ -249,7 +249,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                     child: Icon(
                       Icons.keyboard_arrow_down,
                       size: 30,
-                      color: themeData.primaryTextTheme.headline.color,
+                      color: themeData.primaryTextTheme.headline5.color,
                     ),
                   ),
                   title: Center(
@@ -257,7 +257,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                       musicInfoData.musicInfoList.length > 0
                           ? '${musicInfoData.musicInfoList[musicInfoData.playIndex].album}'
                           : "",
-                      style: themeData.primaryTextTheme.subhead,
+                      style: themeData.primaryTextTheme.subtitle1,
                     ),
                   ),
                   trailing: CupertinoButton(
@@ -272,7 +272,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                     child: Icon(
                       Icons.more_vert,
                       size: 30,
-                      color: themeData.primaryTextTheme.headline.color,
+                      color: themeData.primaryTextTheme.headline5.color,
                     ),
                   ),
                 ),
@@ -284,7 +284,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         width: 55,
                         child: Text(
                           _currentDurationTime,
-                          style: themeData.primaryTextTheme.subhead,
+                          style: themeData.primaryTextTheme.subtitle1,
                         ),
                       ),
                       Container(
@@ -292,7 +292,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: new CupertinoSlider(
                           activeColor:
-                              themeData.primaryTextTheme.headline.color,
+                              themeData.primaryTextTheme.headline5.color,
                           value: _position.inSeconds.toDouble(),
                           min: 0.0,
                           max: _maxDuration.inSeconds.toDouble(),
@@ -328,7 +328,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         width: 55,
                         child: Text(
                           _durationTime,
-                          style: themeData.primaryTextTheme.subhead,
+                          style: themeData.primaryTextTheme.subtitle1,
                         ),
                       ),
                     ]),
@@ -345,7 +345,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         padding: EdgeInsets.zero,
                         child: Icon(
                           Icons.repeat,
-                          color: themeData.primaryTextTheme.headline.color,
+                          color: themeData.primaryTextTheme.headline5.color,
                         ),
                         onPressed: () {
 //                          widget.hideAction();
@@ -440,7 +440,7 @@ class _PlayingScreenState extends State<PlayingScreen>
             key: Key("play"),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: themeData.primaryTextTheme.headline.color,
+              color: themeData.primaryTextTheme.headline5.color,
             ),
             width: 70,
             height: 70,
@@ -468,7 +468,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         child: Icon(
           Icons.skip_previous,
           size: 45,
-          color: themeData.primaryTextTheme.headline.color,
+          color: themeData.primaryTextTheme.headline5.color,
         ),
         onPressed: () {
           _playPrev(context);
@@ -486,7 +486,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         child: Icon(
           Icons.skip_next,
           size: 45,
-          color: themeData.primaryTextTheme.headline.color,
+          color: themeData.primaryTextTheme.headline5.color,
         ),
         onPressed: () {
           _playNext(context);

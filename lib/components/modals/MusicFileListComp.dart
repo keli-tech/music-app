@@ -74,7 +74,7 @@ class _MusicFileListComp extends State<MusicFileListComp>
             )),
             middle: Text(
               "当前播放列表",
-              style: themeData.primaryTextTheme.title,
+              style: themeData.primaryTextTheme.headline6,
             ),
           ),
           child: CustomScrollView(

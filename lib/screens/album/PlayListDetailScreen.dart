@@ -103,7 +103,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
         backgroundColor: themeData.backgroundColor,
         middle: Text(
           widget.musicPlayListModel.name,
-          style: themeData.primaryTextTheme.title,
+          style: themeData.primaryTextTheme.headline6,
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -226,7 +226,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
           onPressed: () async {
             Navigator.pop(context1);
             // todo
-            File imageFile = null;
+            File imageFile;
             // await ImagePicker.pickImage(source: ImageSource.gallery);
 
             if (imageFile != null) {
