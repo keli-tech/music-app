@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+// Tile “瓦片”
 class Tile extends StatelessWidget {
   const Tile({
     this.child,
@@ -24,7 +25,7 @@ class Tile extends StatelessWidget {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: themeData.splashColor,
+              color: themeData.backgroundColor,
               // 向上阴影
               offset: Offset(0.0, 0.0),
               blurRadius: this.blur ?? 10.0,
@@ -39,9 +40,10 @@ class Tile extends StatelessWidget {
             ),
           ],
           borderRadius: BorderRadius.all(Radius.circular(this.radiusnum)),
+          // 选中的颜色
           color: this.selected
-              ? themeData.primaryColorDark
-              : themeData.primaryColorLight,
+              ? themeData.selectedRowColor
+              : themeData.unselectedWidgetColor,
         ),
         child: this.child,
       ),

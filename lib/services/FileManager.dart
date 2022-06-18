@@ -1,13 +1,14 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hello_world/common/Global.dart';
 import 'package:logging/logging.dart';
+import 'package:mime/mime.dart';
 
 class FileManager {
-
   static Logger _logger = new Logger("FileManager");
 
   // service = '/nextcloud/' 带 前后缀
@@ -23,7 +24,12 @@ class FileManager {
     final path = Global.profile.documentDirectory;
 
 //    _logger.info('$path$fileName');
-    return File('$path$fileName');
+    try {
+      var file = File('$path$fileName');
+      return file;
+    } catch (error) {
+      return null;
+    }
   }
 
   static String localPathDirectory() {
@@ -97,7 +103,6 @@ class FileManager {
     if (artist == null) {
       artist = "";
     }
-
     album = md5.convert(utf8.encode(album)).toString();
     File file = localFile('/picture/$artist/$album.bmp');
 

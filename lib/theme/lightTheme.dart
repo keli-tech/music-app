@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// 浅色
 final ThemeData lightThemeData = ThemeData(
   primarySwatch: Colors.brown,
   brightness: Brightness.light,

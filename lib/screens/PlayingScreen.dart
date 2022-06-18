@@ -87,7 +87,8 @@ class _PlayingScreenState extends State<PlayingScreen>
     periodicTimer.cancel();
     logger.info("dispose");
 
-    widget.hideAction();
+    // 触发隐藏行为
+    // widget.hideAction();
     super.dispose();
   }
 

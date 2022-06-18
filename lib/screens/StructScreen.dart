@@ -39,7 +39,7 @@ class _StructScreenState extends State<StructScreen>
   Animation<double> animation;
   AnimationController controller;
 
-// 是否展示 
+// 是否展示
   bool _showIcon = false;
   int _currentIndex = 0;
 
@@ -50,7 +50,7 @@ class _StructScreenState extends State<StructScreen>
     _controller = AnimationController(
         duration: const Duration(milliseconds: 1500), vsync: this);
 
-//    _initAnimationController();
+  //  _initAnimationController();
   }
 
   Future<Null> _playAnimation() async {
@@ -211,7 +211,8 @@ class _StructScreenState extends State<StructScreen>
             ),
           ),
         ),
-        _showIcon ? Consumer<MusicInfoData>(
+        _showIcon
+            ? Consumer<MusicInfoData>(
                 builder: (context, musicInfoData, _) => Hero(
                   tag: "playing",
                   child: AlbumImageAnimation(
@@ -224,6 +225,7 @@ class _StructScreenState extends State<StructScreen>
                 ),
               )
             : Container(),
+        // 底部播放组件
         PlayingControlComp(hideAction: _playAnimation),
       ],
     ));

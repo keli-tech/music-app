@@ -10,6 +10,7 @@ import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
 
+// 文件中的列
 class FileRowItem extends StatelessWidget {
   const FileRowItem({
     this.lastItem,

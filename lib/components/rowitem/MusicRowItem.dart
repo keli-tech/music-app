@@ -156,12 +156,10 @@ class MusicRowItem extends StatelessWidget {
                     Icons.more_horiz,
                     color: playId == musicInfoModels[index].id &&
                             audioPlayerState == AudioPlayerState.PLAYING
-                        ? themeData.primaryColorLight
-                        : themeData.primaryColorDark,
+                        ? themeData.textTheme.headline1.color
+                        : themeData.textTheme.headline1.color,
                   ),
                   onPressed: () {
-
-
                     // showCupertinoModalBottomSheet(
                     //
                     //   useRootNavigator: true,
@@ -170,15 +168,15 @@ class MusicRowItem extends StatelessWidget {
                     //   backgroundColor: Colors.transparent,
                     //   builder: (context) => ModalFit(
                     //     scrollController: scrollController,
-                      // ),
+                    // ),
                     // );
 
-                   showCupertinoModalPopup(
-                     context: context,
-                     builder: (BuildContext context1) {
-                       return _actionSheet(context1, context);
-                     },
-                   );
+                    showCupertinoModalPopup(
+                      context: context,
+                      builder: (BuildContext context1) {
+                        return _actionSheet(context1, context);
+                      },
+                    );
                   },
                 ),
               ],

@@ -520,6 +520,7 @@ class _PlayingControlCompState extends State<PlayingControlComp>
     return _carouselControl;
   }
 
+  // 播放下一首
   void _playNext(BuildContext context) {
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
     int newIndex =
@@ -538,6 +539,9 @@ class _PlayingControlCompState extends State<PlayingControlComp>
     eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
   }
 
+
+
+  // 播放上一首
   void _playPrevious(BuildContext context) {
     var musicInfoData = Provider.of<MusicInfoData>(context, listen: false);
     int newIndex = musicInfoData.playIndex == 0

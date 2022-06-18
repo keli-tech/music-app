@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// 浅色模式
 final ThemeData testThemeData = ThemeData(
   primarySwatch: MaterialColor(0xffffffff, {
     50: Color(0xffFFD700),

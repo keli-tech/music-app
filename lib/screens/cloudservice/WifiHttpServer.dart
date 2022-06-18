@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
+import 'package:network_info_plus/network_info_plus.dart';
+
 // import 'package:hello_world/services/AdmobService.dart3';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/utils/HttpServerUtils.dart';
@@ -31,6 +33,7 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
   HttpServer server;
   bool serverStarted = false;
   Logger _logger = new Logger(WifiHttpServer.className);
+  final info = NetworkInfo();
 
   @override
   void initState() {
@@ -47,16 +50,8 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
 
   _startServer() async {
     var hostIp = '127.0.0.1';
-    for (var interface in await NetworkInterface.list()) {
-      for (var addr in interface.addresses) {
-        if (addr.type == InternetAddressType.IPv4 &&
-            !addr.address.startsWith("10\.")) {
-          hostIp = addr.address;
-          break;
-        }
-      }
-    }
-
+    hostIp = await info.getWifiIP();
+    
     setState(() {
       serverStarted = true;
       serverUrl = 'http://$hostIp:8080';
@@ -96,7 +91,6 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
       print(obj);
       print(stack);
     });
-
   }
 
   _stopServer() async {
