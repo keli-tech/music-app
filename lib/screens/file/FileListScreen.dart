@@ -4,12 +4,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/rowitem/FileRowItem.dart';
+import 'package:hello_world/services/FileManager.dart';
+
 // import 'package:hello_world/services/AdmobService.dart3';
 import 'package:provider/provider.dart';
 
 import '../../models/MusicInfoModel.dart';
 import '../../services/Database.dart';
 
+// 文件管理首屏
 class FileListScreen extends StatefulWidget {
   @override
   _FileListScreen createState() => _FileListScreen();
@@ -81,6 +84,21 @@ class _FileListScreen extends State<FileListScreen>
                         color: themeData.primaryColorDark,
                       ),
                     ),
+                    trailing: CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: Icon(
+                        Icons.more_vert,
+                        color: themeData.primaryColor,
+                      ),
+                      onPressed: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (BuildContext context1) {
+                            return _actionSheet(context1, context);
+                          },
+                        );
+                      },
+                    ),
                   ),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
@@ -100,7 +118,7 @@ class _FileListScreen extends State<FileListScreen>
                                   //         event, args, 'Banner');
                                   //   },
                                   // ),
-                                )
+                                  )
                               : Container(),
                         ],
                       ),
@@ -109,7 +127,10 @@ class _FileListScreen extends State<FileListScreen>
                   Consumer<MusicInfoData>(
                     builder: (context, musicInfoData, _) => SliverPadding(
                       padding: EdgeInsets.only(
-                          left: 15, top: 10, right: 15, bottom: _bottomBarHeight + 50),
+                          left: 15,
+                          top: 10,
+                          right: 15,
+                          bottom: _bottomBarHeight + 50),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (BuildContext context, int index) {
@@ -117,6 +138,7 @@ class _FileListScreen extends State<FileListScreen>
                               statusBarHeight: _statusBarHeight,
                               lastItem: index == _musicInfoModels.length - 1,
                               index: index,
+                              mplID: 0,
                               musicInfoModels: _musicInfoModels,
                               audioPlayerState: musicInfoData.audioPlayerState,
                               musicInfoFavIDSet:
@@ -131,19 +153,61 @@ class _FileListScreen extends State<FileListScreen>
                   ),
                 ]),
           ),
-          onRefresh: () {
-            if (_isLoding) return null;
-            setState(() {
-              _isLoding = true;
-            });
-            return _refreshList(path).then((value) {
+          onRefresh: () async {
+            if (!_isLoding) {
               setState(() {
-                _isLoding = false;
+                _isLoding = true;
               });
-            }).catchError((error) {
-              print(error);
-            });
+              return _refreshList(path).then((value) {
+                setState(() {
+                  _isLoding = false;
+                });
+              }).catchError((error) {
+                print(error);
+              });
+            }
           },
         ));
+  }
+
+  // 底部弹出菜单actionSheet
+  Widget _actionSheet(BuildContext context1, BuildContext context) {
+    ThemeData themeData = Theme.of(context);
+    var windowHeight = MediaQuery.of(context).size.height;
+
+    return new CupertinoActionSheet(
+      actions: <Widget>[
+        CupertinoActionSheetAction(
+          child: Text(
+            '清理缓存',
+          ),
+          onPressed: () {
+            Navigator.of(context1).pop();
+
+            FileManager.cleanAllFiles();
+
+            // _addPlayList();
+          },
+        ),
+//        CupertinoActionSheetAction(
+//          child: Text(
+//            '新建场景',
+//          ),
+//          onPressed: () {
+//            Navigator.pop(context1);
+//
+//            _addSceen();
+//          },
+//        ),
+      ],
+      cancelButton: CupertinoActionSheetAction(
+        child: Text(
+          '取消',
+        ),
+        onPressed: () {
+          Navigator.of(context1).pop();
+        },
+      ),
+    );
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RotateTransform extends StatelessWidget {
-  RotateTransform({this.child, this.animation});
+  RotateTransform({required this.child, required this.animation});
 
   final Widget child;
   final Animation<double> animation;
@@ -13,7 +13,7 @@ class RotateTransform extends StatelessWidget {
     return new Center(
       child: new AnimatedBuilder(
           animation: animation,
-          builder: (BuildContext context, Widget child) {
+          builder: (BuildContext context, Widget? child) {
             return Transform.rotate(
                 angle: math.pi / 360 * animation.value, child: child);
           },

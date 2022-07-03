@@ -14,17 +14,17 @@ class CloudServiceModel {
   int updatetime = 0;
 
   CloudServiceModel({
-    this.id,
-    this.name,
-    this.assetspath,
-    this.type,
-    this.url,
-    this.host,
-    this.port,
-    this.account,
-    this.password,
-    this.signedin,
-    this.updatetime,
+    required this.id,
+    required this.name,
+    required this.assetspath,
+    required this.type,
+    required this.url,
+    required this.host,
+    required this.port,
+    required this.account,
+    required this.password,
+    required this.signedin,
+    required this.updatetime,
   });
 
   factory CloudServiceModel.fromMap(Map<String, dynamic> json) =>

@@ -10,12 +10,12 @@ import '../webdav/file.dart';
 class WebDavClient {
   // ignore: public_member_api_docs
   WebDavClient({
-    String rootPath,
-    String scheme,
-    String host,
-    String username,
-    String password,
-    int port,
+    required String rootPath,
+    required String scheme,
+    required String host,
+    required String username,
+    required String password,
+    required int port,
   }) {
     if (port == null) {
       _baseUrl = '$scheme://$host';
@@ -27,11 +27,11 @@ class WebDavClient {
     _rootPath = rootPath;
   }
 
-  String _rootPath;
+  String _rootPath = "";
 
-  String _baseUrl;
+  String _baseUrl = "";
 
-  Network _network;
+  Network _network = 0 as Network;
 
   /// get url from given [path]
   String getUrl(String path) {
@@ -107,7 +107,7 @@ class WebDavClient {
   }
 
   /// list the directories and files under given [remotePath]
-  Future<List<WebDavFile>> ls(String remotePath) async {
+  Future<List<WebDavFile>> ls(String? remotePath) async {
     final data = utf8.encode('''
       <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
         <d:prop>
@@ -118,8 +118,9 @@ class WebDavClient {
         </d:prop>
       </d:propfind>
     ''');
-    final response = await _network
-        .send('PROPFIND', getUrl(remotePath), [207, 301], data: data);
+    final response = await _network.send(
+        'PROPFIND', getUrl(remotePath!), [207, 301],
+        data: data as Uint8List);
     if (response.statusCode == 301) {
       return ls(response.headers['location']);
     }

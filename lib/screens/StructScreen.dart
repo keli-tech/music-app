@@ -27,17 +27,21 @@ class _StructScreenState extends State<StructScreen>
   @override
   bool get wantKeepAlive => true;
   static const String routeName = '/cupertino/navigation';
-  AnimationController _controller;
 
   var routes = {
     StructScreen.routeName: (context) => StructScreen(),
-    PlayListDetailScreen.routeName: (context) => PlayListDetailScreen(),
+    // PlayListDetailScreen.routeName: (context) => PlayListDetailScreen(),
     FileListScreen.routeName: (context) => FileListScreen(),
-    FileList2Screen.routeName: (context) => FileList2Screen(),
+    FileList2Screen.routeName: (context) => FileList2Screen(
+          fullpath: "/",
+          name: "",
+        ),
   };
 
-  Animation<double> animation;
-  AnimationController controller;
+  Animation<double>? animation;
+  AnimationController? controller;
+
+  AnimationController? _controller;
 
 // 是否展示
   bool _showIcon = false;
@@ -50,17 +54,17 @@ class _StructScreenState extends State<StructScreen>
     _controller = AnimationController(
         duration: const Duration(milliseconds: 1500), vsync: this);
 
-  //  _initAnimationController();
+    //  _initAnimationController();
   }
 
   Future<Null> _playAnimation() async {
     try {
-      _controller.reset();
+      _controller?.reset();
       setState(() {
         _showIcon = true;
       });
-      await _controller.forward().orCancel;
-      _controller.reset();
+      await _controller?.forward().orCancel;
+      _controller?.reset();
       setState(() {
         _showIcon = false;
       });
@@ -74,27 +78,29 @@ class _StructScreenState extends State<StructScreen>
     controller = new AnimationController(
         duration: const Duration(seconds: 30), vsync: this);
     //图片宽高从0变到300
-    animation = new Tween(begin: 0.0, end: 720.0).animate(controller);
-    animation.addStatusListener((status) {
+    if (controller != null) {
+      animation = new Tween(begin: 0.0, end: 720.0).animate(controller!);
+    }
+    animation?.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         //动画执行结束时, 继续正向执行动画
-        controller.reset();
+        controller?.reset();
 
-        controller.forward();
+        controller?.forward();
       } else if (status == AnimationStatus.dismissed) {
         //动画恢复到初始状态时执行动画（正向）
-        controller.forward();
+        controller?.forward();
       }
     });
 
     //停止动画（正向）
-    controller.stop();
+    controller?.stop();
   }
 
   //销毁
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
 
     super.dispose();
   }
@@ -121,7 +127,7 @@ class _StructScreenState extends State<StructScreen>
           // Prevent swipe popping of this page. Use explicit exit buttons only.
           onWillPop: () => Future<bool>.value(true),
           child: DefaultTextStyle(
-            style: themeData.textTheme.bodyText2,
+            style: themeData.textTheme.bodyText2!,
             child: CupertinoTabScaffold(
               backgroundColor: themeData.backgroundColor,
               tabBar: CupertinoTabBar(
@@ -130,16 +136,17 @@ class _StructScreenState extends State<StructScreen>
                   if (_currentIndex == index) {
                     switch (index) {
                       case 0:
-                        firstTabNavKey.currentState.popUntil((r) => r.isFirst);
+                        firstTabNavKey.currentState?.popUntil((r) => r.isFirst);
                         break;
                       case 1:
-                        secondTabNavKey.currentState.popUntil((r) => r.isFirst);
+                        secondTabNavKey.currentState
+                            ?.popUntil((r) => r.isFirst);
                         break;
                       case 2:
-                        thirdTabNavKey.currentState.popUntil((r) => r.isFirst);
+                        thirdTabNavKey.currentState?.popUntil((r) => r.isFirst);
                         break;
                       case 3:
-                        forthTabNavKey.currentState.popUntil((r) => r.isFirst);
+                        forthTabNavKey.currentState?.popUntil((r) => r.isFirst);
                         break;
                     }
                   }
@@ -197,6 +204,7 @@ class _StructScreenState extends State<StructScreen>
                     );
                     break;
                   case 3:
+                  default:
                     return CupertinoTabView(
                       navigatorKey: forthTabNavKey,
                       builder: (BuildContext context) {
@@ -206,7 +214,6 @@ class _StructScreenState extends State<StructScreen>
                     );
                     break;
                 }
-                return null;
               },
             ),
           ),
@@ -217,7 +224,7 @@ class _StructScreenState extends State<StructScreen>
                   tag: "playing",
                   child: AlbumImageAnimation(
                     musicInfoModel: musicInfoData.musicInfoModel,
-                    controller: _controller,
+                    controller: _controller!,
                     windowWidth: _windowWidth,
                     windowHeight: _windowHeight,
                     bottomBarHeight: _bottomBarHeight,

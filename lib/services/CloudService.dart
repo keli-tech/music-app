@@ -15,7 +15,7 @@ class CloudService {
 
   static final CloudService cs = CloudService._();
 
-  WebDavClient _ncClient;
+  WebDavClient? _ncClient;
 
   static String getRootPath(CloudServiceModel cloudServiceModel, String host) {
     if (cloudServiceModel.name.toLowerCase() == "nextcloud") {
@@ -73,7 +73,7 @@ class CloudService {
   }
 
   Future<WebDavClient> get ncClient async {
-    return _ncClient;
+    return _ncClient!;
   }
 
   //返回文件列表
@@ -102,11 +102,11 @@ class CloudService {
     await client.download(webDavFile.path).then((data) async {
       var file = FileManager.localCloudFile(filePath, webDavFile.name);
 
-      await file.writeAsBytes(data, mode: FileMode.WRITE).then((_) async {
+      await file.writeAsBytes(data, mode: FileMode.write).then((_) async {
         MusicInfoModel musicInfoModel = await analyseMusicFile(file);
         musicInfoModel.name = webDavFile.name;
         musicInfoModel.path = filePath;
-        musicInfoModel.fullpath = filePath + musicInfoModel.name;
+        musicInfoModel.fullpath = filePath + (musicInfoModel.name );
         musicInfoModel.sourcepath = webDavFile.path;
         musicInfoModel.updatetime = new DateTime.now().millisecondsSinceEpoch;
 
@@ -149,9 +149,9 @@ class CloudService {
     String artist = "";
     String title = "";
     String album = "";
-    AttachedPicture picture;
+    AttachedPicture? picture;
     int trackID = 0;
-    String mimeType = mimeTypes[lookupMimeType(file.path)];
+    String mimeType = mimeTypes[lookupMimeType(file.path)]!;
 
     TagProcessor tp = new TagProcessor();
     await tp.getTagsFromByteArray(file.readAsBytes()).then((tags) async {
@@ -170,13 +170,15 @@ class CloudService {
       });
     });
 
-    var dir = FileManager.musicAlbumPicturePath(artist, album)
-        .createSync(recursive: true);
+    var dir =
+        FileManager.musicAlbumPicturePath(artist).createSync(recursive: true);
 
     var imageFile = FileManager.musicAlbumPictureFile(artist, album);
-    imageFile
-        .writeAsBytes(picture.imageData, mode: FileMode.WRITE)
-        .then((_) async {});
+    if (picture?.imageData != null) {
+      imageFile
+          .writeAsBytes(picture!.imageData, mode: FileMode.write)
+          .then((_) async {});
+    }
 
     MusicInfoModel newMusicInfo = MusicInfoModel(
         name: title + "." + mimeType,
@@ -215,10 +217,12 @@ class CloudService {
   Future<int> updateCloudService(int id, Map updateValue) async {
     final db = await DBProvider.db.database;
 
-    var res = await db
-        .update("cloud_service", updateValue, where: " id = ?", whereArgs: [
-      id,
-    ]);
+    var res = await db.update(
+        "cloud_service", updateValue as Map<String, dynamic>,
+        where: " id = ?",
+        whereArgs: [
+          id,
+        ]);
 
     return res;
   }

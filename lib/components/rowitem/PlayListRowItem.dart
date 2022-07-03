@@ -10,14 +10,16 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class PlayListRowItem extends StatelessWidget {
   const PlayListRowItem({
-    this.index,
-    this.lastItem,
-    this.musicPlayListModel,
+    required this.index,
+    required this.lastItem,
+    required this.musicPlayListModel,
+    this.callback,
   });
 
   final int index;
   final bool lastItem;
   final MusicPlayListModel musicPlayListModel;
+  final Function()? callback;
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +27,13 @@ class PlayListRowItem extends StatelessWidget {
     final Widget row = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        Navigator.of(context, rootNavigator: true).push(MaterialWithModalsPageRoute<void>(
+        Navigator.of(context, rootNavigator: true)
+            .push(MaterialWithModalsPageRoute<void>(
           builder: (BuildContext context) => PlayListDetailScreen(
             musicPlayListModel: musicPlayListModel,
             statusBarHeight: MediaQuery.of(context).padding.top,
           ),
-        ));
+        )).then((value) => callback!());
       },
       child: Tile(
         selected: false,
@@ -53,8 +56,8 @@ class PlayListRowItem extends StatelessWidget {
                     image: DecorationImage(
                       fit: BoxFit.cover, //这个地方很重要，需要设置才能充满
                       image: FileManager.musicAlbumPictureImage(
-                          musicPlayListModel.artist,
-                          musicPlayListModel.imgpath),
+                          musicPlayListModel.getArtist(),
+                          musicPlayListModel.getImgPath()),
                     ),
                   ),
                 ),
@@ -69,7 +72,7 @@ class PlayListRowItem extends StatelessWidget {
                         children: <Widget>[
                           Expanded(
                             child: Text(
-                              musicPlayListModel.name,
+                              musicPlayListModel.getName(),
                               maxLines: 1,
                               style: themeData.primaryTextTheme.headline6,
                               overflow: TextOverflow.ellipsis,
@@ -79,7 +82,7 @@ class PlayListRowItem extends StatelessWidget {
                       ),
                       const Padding(padding: EdgeInsets.only(top: 8.0)),
                       Text(
-                        musicPlayListModel.musiccount.toString() + "首",
+                        musicPlayListModel.getMusicCount().toString() + "首",
                         style: themeData.primaryTextTheme.subtitle2,
                       ),
                     ],
@@ -104,7 +107,7 @@ class PlayListRowItem extends StatelessWidget {
                 ),
                 onPressed: () async {
                   var _musicInfoModels = await DBProvider.db
-                      .getMusicInfoByPlayListId(musicPlayListModel.id);
+                      .getMusicInfoByPlayListId(musicPlayListModel.getId());
 
                   MusicControlService.play(context, _musicInfoModels, 0);
                 },

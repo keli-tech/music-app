@@ -12,19 +12,19 @@ import 'package:provider/provider.dart';
 // 播放列表
 // 专辑
 class MusicFileListComp extends StatefulWidget {
-  MusicFileListComp({Key key, this.statusBarHeight}) : super(key: key);
+  MusicFileListComp({Key? key, required this.statusBarHeight})
+      : super(key: key);
   static const String routeName = '/playlist/detail';
 
   @override
   _MusicFileListComp createState() => _MusicFileListComp();
 
-  double statusBarHeight;
+  double statusBarHeight = 0;
 }
 
 class _MusicFileListComp extends State<MusicFileListComp>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
-  File _image;
   Logger _logger = new Logger("MusicFileListComp");
 
   @override
@@ -87,10 +87,13 @@ class _MusicFileListComp extends State<MusicFileListComp>
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
                         return MusicRowItem(
+                          mplID: 0,
                           statusBarHeight: widget.statusBarHeight,
-                          lastItem: index == musicInfoData.musicInfoList.length - 1,
+                          lastItem:
+                              index == musicInfoData.musicInfoList.length - 1,
                           index: index,
-                          musicInfoModels:  musicInfoData.musicInfoList,
+                          playIndex: musicInfoData.playIndex,
+                          musicInfoModels: musicInfoData.musicInfoList,
                           playId: musicInfoData.musicInfoModel.id,
                           audioPlayerState: musicInfoData.audioPlayerState,
                           musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,

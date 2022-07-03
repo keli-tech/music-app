@@ -8,14 +8,14 @@ import 'package:hello_world/utils/ToastUtils.dart';
 
 class PlayListSelectorContainer extends StatefulWidget {
   PlayListSelectorContainer(
-      {Key key,
-      this.title,
+      {Key? key,
+      required this.title,
       this.musicInfoModel,
-      this.mid,
-      this.statusBarHeight})
+      required this.mid,
+      required this.statusBarHeight})
       : super(key: key);
 
-  MusicInfoModel musicInfoModel;
+  MusicInfoModel? musicInfoModel;
   String title;
   int mid;
   double statusBarHeight;
@@ -124,16 +124,16 @@ class _PlayListSelectorContainer extends State<PlayListSelectorContainer>
                       image: DecorationImage(
                         fit: BoxFit.cover,
                         image: FileManager.musicAlbumPictureImage(
-                            item.artist, item.imgpath),
+                            item.getArtist(), item.getImgPath()),
                       ))),
               isThreeLine: false,
               title: Text(
-                item.name,
+                item.getName(),
                 style: themeData.primaryTextTheme.headline6,
               ),
               onTap: () {
                 DBProvider.db
-                    .addMusicToPlayList(item.id, widget.mid)
+                    .addMusicToPlayList(item.getId(), widget.mid)
                     .then((onValue) {
                   if (onValue > 0) {
                     ToastUtils.show("收藏成功");

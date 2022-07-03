@@ -14,21 +14,20 @@ class DBProvider {
   DBProvider._();
 
   static final DBProvider db = DBProvider._();
-  static Logger logger = new Logger("");
+  static Logger _logger = new Logger("");
 
-  Database _database;
+  Database? _database;
 
   Future<Database> get database async {
-    if (_database != null) return _database;
-    // if _database is null we instantiate it
+    if (_database != null) return _database!;
     _database = await initDB();
-    return _database;
+    return _database!;
   }
 
 // 初始化数据库
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "keli_music9.db");
+    String path = join(documentsDirectory.path, "keli_music.db");
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       // 文件和文件夹信息表
@@ -91,7 +90,7 @@ class DBProvider {
           "account TEXT," // 账号
           "password TEXT," // 密码， 明文存储
           "signedin bit," // true: 登录， false: 登出, 登出保留账号，清除密码;
-          "updatetime INT" // true: 登录， false: 登出, 登出保留账号，清除密码;
+          "updatetime INT" // 更新日期；
           ")");
 
       await db.execute(
@@ -102,6 +101,8 @@ class DBProvider {
 //          "(4, '百度网盘', 'assets/images/cloudicon/baidu.png', false),"
 //          "(5, 'OneDrive', 'assets/images/cloudicon/onedrive.png', false)"
           );
+
+      _logger.info("数据初始化成功");
     });
   }
 
@@ -109,11 +110,10 @@ class DBProvider {
   Future<MusicPlayListModel> getMusicPlayListById(int mplID) async {
     final db = await database;
 
-    var res = await db.query("music_play_list", where: "id = ?", whereArgs: [
+    return db.query("music_play_list", where: "id = ?", whereArgs: [
       mplID,
-    ]);
-
-    return res.isNotEmpty ? MusicPlayListModel.fromMap(res.first) : null;
+    ]).then((value) => MusicPlayListModel.fromMap(value.first));
+    // return res.isNotEmpty ? MusicPlayListModel.fromMap(res.first) : null;
   }
 
   // 查询艺术家获取列表
@@ -121,13 +121,12 @@ class DBProvider {
       String artist, String name) async {
     final db = await database;
 
-    var res = await db
+    return db
         .query("music_play_list", where: "artist = ? and name = ?", whereArgs: [
       artist,
       name,
-    ]);
-
-    return res.isNotEmpty ? MusicPlayListModel.fromMap(res.first) : null;
+    ]).then((value) => MusicPlayListModel.fromMap(value.first));
+    // return res.isNotEmpty ? MusicPlayListModel.fromMap(res.first) : null;
   }
 
   //根据播放列表
@@ -153,7 +152,8 @@ class DBProvider {
       if (res2.isNotEmpty) {
         res2.forEach((f) {
           if (f["id"] != null) {
-            rr[f["id"]] = f["musiccount"];
+            int fid = int.parse(f["id"].toString());
+            rr[fid] = int.parse(f["musiccount"].toString());
           }
         });
       }
@@ -250,16 +250,15 @@ class DBProvider {
 // 新建播放列表
   Future<int> newMusicPlayList(MusicPlayListModel newMusicPlayListModel) async {
     final db = await database;
-    int retID;
 
-    await db.transaction((txn) async {
+    return db.transaction((txn) async {
       var res = await txn.query("music_play_list",
           where: " name = ? and artist = ? and type = ?",
           orderBy: "sort desc",
           whereArgs: [
-            newMusicPlayListModel.name,
-            newMusicPlayListModel.artist,
-            newMusicPlayListModel.type,
+            newMusicPlayListModel.getName(),
+            newMusicPlayListModel.getArtist(),
+            newMusicPlayListModel.getType(),
           ]);
 
       List<MusicInfoModel> list = res.isNotEmpty
@@ -267,23 +266,22 @@ class DBProvider {
           : [];
 
       if (list.length > 0) {
-        retID = list.first.id;
+        return list.first.id;
       } else {
-        retID = await txn.rawInsert(
+        return txn.rawInsert(
             "INSERT Into music_play_list (name,artist,year,type,sort,imgpath,updatetime)"
             " VALUES (?,?,?,?,?,?,?) ON CONFLICT(name, type, artist) DO UPDATE SET name = name",
             [
-              newMusicPlayListModel.name,
-              newMusicPlayListModel.artist,
-              newMusicPlayListModel.year,
-              newMusicPlayListModel.type,
-              newMusicPlayListModel.sort,
-              newMusicPlayListModel.imgpath,
-              newMusicPlayListModel.updatetime,
+              newMusicPlayListModel.getName(),
+              newMusicPlayListModel.getArtist(),
+              newMusicPlayListModel.getYear(),
+              newMusicPlayListModel.getType(),
+              newMusicPlayListModel.getSort(),
+              newMusicPlayListModel.getImgPath(),
+              newMusicPlayListModel.getUpdateTime(),
             ]);
       }
     });
-    return retID;
   }
 
   // 删除 music play list
@@ -291,7 +289,7 @@ class DBProvider {
   deleteMusicPlayList(int id) async {
     try {
       final db = await database;
-      logger.info("delete play list id: $id");
+      _logger.info("delete play list id: $id");
 
       List<MusicInfoModel> musicInfos = await getMusicInfoByPlayListId(id);
       if (musicInfos.length > 0) {
@@ -312,7 +310,7 @@ class DBProvider {
         return [];
       }
     } catch (error) {
-      logger.warning(error);
+      _logger.warning(error);
       return [];
     }
   }
@@ -378,7 +376,7 @@ class DBProvider {
           mid,
           new DateTime.now().millisecondsSinceEpoch,
         ]);
-    logger.info("insert plid:$plid, mid:$mid");
+    _logger.info("insert plid:$plid, mid:$mid");
     return raw;
   }
 
@@ -390,7 +388,7 @@ class DBProvider {
       plid,
       mid,
     ]);
-    logger.info("delete plid:$plid, mid:$mid");
+    _logger.info("delete plid:$plid, mid:$mid");
     return raw;
   }
 
@@ -455,22 +453,23 @@ class DBProvider {
 
   Future<MusicInfoModel> getMusic(int id) async {
     final db = await database;
-    var res = await db.query(
+    return await db.query(
       "music_info",
       where: "id = ?",
       whereArgs: [id],
-    );
-    return res.isNotEmpty ? MusicInfoModel.fromMap(res.first) : null;
+    ).then((value) => MusicInfoModel.fromMap(value.first));
+    // return res.isNotEmpty ? MusicInfoModel.fromMap(res.first) : null;
   }
 
-  Future<MusicInfoModel> getFoldByPathName(String path, String name) async {
+  getFoldByPathName(String path, String name) async {
     final db = await database;
+
     var res = await db.query("music_info",
         where: "path =? and name = ?", whereArgs: [path, name]);
     return res.isNotEmpty ? MusicInfoModel.fromMap(res.first) : null;
   }
 
-  deleteMusic(int id) async {
+  Future<int> deleteMusic(int id) async {
     final db = await database;
 
     var musicInfo = await getMusic(id);
@@ -481,10 +480,14 @@ class DBProvider {
                 "where t1.mi_id = $id and t2.type ='" +
             MusicPlayListModel.TYPE_ALBUM +
             "' limit 1");
-    if (albumCountRes != null &&
-        (albumCountRes[0]["count"].toString() == "1" ||
-            albumCountRes[0]["count"].toString() == "0")) {
-      deleteMusicPlayList(albumCountRes[0]["mpl_id"]);
+
+    var a = albumCountRes[0]["mpl_id"];
+    // 只有一首歌，没有歌，则删除该播放列表
+    if (((albumCountRes[0]["count"].toString() == "1" ||
+            albumCountRes[0]["count"].toString() == "0")) &&
+        albumCountRes[0]["mpl_id"] != null) {
+      int mplId = int.parse(albumCountRes[0]["mpl_id"].toString());
+      deleteMusicPlayList(mplId);
     }
 
     var res2 =

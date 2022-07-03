@@ -7,15 +7,15 @@ import 'dart:convert';
 //"imgpath TEXT"
 
 class MusicPlayListModel {
-  int id = 0;
-  String type = "";
-  String name = "";
-  String artist = "";
-  String year = "";
-  int sort = 0;
-  String imgpath = "";
-  int updatetime = 0;
-  int musiccount = 0;
+  int? id = 0;
+  String? type = "";
+  String? name = "";
+  String? artist = "";
+  String? year = "";
+  int? sort = 0;
+  String? imgpath = "";
+  int? updatetime = 0;
+  int? musiccount = 0;
 
   static int FAVOURITE_PLAY_LIST_ID = 1;
 
@@ -23,6 +23,16 @@ class MusicPlayListModel {
   static String TYPE_SCEEN = 'sceen';
   static String TYPE_ALBUM = 'album';
   static String TYPE_FAV = 'fav';
+
+  int getId() => id ?? 0;
+  String getType() => type ?? "";
+  String getName() => name ?? "";
+  String getArtist() => artist ?? "";
+  String getYear() => year ?? "";
+  int getSort() => sort ?? 0;
+  String getImgPath() => imgpath ?? "";
+  int getUpdateTime() => updatetime ?? 0;
+  int getMusicCount() => musiccount ?? 0;
 
   MusicPlayListModel({
     this.id,

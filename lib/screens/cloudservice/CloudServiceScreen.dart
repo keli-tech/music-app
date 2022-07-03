@@ -18,6 +18,7 @@ import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:logging/logging.dart';
 
+// 文件和云文件管理
 class CloudServiceScreen extends StatefulWidget {
   @override
   _CloudServiceScreen createState() => _CloudServiceScreen();
@@ -110,11 +111,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                       .push(CupertinoPageRoute<void>(
                                     title: "Wi-Fi同步文件",
                                     builder: (BuildContext context) =>
-                                        WifiHttpServer(
-                                            // color: color,
-                                            // colorName: colorName,
-                                            // index: index,
-                                            ),
+                                        WifiHttpServer(),
                                   ));
                                 },
                               ),
@@ -147,144 +144,6 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                   color: themeData.primaryColor,
                                 ),
                                 onTap: () async {
-                                  final typeGroup = XTypeGroup(
-                                      label: 'mp3', extensions: ['pdf', 'mp3']);
-                                  final files = await openFiles(
-                                      acceptedTypeGroups: [typeGroup]);
-                                  _logger.info(files);
-
-                                  var a = files.map((file2) {
-                                    _logger.info(file2.path);
-
-                                    File fileUploaded = File(file2.path);
-
-                                    var file =
-                                        FileManager.localFile("/" + file2.name);
-
-                                    // 保存文件
-                                    file
-                                        .writeAsBytes(
-                                            fileUploaded.readAsBytesSync(),
-                                            mode: FileMode.WRITE)
-                                        .then((_) async {
-                                      int fileLength = await file.length();
-                                      String fileSize = Uri.decodeComponent(
-                                          (fileLength / 1024 / 1024)
-                                                  .toStringAsFixed(2)
-                                                  .toString() +
-                                              "MB");
-
-                                      // 保存到数据库
-                                      // todo bugfix, 部分无tab mp3 未读取到 tag，会卡住, 比如flac
-                                      TagProcessor tp = new TagProcessor();
-
-                                      var l = await tp.getTagsFromByteArray(
-                                          file.readAsBytes());
-
-                                      AttachedPicture picture;
-                                      String title = file2.name;
-                                      String artist = "未知";
-                                      String album = "未知";
-
-                                      l.forEach((f) {
-                                        if (f.tags != null &&
-                                            f.tags.containsKey("picture")) {
-                                          _logger.info(f.tags["picture"]);
-                                          //
-                                          // 保存音乐文件表
-                                          // picture = f.tags["picture"].cast(AttachedPicture);
-                                          picture = (f.tags['picture'] as Map)
-                                              .values
-                                              .first;
-
-                                          _logger.info(picture);
-
-                                          title = f.tags["title"];
-                                          artist = f.tags["artist"];
-                                          album = f.tags["album"];
-                                        }
-                                      });
-
-                                      MusicInfoModel newMusicInfo =
-                                          MusicInfoModel(
-                                        name: file2.name,
-                                        path: "/",
-                                        fullpath: "/" + file2.name,
-                                        type: file2.name
-                                            .split(".")
-                                            .last
-                                            .toLowerCase(),
-                                        syncstatus: true,
-                                        title: title,
-                                        artist: artist,
-                                        filesize: fileSize,
-                                        album: album,
-                                        sort: 100,
-                                        updatetime: new DateTime.now()
-                                            .millisecondsSinceEpoch,
-                                      );
-                                      int newMid = await DBProvider.db
-                                          .newMusicInfo(newMusicInfo);
-
-                                      // 添加到专辑表
-                                      MusicPlayListModel newMusicPlayListModel =
-                                          MusicPlayListModel(
-                                        name: album,
-                                        type: MusicPlayListModel.TYPE_ALBUM,
-                                        artist: artist,
-                                        sort: 100,
-                                      );
-                                      int newPlid = await DBProvider.db
-                                          .newMusicPlayList(
-                                              newMusicPlayListModel);
-                                      if (newPlid > 0 && newMid > 0) {
-                                        // 保存到列表
-                                        await DBProvider.db.addMusicToPlayList(
-                                            newPlid, newMid);
-                                      }
-
-                                      // 保存音乐封面
-                                      if (picture != null &&
-                                          picture.imageData != null) {
-                                        var dir = await FileManager
-                                                .musicAlbumPicturePath(
-                                                    artist, album)
-                                            .create(recursive: true);
-                                        var imageFile =
-                                            FileManager.musicAlbumPictureFile(
-                                                artist, album);
-                                        imageFile
-                                            .writeAsBytes(picture.imageData,
-                                                mode: FileMode.WRITE)
-                                            .then((_) async {});
-                                      }
-                                    });
-
-                                    return 1;
-                                  });
-
-                                  _logger.info(a);
-                                },
-                              ),
-                            ),
-                            Tile(
-                              selected: false,
-                              radiusnum: 15.0,
-                              child: new ListTile(
-                                title: new Text(
-                                  '帮助文档',
-                                  style: themeData.primaryTextTheme.headline6,
-                                ),
-                                leading: new Icon(
-                                  Icons.help,
-                                  size: 40,
-                                  color: themeData.primaryColor,
-                                ),
-                                trailing: Icon(
-                                  Icons.chevron_right,
-                                  color: themeData.primaryColor,
-                                ),
-                                onTap: () async {
                                   // const url = 'https://keli.tech/music/help';
                                   // if (await canLaunch(url)) {
                                   //   await launch(url);
@@ -292,12 +151,27 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
                                   //   print('Could not launch $url');
                                   // }
 
-                                  FilePickerResult result =
+                                  FilePickerResult? result =
                                       await FilePicker.platform.pickFiles(
                                     type: FileType.custom,
+                                    allowMultiple: true,
+                                    withData: true,
                                     allowedExtensions: ['mp3', 'pdf', 'doc'],
                                   );
-                                  _logger.info(result);
+
+                                  result?.files.forEach((file) {
+                                    var fileStore = FileManager.localFile(
+                                        "/" + file.path!.split("/").last);
+                                    // 保存文件
+                                    fileStore
+                                        .writeAsBytes(file.bytes!,
+                                            mode: FileMode.write)
+                                        .then((_) async {
+                                      // 保存文件
+                                      FileManager.saveAudioFileInfo(
+                                          File(file.path!), "/", file.name);
+                                    });
+                                  });
                                 },
                               ),
                             ),
@@ -316,6 +190,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
     );
   }
 
+  // 云服务
   List<Widget> buildService(BuildContext context) {
     ThemeData themeData = Theme.of(context);
 
@@ -380,6 +255,7 @@ class _CloudServiceScreen extends State<CloudServiceScreen> {
               ).push(CupertinoPageRoute<void>(
                 title: item.name,
                 builder: (BuildContext context) => LoginCloudServiceScreen(
+                  path: "/",
                   title: item.name,
                   cloudServiceModel: item,
                 ),

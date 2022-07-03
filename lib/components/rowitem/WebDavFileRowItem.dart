@@ -10,13 +10,13 @@ class WebDavFileRowItem extends StatefulWidget {
   _WebDavFileRowItem createState() => _WebDavFileRowItem();
 
   WebDavFileRowItem({
-    Key key,
-    this.lastItem,
-    this.index,
-    this.file,
-    this.filePath,
-    this.downloadedFiles,
-    this.cloudServiceModel,
+    Key? key,
+    required this.lastItem,
+    required this.index,
+    required this.file,
+    required this.filePath,
+    required this.downloadedFiles,
+    required this.cloudServiceModel,
   }) : super(key: key);
 
   final String filePath;

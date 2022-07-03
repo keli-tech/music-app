@@ -5,6 +5,7 @@ import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
+
 // import 'package:hello_world/services/AdmobService.dart3';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
@@ -15,7 +16,7 @@ import '../album/PlayListDetailScreen.dart';
 
 class AlbumListScreen extends StatefulWidget {
   AlbumListScreen({
-    Key key,
+    Key? key,
   }) : super(key: key);
   static const String className = 'AlbumListScreen';
 
@@ -96,7 +97,7 @@ class _AlbumListScreen extends State<AlbumListScreen> {
                                   //         event, args, 'Banner');
                                   //   },
                                   // ),
-                                )
+                                  )
                               : Container(),
                         ],
                       ),
@@ -132,18 +133,19 @@ class _AlbumListScreen extends State<AlbumListScreen> {
                   ),
                 ]),
           ),
-          onRefresh: () {
-            if (_isLoding) return null;
-            setState(() {
-              _isLoding = true;
-            });
-            return _refreshList().then((value) {
+          onRefresh: () async {
+            if (!_isLoding) {
               setState(() {
-                _isLoding = false;
+                _isLoding = true;
               });
-            }).catchError((error) {
-              print(error);
-            });
+              return _refreshList().then((value) {
+                setState(() {
+                  _isLoding = false;
+                });
+              }).catchError((error) {
+                print(error);
+              });
+            }
           },
         ));
   }
@@ -185,7 +187,7 @@ class _AlbumListScreen extends State<AlbumListScreen> {
 }
 
 class Tab1RowItem extends StatelessWidget {
-  const Tab1RowItem({this.index, this.musicPlayListModel});
+  const Tab1RowItem({required this.index, required this.musicPlayListModel});
 
   final int index;
   final MusicPlayListModel musicPlayListModel;
@@ -197,7 +199,7 @@ class Tab1RowItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         Navigator.of(context).push(CupertinoPageRoute<void>(
-          title: musicPlayListModel.name,
+          title: musicPlayListModel.getName(),
           builder: (BuildContext context) => PlayListDetailScreen(
             musicPlayListModel: musicPlayListModel,
             statusBarHeight: MediaQuery.of(context).padding.top,
@@ -210,14 +212,15 @@ class Tab1RowItem extends StatelessWidget {
           top: false,
           bottom: false,
           child: Hero(
-            tag: 'AlbumListScreen' + musicPlayListModel.id.toString(),
+            tag: 'AlbumListScreen' + musicPlayListModel.getId().toString(),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
                 image: DecorationImage(
                   fit: BoxFit.cover, //这个地方很重要，需要设置才能充满
                   image: FileManager.musicAlbumPictureImage(
-                      musicPlayListModel.artist, musicPlayListModel.name),
+                      musicPlayListModel.getArtist(),
+                      musicPlayListModel.getName()),
                 ),
               ),
               child: Container(
@@ -241,13 +244,13 @@ class Tab1RowItem extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  '${musicPlayListModel.name}',
+                                  '${musicPlayListModel.getName()}',
                                   maxLines: 1,
                                   style: themeData.textTheme.headline6,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  '${musicPlayListModel.artist}',
+                                  '${musicPlayListModel.getArtist()}',
                                   maxLines: 1,
                                   style: themeData.textTheme.subtitle2,
                                   overflow: TextOverflow.ellipsis,
@@ -263,14 +266,15 @@ class Tab1RowItem extends StatelessWidget {
                               radiusnum: 20,
                               child: Icon(
                                 Icons.play_circle_outline,
-                                color: themeData.primaryTextTheme.headline6.color,
+                                color:
+                                    themeData.primaryTextTheme.headline6?.color,
                                 size: 25,
                               ),
                             ),
                             onPressed: () async {
                               var _musicInfoModels = await DBProvider.db
                                   .getMusicInfoByPlayListId(
-                                      musicPlayListModel.id);
+                                      musicPlayListModel.getId());
 
                               MusicControlService.play(
                                   context, _musicInfoModels, 0);

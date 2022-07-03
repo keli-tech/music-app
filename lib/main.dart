@@ -38,9 +38,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  MyApp({Key key, this.title}) : super(key: key);
-
-  final String title;
+  MyApp({Key? key}) : super(key: key);
 
   @override
   _MyAppState createState() => _MyAppState();

@@ -24,14 +24,12 @@ Color getColor(int index) {
 
 class ChipScreenComp extends StatefulWidget {
   ChipScreenComp(
-      {Key key,
-      this.title,
-      this.index,
-      this.musicPlayListModel,
-      this.refreshFunc})
+      {Key? key,
+      required this.index,
+      required this.musicPlayListModel,
+      required this.refreshFunc})
       : super(key: key);
 
-  final String title;
   int index;
 
   Function() refreshFunc;
@@ -63,7 +61,7 @@ class _ChipScreenCompState extends State<ChipScreenComp>
               color: getColor(widget.index),
             )),
         label: new Text(
-          widget.musicPlayListModel.name,
+          widget.musicPlayListModel.getName(),
           style: TextStyle(
             fontSize: 20,
           ),
@@ -71,7 +69,7 @@ class _ChipScreenCompState extends State<ChipScreenComp>
       ),
       onDoubleTap: () {
         Navigator.of(context).push(CupertinoPageRoute<void>(
-          title: widget.musicPlayListModel.name,
+          title: widget.musicPlayListModel.getName(),
           builder: (BuildContext context) => PlayListDetailScreen(
             musicPlayListModel: widget.musicPlayListModel,
             statusBarHeight: MediaQuery.of(context).padding.top,
@@ -84,7 +82,7 @@ class _ChipScreenCompState extends State<ChipScreenComp>
             context: context,
             builder: (BuildContext context1) => CupertinoAlertDialog(
               title: const Text('确定删除？'),
-              content: Text(widget.musicPlayListModel.name),
+              content: Text(widget.musicPlayListModel.getName()),
               actions: <Widget>[
                 CupertinoDialogAction(
                   child: Text(
@@ -110,7 +108,7 @@ class _ChipScreenCompState extends State<ChipScreenComp>
                     });
 
                     DBProvider.db
-                        .deleteMusicPlayList(widget.musicPlayListModel.id)
+                        .deleteMusicPlayList(widget.musicPlayListModel.getId())
                         .then((onValue) {
                       Fluttertoast.showToast(
                           msg: "已删除歌单",
@@ -137,7 +135,7 @@ class _ChipScreenCompState extends State<ChipScreenComp>
       },
       onTap: () async {
         List<MusicInfoModel> musicInfoModels = await DBProvider.db
-            .getMusicInfoByPlayListId(widget.musicPlayListModel.id);
+            .getMusicInfoByPlayListId(widget.musicPlayListModel.getId());
         if (musicInfoModels.length > 0) {
           MusicControlService.play(context, musicInfoModels, 0);
         }

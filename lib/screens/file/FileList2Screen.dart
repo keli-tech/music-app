@@ -7,11 +7,13 @@ import '../../models/MusicInfoModel.dart';
 import '../../services/Database.dart';
 
 class FileList2Screen extends StatefulWidget {
-  FileList2Screen({Key key, this.musicInfoModel}) : super(key: key);
+  FileList2Screen({Key? key, required this.fullpath, required name})
+      : super(key: key);
 
   static const String routeName = '/filelist2';
 
-  MusicInfoModel musicInfoModel;
+  String fullpath = "/";
+  String name = "";
 
   @override
   _FileList2Screen createState() => _FileList2Screen();
@@ -20,20 +22,19 @@ class FileList2Screen extends StatefulWidget {
 class _FileList2Screen extends State<FileList2Screen>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
-  Animation<double> animation;
 
   bool _isLoding = false;
 
   @override
   void initState() {
     super.initState();
-    _refreshList(widget.musicInfoModel.fullpath);
+    _refreshList(widget.fullpath);
   }
 
   @override
   void deactivate() {
     super.deactivate();
-    _refreshList(widget.musicInfoModel.fullpath);
+    _refreshList(widget.fullpath);
   }
 
   //销毁
@@ -59,7 +60,7 @@ class _FileList2Screen extends State<FileList2Screen>
         navigationBar: CupertinoNavigationBar(
           border: null,
           middle: Text(
-            widget.musicInfoModel.name,
+            widget.name,
             style: themeData.primaryTextTheme.headline6,
           ),
           backgroundColor: themeData.backgroundColor,
@@ -83,6 +84,8 @@ class _FileList2Screen extends State<FileList2Screen>
                           lastItem: index == _musicInfoModels.length - 1,
                           index: index,
                           musicInfoModels: _musicInfoModels,
+                          mplID: 0,
+                          statusBarHeight: 0,
                           playId: musicInfoData.musicInfoModel.id,
                           audioPlayerState: musicInfoData.audioPlayerState,
                           musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,
@@ -95,18 +98,19 @@ class _FileList2Screen extends State<FileList2Screen>
               ),
             ],
           ),
-          onRefresh: () {
-            if (_isLoding) return null;
-            setState(() {
-              _isLoding = true;
-            });
-            return _refreshList(widget.musicInfoModel.fullpath).then((value) {
+          onRefresh: () async {
+            if (!_isLoding) {
               setState(() {
-                _isLoding = false;
+                _isLoding = true;
               });
-            }).catchError((error) {
-              print(error);
-            });
+              return _refreshList(widget.fullpath).then((value) {
+                setState(() {
+                  _isLoding = false;
+                });
+              }).catchError((error) {
+                print(error);
+              });
+            }
           },
         ));
   }

@@ -14,17 +14,17 @@ import '../../services/Database.dart';
 // 专辑
 class ArtistListDetailScreen extends StatefulWidget {
   ArtistListDetailScreen({
-    Key key,
-    this.statusBarHeight,
-    this.artist,
+    Key? key,
+    required this.statusBarHeight,
+    required this.artist,
   }) : super(key: key);
   static const String routeName = '/playlist/detail';
 
   @override
   _ArtistListDetailScreen createState() => _ArtistListDetailScreen();
 
-  double statusBarHeight;
-  String artist;
+  double statusBarHeight = 0;
+  String artist = "";
 }
 
 class _ArtistListDetailScreen extends State<ArtistListDetailScreen>
@@ -83,7 +83,8 @@ class _ArtistListDetailScreen extends State<ArtistListDetailScreen>
         slivers: <Widget>[
           Consumer<MusicInfoData>(
             builder: (context, musicInfoData, _) => SliverPadding(
-              padding: EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
+              padding:
+                  EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
@@ -93,7 +94,8 @@ class _ArtistListDetailScreen extends State<ArtistListDetailScreen>
                       index: index,
                       mplID: 0,
                       musicInfoModels: _musicInfoModels,
-                      playId: musicInfoData.musicInfoModel.id,
+                      playId: musicInfoData.playId,
+                      playIndex: musicInfoData.playIndex,
                       audioPlayerState: musicInfoData.audioPlayerState,
                       musicInfoFavIDSet: musicInfoData.musicInfoFavIDSet,
                       refreshFunction: _refreshList,

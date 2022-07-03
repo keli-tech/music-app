@@ -9,14 +9,14 @@ import 'package:hello_world/utils/ToastUtils.dart';
 
 class FileSelectorContainer extends StatefulWidget {
   FileSelectorContainer(
-      {Key key,
-      this.title,
+      {Key? key,
+      required this.title,
       this.musicInfoModel,
-      this.playListId,
-      this.statusBarHeight})
+      required this.playListId,
+      required this.statusBarHeight})
       : super(key: key);
 
-  MusicInfoModel musicInfoModel;
+  MusicInfoModel? musicInfoModel;
   int playListId;
   String title;
   double statusBarHeight;
@@ -47,7 +47,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
   _refreshList() async {
     var fullpath = "/";
     if (widget.musicInfoModel != null) {
-      fullpath = widget.musicInfoModel.fullpath;
+      fullpath = widget.musicInfoModel?.fullpath ?? "";
     }
     DBProvider.db.getMusicInfoByPath(fullpath).then((onValue) async {
       _musicInfoModelsUnderPlayList =
@@ -162,6 +162,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
             playListId: widget.playListId,
             title: _listItem.musicInfoModel.name,
             musicInfoModel: _listItem.musicInfoModel,
+            containerContext: context,
           ),
         ));
       },
@@ -200,9 +201,9 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
       key: Key(_listItem.musicInfoModel.id.toString()),
       isThreeLine: false,
       activeColor: themeData.primaryColor,
-      value: _listItem.checkState ?? false,
-      onChanged: (bool newChecked) {
-        if (newChecked) {
+      value: _listItem.checkState ,
+      onChanged: (bool? newChecked) {
+        if (newChecked ?? false) {
           DBProvider.db
               .addMusicToPlayList(
                   widget.playListId, _listItem.musicInfoModel.id)
@@ -221,7 +222,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
         }
 
         setState(() {
-          _listItem.checkState = newChecked;
+          _listItem.checkState = newChecked ?? false;
         });
       },
       title: Row(
@@ -250,7 +251,7 @@ class _FileSelectorContainer extends State<FileSelectorContainer>
               fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
               image: FileManager.musicAlbumPictureImage(
                   _listItem.musicInfoModel.artist,
-                  _listItem.musicInfoModel.album)),
+                  _listItem.musicInfoModel.album )),
         ),
       ),
     );

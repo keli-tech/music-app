@@ -22,10 +22,11 @@ class FavListScreen extends StatefulWidget {
 class _FavListScreen extends State<FavListScreen> {
   List<MusicPlayListModel> _musicSceenListModels = [];
   List<MusicPlayListModel> _musicPlayListModels = [];
-  MusicPlayListModel _favPlayListInfo;
+  MusicPlayListModel? _favPlayListInfo;
+
   Logger _logger = new Logger("FavListScreen");
   bool _isLoding = false;
-  TextEditingController _chatTextController;
+  TextEditingController? _chatTextController;
 
   @override
   void initState() {
@@ -67,13 +68,13 @@ class _FavListScreen extends State<FavListScreen> {
     var musicSceenListModels = await DBProvider.db
         .getMusicPlayListByType(MusicPlayListModel.TYPE_SCEEN);
     var musicPlayListModels = await DBProvider.db.getMusicPlayList();
-    var musicPlayListModel = await DBProvider.db
+    var favPlayListInfo = await DBProvider.db
         .getMusicPlayListById(MusicPlayListModel.FAVOURITE_PLAY_LIST_ID);
 
     setState(() {
       _musicSceenListModels = musicSceenListModels;
       _musicPlayListModels = musicPlayListModels;
-      _favPlayListInfo = musicPlayListModel;
+      _favPlayListInfo = favPlayListInfo;
     });
   }
 
@@ -121,8 +122,8 @@ class _FavListScreen extends State<FavListScreen> {
                 ),
               ),
               SliverPadding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 15.0),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     Column(children: <Widget>[
@@ -194,6 +195,7 @@ class _FavListScreen extends State<FavListScreen> {
                               lastItem: false,
 //                  lastItem: index == _musicPlayListModels.length - 1,
                               musicPlayListModel: item,
+                              callback: _refreshList,
                             );
                           }).toList(),
                         ),
@@ -205,18 +207,20 @@ class _FavListScreen extends State<FavListScreen> {
               )
             ],
           ),
-          onRefresh: () {
-            if (_isLoding) return null;
-            setState(() {
-              _isLoding = true;
-            });
-            return _refreshList().then((value) {
+          onRefresh: () async {
+            _logger.info("on refresh");
+            if (!_isLoding) {
               setState(() {
-                _isLoding = false;
+                _isLoding = true;
               });
-            }).catchError((error) {
-              print(error);
-            });
+              return _refreshList().then((value) {
+                setState(() {
+                  _isLoding = false;
+                });
+              }).catchError((error) {
+                print(error);
+              });
+            }
           },
         ),
       ),
@@ -296,7 +300,7 @@ class _FavListScreen extends State<FavListScreen> {
               image: DecorationImage(
                 fit: BoxFit.cover,
                 image: FileManager.musicAlbumPictureImage(
-                    "-", _favPlayListInfo.imgpath),
+                    "-", _favPlayListInfo?.imgpath ?? ""),
               ),
             ),
             child: Container(
@@ -484,19 +488,19 @@ class _FavListScreen extends State<FavListScreen> {
                     ),
                     isDefaultAction: true,
                     onPressed: () async {
-                      if (_chatTextController.text.trim().length == 0) {
+                      if (_chatTextController!.text.trim().length == 0) {
                         return;
                       }
 
                       // 添加到专辑表
                       MusicPlayListModel newMusicPlayListModel =
                           MusicPlayListModel(
-                        name: _chatTextController.text.trim(),
+                        name: _chatTextController!.text.trim(),
                         type: MusicPlayListModel.TYPE_PLAY_LIST,
                         artist: "-",
                         sort: 100,
                       );
-                      _chatTextController.clear();
+                      _chatTextController?.clear();
 
                       int newPlid = await DBProvider.db
                           .newMusicPlayList(newMusicPlayListModel);
@@ -548,19 +552,19 @@ class _FavListScreen extends State<FavListScreen> {
                     ),
                     isDefaultAction: true,
                     onPressed: () async {
-                      if (_chatTextController.text.trim().length == 0) {
+                      if (_chatTextController?.text.trim().length == 0) {
                         return;
                       }
 
                       // 添加到专辑表
                       MusicPlayListModel newMusicPlayListModel =
                           MusicPlayListModel(
-                        name: _chatTextController.text.trim(),
+                        name: _chatTextController?.text.trim(),
                         type: MusicPlayListModel.TYPE_SCEEN,
                         artist: "-",
                         sort: 100,
                       );
-                      _chatTextController.clear();
+                      _chatTextController?.clear();
 
                       int newPlid = await DBProvider.db
                           .newMusicPlayList(newMusicPlayListModel);

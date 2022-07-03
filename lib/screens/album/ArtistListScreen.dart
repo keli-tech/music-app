@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/models/MusicPlayListModel.dart';
 import 'package:hello_world/screens/album/ArtistListDetailScreen.dart';
+
 // import 'package:hello_world/services/AdmobService.dart3';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
@@ -14,7 +15,7 @@ import '../album/PlayListDetailScreen.dart';
 // 艺术家页面
 class ArtistListScreen extends StatefulWidget {
   ArtistListScreen({
-    Key key,
+    Key? key,
   }) : super(key: key);
   static const String className = 'ArtistListScreen';
 
@@ -93,7 +94,7 @@ class _ArtistListScreen extends State<ArtistListScreen> {
                               //         event, args, 'Banner');
                               //   },
                               // ),
-                            )
+                              )
                           : Container(),
                     ],
                   ),
@@ -111,14 +112,15 @@ class _ArtistListScreen extends State<ArtistListScreen> {
                             title: _artistListModels[index]["artist"],
                             builder: (BuildContext context) =>
                                 ArtistListDetailScreen(
-                              artist: _artistListModels[index]["artist"],
+                              artist: _artistListModels[index]["artist"]!,
                               statusBarHeight:
                                   MediaQuery.of(context).padding.top,
                             ),
                           ));
                         },
                         leading: Text(
-                          '${index + 1}. ' + _artistListModels[index]["artist"],
+                          '${index + 1}. ' +
+                              _artistListModels[index]["artist"]!,
                           style: themeData.primaryTextTheme.headline6,
                         ),
                       ),
@@ -130,18 +132,19 @@ class _ArtistListScreen extends State<ArtistListScreen> {
             ],
           ),
         ),
-        onRefresh: () {
-          if (_isLoding) return null;
-          setState(() {
-            _isLoding = true;
-          });
-          return _refreshList().then((value) {
+        onRefresh: () async {
+          if (!_isLoding) {
             setState(() {
-              _isLoding = false;
+              _isLoding = true;
             });
-          }).catchError((error) {
-            print(error);
-          });
+            return _refreshList().then((value) {
+              setState(() {
+                _isLoding = false;
+              });
+            }).catchError((error) {
+              print(error);
+            });
+          }
         },
       ),
     );
@@ -184,7 +187,7 @@ class _ArtistListScreen extends State<ArtistListScreen> {
 }
 
 class Tab1RowItem extends StatelessWidget {
-  const Tab1RowItem({this.index, this.musicPlayListModel});
+  const Tab1RowItem({required this.index, required this.musicPlayListModel});
 
   final int index;
   final MusicPlayListModel musicPlayListModel;
@@ -196,7 +199,7 @@ class Tab1RowItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         Navigator.of(context).push(CupertinoPageRoute<void>(
-          title: musicPlayListModel.name,
+          title: musicPlayListModel.getName(),
           builder: (BuildContext context) => PlayListDetailScreen(
             musicPlayListModel: musicPlayListModel,
             statusBarHeight: MediaQuery.of(context).padding.top,
@@ -209,14 +212,15 @@ class Tab1RowItem extends StatelessWidget {
           top: false,
           bottom: false,
           child: Hero(
-            tag: 'ArtistListScreen' + musicPlayListModel.id.toString(),
+            tag: 'ArtistListScreen' + musicPlayListModel.getId().toString(),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
                 image: DecorationImage(
                   fit: BoxFit.cover, //这个地方很重要，需要设置才能充满
                   image: FileManager.musicAlbumPictureImage(
-                      musicPlayListModel.artist, musicPlayListModel.name),
+                      musicPlayListModel.getArtist(),
+                      musicPlayListModel.getName()),
                 ),
               ),
               child: Container(
@@ -240,13 +244,13 @@ class Tab1RowItem extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  '${musicPlayListModel.name}',
+                                  '${musicPlayListModel.getName()}',
                                   maxLines: 1,
                                   style: themeData.primaryTextTheme.headline6,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  '${musicPlayListModel.artist}',
+                                  '${musicPlayListModel.getArtist()}',
                                   maxLines: 1,
                                   style: themeData.primaryTextTheme.subtitle2,
                                   overflow: TextOverflow.ellipsis,
@@ -258,13 +262,13 @@ class Tab1RowItem extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             child: Icon(
                               Icons.play_circle_outline,
-                              color: themeData.primaryTextTheme.headline6.color,
+                              color: themeData.primaryTextTheme.headline6?.color,
                               size: 30,
                             ),
                             onPressed: () async {
                               var _musicInfoModels = await DBProvider.db
                                   .getMusicInfoByPlayListId(
-                                      musicPlayListModel.id);
+                                      musicPlayListModel.getId());
 
                               MusicControlService.play(
                                   context, _musicInfoModels, 0);

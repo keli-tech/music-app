@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 class HttpServerUtils {
-
   static response(HttpRequest httpRequest, int code, String msg, Map data) {
     var resp = "{}";
 
@@ -20,16 +19,14 @@ class HttpServerUtils {
       ..add(utf8.encode(resp))
       ..close();
   }
-
 }
 
 class Responses {
-
   final Map data;
   final int code;
   final String message;
 
-  Responses({this.data, this.code, this.message});
+  Responses({required this.data, required this.code, required this.message});
 
   Map toJson() {
     Map map = new Map();

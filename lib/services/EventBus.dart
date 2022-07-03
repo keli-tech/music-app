@@ -1,13 +1,13 @@
 //EventBus.dart
-import 'package:audioplayers/audioplayers.dart';
 import 'package:event_bus/event_bus.dart';
+import 'package:just_audio/just_audio.dart';
 
 EventBus eventBus = EventBus();
 
-class AudioPlayerEvent {
-  AudioPlayerState audioPlayerState;
+class PlayerStateEvent {
+  PlayerState audioPlayerState;
 
-  AudioPlayerEvent(this.audioPlayerState);
+  PlayerStateEvent(this.audioPlayerState);
 }
 
 enum MusicPlayerEvent {

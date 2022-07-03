@@ -5,6 +5,7 @@ import 'package:hello_world/common/Global.dart';
 import 'package:hello_world/components/rowitem/WebDavFileRowItem.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
+
 // import 'package:hello_world/services/AdmobService.dart3';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
@@ -14,11 +15,11 @@ import 'package:provider/provider.dart';
 
 class NextCloudFileScreen extends StatefulWidget {
   NextCloudFileScreen({
-    Key key,
-    this.cloudServiceModel,
-    this.path,
-    this.filePath,
-    this.title,
+    Key? key,
+    required this.cloudServiceModel,
+    required this.path,
+    required this.filePath,
+    required this.title,
   }) : super(key: key);
 
   static const String className = "NextCloudFileScreen";
@@ -38,8 +39,7 @@ class NextCloudFileScreen extends StatefulWidget {
 class _NextCloudFileScreen extends State<NextCloudFileScreen>
     with SingleTickerProviderStateMixin {
   List<WebDavFile> _files = [];
-  Animation<double> animation;
-  List<String> _downloadedFiles;
+  List<String> _downloadedFiles = [];
 
   bool _isLoading = false;
 
@@ -48,9 +48,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
     super.initState();
     _refreshList(widget.path);
 
-    if (widget.cloudServiceModel != null) {
-      CloudService.cs.initWebDavClient(widget.cloudServiceModel);
-    }
+    CloudService.cs.initWebDavClient(widget.cloudServiceModel);
   }
 
   //销毁
@@ -148,7 +146,7 @@ class _NextCloudFileScreen extends State<NextCloudFileScreen>
                                   //         event, args, 'Banner');
                                   //   },
                                   // ),
-                                )
+                                  )
                               : Container(),
                         ]),
                       ),

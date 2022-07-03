@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/modals/PlayListSelectorContainer.dart';
@@ -11,6 +10,7 @@ import 'package:hello_world/screens/album/ArtistListDetailScreen.dart';
 import 'package:hello_world/screens/album/PlayListDetailScreen.dart';
 import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
@@ -19,23 +19,19 @@ import '../services/EventBus.dart';
 
 class PlayingScreen extends StatefulWidget {
   PlayingScreen({
-    Key key,
-    this.title,
-    this.showMusicScreen,
+    Key? key,
     this.hideAction,
-    this.musicInfoData,
-    this.seekAction,
-    this.audioplayer,
-    this.statusBarHeight,
+    required this.musicInfoData,
+    required this.seekAction,
+    required this.audioplayer,
+    required this.statusBarHeight,
   }) : super(key: key);
 
-  final String title;
-  int showMusicScreen;
   AudioPlayer audioplayer;
   MusicInfoData musicInfoData;
   double statusBarHeight;
 
-  Future<Null> Function() hideAction;
+  Future<Null> Function()? hideAction;
   Function(Duration) seekAction;
 
   @override
@@ -44,35 +40,54 @@ class PlayingScreen extends StatefulWidget {
 
 class _PlayingScreenState extends State<PlayingScreen>
     with SingleTickerProviderStateMixin {
+  // 当前播放进度
   Duration _position = new Duration();
+
+  // 最大进度
   Duration _maxDuration = new Duration(seconds: 1);
+
+  // 当前播放进度 （展示）
   String _currentDurationTime = "";
+
+  // 最大进度（展示）
   String _durationTime = "";
+
+  // 是否同步进度条
   bool _syncSlide = true;
 
-  int playIndex = 0;
-  Animation<double> animation;
-  AnimationController _animationController;
+  // 日志
+  Logger _logger = new Logger("PlayingScreen");
 
-  AudioPlayerState _audioPlayerState = AudioPlayerState.COMPLETED;
+  // 当前播放 index
+  int _playIndex = 0;
 
+  // 动画
+  Animation<double>? _animation;
+
+  // 动画控制器
+  AnimationController? _animationController;
+
+  // 播放状态
+  PlayerState _playerState = new PlayerState(false, ProcessingState.loading);
+
+  // 播放状态事件监听
   var _eventBusOn;
-  Timer periodicTimer;
 
-  var logger = new Logger("PlayingScreen");
+  // 定时器，获取播放进度
+  Timer? _periodicTimer;
 
   @override
   void initState() {
-    logger.info("init state");
+    _logger.info("init state");
 
     setState(() {
-      _audioPlayerState = widget.musicInfoData.audioPlayerState;
+      _playerState = widget.musicInfoData.audioPlayerState;
     });
     _initEvent();
     _initAnimationController();
 
     syncSlide();
-    periodicTimer = Timer.periodic(new Duration(seconds: 1), (timer) async {
+    _periodicTimer = Timer.periodic(new Duration(seconds: 1), (timer) async {
       syncSlide();
     });
 
@@ -83,9 +98,9 @@ class _PlayingScreenState extends State<PlayingScreen>
   @override
   void dispose() {
     this._eventBusOn.cancel();
-    _animationController.dispose();
-    periodicTimer.cancel();
-    logger.info("dispose");
+    this._animationController?.dispose();
+    this._periodicTimer?.cancel();
+    _logger.info("dispose");
 
     // 触发隐藏行为
     // widget.hideAction();
@@ -94,39 +109,44 @@ class _PlayingScreenState extends State<PlayingScreen>
 
   // 初始化旋转动画
   void _initAnimationController() {
-    _animationController = new AnimationController(
+    this._animationController = new AnimationController(
         duration: const Duration(seconds: 30), vsync: this);
     //图片宽高从0变到300
-    animation = new Tween(begin: 0.0, end: 720.0).animate(_animationController);
-    animation.addStatusListener((status) {
+    if (_animationController != null) {
+      this._animation =
+          new Tween(begin: 0.0, end: 720.0).animate(_animationController!);
+    }
+    this._animation?.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         //动画执行结束时, 继续正像执行动画
-        _animationController.reset();
-
-        _animationController.forward();
+        this._animationController?.reset();
+        this._animationController?.forward();
       } else if (status == AnimationStatus.dismissed) {
         //动画恢复到初始状态时执行动画（正向）
-        _animationController.forward();
+        this._animationController?.forward();
       }
     });
 
-    if (widget.musicInfoData.audioPlayerState == AudioPlayerState.PLAYING) {
-      _animationController.forward();
+    if (widget.musicInfoData.audioPlayerState.playing) {
+      this._animationController?.forward();
     } else {
-      _animationController.stop();
+      this._animationController?.stop();
     }
   }
 
   // 初始化监听事件
   void _initEvent() {
-    _eventBusOn = eventBus.on<AudioPlayerEvent>().listen((event) {
-      if (event.audioPlayerState == AudioPlayerState.PLAYING) {
-        _animationController.forward();
+    this._eventBusOn = eventBus.on<PlayerStateEvent>().listen((playState) {
+      this._logger.info("player state:");
+      this._logger.info(playState);
+
+      if (playState.audioPlayerState.playing) {
+        this._animationController?.forward();
       } else {
-        _animationController.stop();
+        this._animationController?.stop();
       }
       setState(() {
-        _audioPlayerState = event.audioPlayerState;
+        _playerState = playState.audioPlayerState;
       });
     });
   }
@@ -192,7 +212,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                             Transform.scale(
                               scale: 1.6,
                               child: RotateTransform(
-                                animation: animation,
+                                animation: _animation!,
                                 //将要执行动画的子view
                                 child: CupertinoButton(
                                   padding: EdgeInsets.zero,
@@ -250,7 +270,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                     child: Icon(
                       Icons.keyboard_arrow_down,
                       size: 30,
-                      color: themeData.primaryTextTheme.headline5.color,
+                      color: themeData.primaryTextTheme.headline5?.color,
                     ),
                   ),
                   title: Center(
@@ -273,7 +293,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                     child: Icon(
                       Icons.more_vert,
                       size: 30,
-                      color: themeData.primaryTextTheme.headline5.color,
+                      color: themeData.primaryTextTheme.headline5?.color,
                     ),
                   ),
                 ),
@@ -293,7 +313,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: new CupertinoSlider(
                           activeColor:
-                              themeData.primaryTextTheme.headline5.color,
+                              themeData.primaryTextTheme.headline5?.color,
                           value: _position.inSeconds.toDouble(),
                           min: 0.0,
                           max: _maxDuration.inSeconds.toDouble(),
@@ -311,13 +331,14 @@ class _PlayingScreenState extends State<PlayingScreen>
                             });
                           },
                           onChangeEnd: (double val) {
-                            logger
-                                .info("change end :" + val.toInt().toString());
+                            _logger.info("slided:" + val.toInt().toString());
                             Duration curPosition =
-                                new Duration(milliseconds: val.toInt());
+                                new Duration(seconds: val.toInt());
 
                             widget.seekAction(curPosition);
-                            widget.audioplayer.resume();
+                            // resume()
+                            widget.audioplayer.seek(curPosition);
+                            // widget.audioplayer.play();
                             setState(() {
 //                      _position = curPosition;
                               _syncSlide = true;
@@ -346,7 +367,7 @@ class _PlayingScreenState extends State<PlayingScreen>
                         padding: EdgeInsets.zero,
                         child: Icon(
                           Icons.repeat,
-                          color: themeData.primaryTextTheme.headline5.color,
+                          color: themeData.primaryTextTheme.headline5?.color,
                         ),
                         onPressed: () {
 //                          widget.hideAction();
@@ -441,11 +462,11 @@ class _PlayingScreenState extends State<PlayingScreen>
             key: Key("play"),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: themeData.primaryTextTheme.headline5.color,
+              color: themeData.primaryTextTheme.headline5?.color,
             ),
             width: 70,
             height: 70,
-            child: (_audioPlayerState == AudioPlayerState.PLAYING)
+            child: (_playerState.playing)
                 ? Icon(
                     Icons.pause,
                     size: 40,
@@ -469,7 +490,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         child: Icon(
           Icons.skip_previous,
           size: 45,
-          color: themeData.primaryTextTheme.headline5.color,
+          color: themeData.primaryTextTheme.headline5?.color,
         ),
         onPressed: () {
           _playPrev(context);
@@ -487,7 +508,7 @@ class _PlayingScreenState extends State<PlayingScreen>
         child: Icon(
           Icons.skip_next,
           size: 45,
-          color: themeData.primaryTextTheme.headline5.color,
+          color: themeData.primaryTextTheme.headline5?.color,
         ),
         onPressed: () {
           _playNext(context);
@@ -498,7 +519,7 @@ class _PlayingScreenState extends State<PlayingScreen>
 
   // 播放和暂停
   _playPauseAction() {
-    if (_audioPlayerState == AudioPlayerState.PLAYING) {
+    if (_playerState.playing) {
       eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.stop));
     } else {
       eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
@@ -519,8 +540,8 @@ class _PlayingScreenState extends State<PlayingScreen>
 
     Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
 
-    _animationController.reset();
-    _animationController.forward();
+    _animationController?.reset();
+    _animationController?.forward();
     syncSlide();
     eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
   }
@@ -539,15 +560,22 @@ class _PlayingScreenState extends State<PlayingScreen>
 
     Provider.of<MusicInfoData>(context, listen: false).setPlayIndex(newIndex);
 
-    _animationController.reset();
-    _animationController.forward();
+    _animationController?.reset();
+    _animationController?.forward();
     syncSlide();
     eventBus.fire(MusicPlayerEventBus(MusicPlayerEvent.play));
   }
 
+  // 同步进度条
   void syncSlide() async {
     if (_syncSlide) {
-      int d = await widget.audioplayer.getDuration();
+      // 总长度
+      var duration = widget.audioplayer.duration;
+      if (duration == null) {
+        return;
+      }
+      var d = duration.inMilliseconds;
+      // if (d != null) {
       var second = (d / 1000).floor().toInt() % 60;
       String secondStr =
           second < 10 ? "0" + second.toString() : second.toString();
@@ -555,7 +583,9 @@ class _PlayingScreenState extends State<PlayingScreen>
       String minuteStr =
           minute < 10 ? "0" + minute.toString() : minute.toString();
 
-      int d2 = await widget.audioplayer.getCurrentPosition();
+      // 当前播放位置
+      var position = widget.audioplayer.position;
+      var d2 = position.inMilliseconds;
       var second2 = (d2 / 1000).floor().toInt() % 60;
       String secondStr2 =
           second2 < 10 ? "0" + second2.toString() : second2.toString();
@@ -563,13 +593,16 @@ class _PlayingScreenState extends State<PlayingScreen>
       String minuteStr2 =
           minute2 < 10 ? "0" + minute2.toString() : minute2.toString();
 
+      // _logger.info(duration.toString() + "\t" + position.toString());
+
       if (d2 >= 0) {
         setState(() {
-          _maxDuration = new Duration(seconds: d);
+          _maxDuration = duration;
           _durationTime = '$minuteStr:$secondStr';
-          _position = new Duration(seconds: d2);
+          _position = position;
           _currentDurationTime = '$minuteStr2:$secondStr2';
         });
+        // }
       }
     }
   }
@@ -592,7 +625,7 @@ class _PlayingScreenState extends State<PlayingScreen>
 
           MusicPlayListModel musicPlayListModel =
               await DBProvider.db.getMusicPlayListByArtistName(artist, album);
-          if (musicPlayListModel.id > 0) {
+          if (musicPlayListModel.getId() > 0) {
             Navigator.of(context, rootNavigator: true)
                 .push(MaterialPageRoute<void>(
               builder: (BuildContext context) => PlayListDetailScreen(

@@ -6,8 +6,8 @@ class ModalFit extends StatelessWidget {
   final ScrollController scrollController;
 
   const ModalFit({
-    Key key,
-    this.scrollController,
+    Key? key,
+    required this.scrollController,
   }) : super(key: key);
 
   @override

@@ -21,31 +21,31 @@ import '../../services/Database.dart';
 // 播放列表
 // 专辑
 class PlayListDetailScreen extends StatefulWidget {
-  PlayListDetailScreen({Key key, this.musicPlayListModel, this.statusBarHeight})
+  PlayListDetailScreen(
+      {Key? key, required this.musicPlayListModel, this.statusBarHeight})
       : super(key: key);
   static const String routeName = '/playlist/detail';
 
   @override
   _PlayListDetailScreen createState() => _PlayListDetailScreen();
 
-  double statusBarHeight;
-
   MusicPlayListModel musicPlayListModel;
+  double? statusBarHeight = 0;
 }
 
 class _PlayListDetailScreen extends State<PlayListDetailScreen>
     with SingleTickerProviderStateMixin {
   List<MusicInfoModel> _musicInfoModels = [];
-  File _image;
+  File? _image;
   Logger _logger = new Logger("PlayListDetailScreen");
-  TextEditingController _chatTextController;
+  TextEditingController? _chatTextController;
 
   @override
   void initState() {
     super.initState();
 
     _chatTextController = TextEditingController(
-      text: widget.musicPlayListModel.name,
+      text: widget.musicPlayListModel.getName(),
     );
 
     _refreshList();
@@ -64,21 +64,21 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
   }
 
   _refreshList() {
-    int plid = widget.musicPlayListModel.id;
+    int plid = widget.musicPlayListModel.getId();
     DBProvider.db.getMusicInfoByPlayListId(plid).then((onValue) {
       File image;
-      if (widget.musicPlayListModel.type == MusicPlayListModel.TYPE_PLAY_LIST) {
+      if (widget.musicPlayListModel.getType() ==
+          MusicPlayListModel.TYPE_PLAY_LIST) {
         image = FileManager.musicAlbumPictureFile(
-            widget.musicPlayListModel.artist,
-            widget.musicPlayListModel.imgpath);
-      } else if (widget.musicPlayListModel.type ==
+            widget.musicPlayListModel.getArtist(),
+            widget.musicPlayListModel.getImgPath());
+      } else if (widget.musicPlayListModel.getType() ==
           MusicPlayListModel.TYPE_FAV) {
         image = FileManager.musicAlbumPictureFile(
-            widget.musicPlayListModel.artist,
-            widget.musicPlayListModel.imgpath);
+            widget.musicPlayListModel.getArtist(),
+            widget.musicPlayListModel.getImgPath());
       } else {
-        image = FileManager.musicAlbumPictureFile(
-            widget.musicPlayListModel.artist, widget.musicPlayListModel.name);
+        image = FileManager.localFile(widget.musicPlayListModel.getImgPath());
       }
 
       setState(() {
@@ -102,7 +102,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
         border: null,
         backgroundColor: themeData.backgroundColor,
         middle: Text(
-          widget.musicPlayListModel.name,
+          widget.musicPlayListModel.getName(),
           style: themeData.primaryTextTheme.headline6,
         ),
         trailing: CupertinoButton(
@@ -124,7 +124,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
       child: CustomScrollView(
         semanticChildCount: _musicInfoModels.length,
         slivers: <Widget>[
-          _image == null || !_image.existsSync()
+          _image == null || !(_image?.existsSync() ?? false)
               ? SliverPadding(
                   padding:
                       EdgeInsets.only(left: 0, top: 10, right: 0, bottom: 1),
@@ -137,14 +137,14 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                   backgroundColor: themeData.backgroundColor,
                   expandedHeight: width * 0.8,
                   flexibleSpace: Hero(
-                    tag: widget.musicPlayListModel.id,
+                    tag: widget.musicPlayListModel.getId(),
                     child: Container(
 //                padding: EdgeInsets.only(left: 70, top: 0, right: 0, bottom: 70),
                       decoration: new BoxDecoration(
                         color: Colors.white.withOpacity(0.0),
                         image: new DecorationImage(
                           fit: BoxFit.cover,
-                          image: FileImage(_image),
+                          image: FileImage(_image!),
                         ),
                       ),
                     ),
@@ -152,7 +152,8 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                 ),
           Consumer<MusicInfoData>(
             builder: (context, musicInfoData, _) => SliverPadding(
-              padding: EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
+              padding:
+                  EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 70),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
@@ -160,7 +161,8 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                       statusBarHeight: _statusBarHeight,
                       lastItem: index == _musicInfoModels.length - 1,
                       index: index,
-                      mplID: widget.musicPlayListModel.id,
+                      mplID: widget.musicPlayListModel.getId(),
+                      playIndex: musicInfoData.playIndex,
                       musicInfoModels: _musicInfoModels,
                       playId: musicInfoData.musicInfoModel.id,
                       audioPlayerState: musicInfoData.audioPlayerState,
@@ -197,16 +199,16 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
             builder: (BuildContext context) {
               return FileSelectorContainer(
                 title: "添加歌曲",
-                playListId: widget.musicPlayListModel.id,
-                statusBarHeight: widget.statusBarHeight,
+                playListId: widget.musicPlayListModel.getId(),
+                statusBarHeight: widget.statusBarHeight ?? 0,
               );
             });
       },
     ));
 
-    if (widget.musicPlayListModel.id !=
+    if (widget.musicPlayListModel.getId() !=
             MusicPlayListModel.FAVOURITE_PLAY_LIST_ID &&
-        widget.musicPlayListModel.type != MusicPlayListModel.TYPE_ALBUM) {
+        widget.musicPlayListModel.getType() != MusicPlayListModel.TYPE_ALBUM) {
       actionSheets.add(CupertinoActionSheetAction(
         child: Text(
           '重新命名',
@@ -217,7 +219,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
         },
       ));
     }
-    if (widget.musicPlayListModel.type != MusicPlayListModel.TYPE_ALBUM) {
+    if (widget.musicPlayListModel.getType() != MusicPlayListModel.TYPE_ALBUM) {
       actionSheets.add(
         CupertinoActionSheetAction(
           child: Text(
@@ -226,23 +228,23 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
           onPressed: () async {
             Navigator.pop(context1);
             // todo
-            File imageFile;
+            File? imageFile;
             // await ImagePicker.pickImage(source: ImageSource.gallery);
 
             if (imageFile != null) {
               var updateValue = {
-                "imgpath": widget.musicPlayListModel.name +
+                "imgpath": widget.musicPlayListModel.getName() +
                     (new DateTime.now().millisecondsSinceEpoch).toString(),
               };
               DBProvider.db
                   .updateMusicPlayList(
-                      widget.musicPlayListModel.id, updateValue)
+                      widget.musicPlayListModel.getId(), updateValue)
                   .then((onValue) async {
                 if (onValue <= 0) {
                   _logger.warning("error $onValue");
                 } else {
                   var oldFile = FileManager.musicAlbumPictureFile(
-                      "-", widget.musicPlayListModel.imgpath);
+                      "-", widget.musicPlayListModel.getImgPath());
                   if (oldFile.existsSync()) {
                     oldFile.deleteSync();
                   }
@@ -254,14 +256,14 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                   }
 
                   ImageImage.Image image =
-                      ImageImage.decodeImage(imageFile.readAsBytesSync());
+                      ImageImage.decodeImage(imageFile.readAsBytesSync())!;
                   ImageImage.Image thumbnail =
                       ImageImage.copyResize(image, width: 800);
 
-                  FileManager.musicAlbumPicturePath("-", updateValue["imgpath"])
+                  FileManager.musicAlbumPicturePath("-")
                       .create(recursive: true);
                   var imageFileReal = FileManager.musicAlbumPictureFile(
-                      "-", updateValue["imgpath"]);
+                      "-", updateValue["imgpath"] ?? "");
 
                   imageFileReal.writeAsBytes(ImageImage.encodePng(thumbnail));
                 }
@@ -272,12 +274,13 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
       );
     }
 
-    if (widget.musicPlayListModel.id !=
+    if (widget.musicPlayListModel.getId() !=
         MusicPlayListModel.FAVOURITE_PLAY_LIST_ID) {
       actionSheets.add(CupertinoActionSheetAction(
         child: Text(
           '删除' +
-              (widget.musicPlayListModel.type == MusicPlayListModel.TYPE_ALBUM
+              (widget.musicPlayListModel.getType() ==
+                      MusicPlayListModel.TYPE_ALBUM
                   ? "专辑"
                   : "歌单"),
         ),
@@ -289,7 +292,8 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
             context: context1,
             builder: (BuildContext context1) => CupertinoAlertDialog(
               title: const Text('删除确认'),
-              content: Text('是否删除\"' + widget.musicPlayListModel.name + '\"?'),
+              content:
+                  Text('是否删除\"' + widget.musicPlayListModel.getName() + '\"?'),
               actions: <Widget>[
                 CupertinoDialogAction(
                   child: Text(
@@ -307,7 +311,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                     Navigator.pop(context1);
 
                     DBProvider.db
-                        .deleteMusicPlayList(widget.musicPlayListModel.id)
+                        .deleteMusicPlayList(widget.musicPlayListModel.getId())
                         .then((onValue) {
                       ToastUtils.show("已删除歌单");
                       Navigator.pop(context);
@@ -316,7 +320,7 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                 ),
               ],
             ),
-          ).then((String value) {
+          ).then((String? value) {
             if (value != null) {
 //                setState(() { lastSelectedValue = value; });
             }
@@ -374,15 +378,15 @@ class _PlayListDetailScreen extends State<PlayListDetailScreen>
                     ),
                     isDefaultAction: true,
                     onPressed: () async {
-                      if (_chatTextController.text.trim().length == 0) {
+                      if (_chatTextController?.text.trim().length == 0) {
                         return;
                       }
 
                       var updateValue = {
-                        "name": _chatTextController.text.trim(),
+                        "name": _chatTextController?.text.trim(),
                       };
                       int newPlid = await DBProvider.db.updateMusicPlayList(
-                          widget.musicPlayListModel.id, updateValue);
+                          widget.musicPlayListModel.getId(), updateValue);
                       if (newPlid > 0) {
                         ToastUtils.show("已完成");
                         Navigator.pop(context1, 'Cancel');

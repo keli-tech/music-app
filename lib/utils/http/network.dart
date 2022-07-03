@@ -56,8 +56,8 @@ class Network {
     String method,
     String url,
     List<int> expectedCodes, {
-    Uint8List data,
-    Map<String, String> headers,
+    Uint8List? data,
+    Map<String, String>? headers,
   }) async {
     final response = await client.send(http.Request(method, Uri.parse(url))
       ..followRedirects = false
@@ -79,8 +79,8 @@ class Network {
     String method,
     String url,
     List<int> expectedCodes, {
-    Uint8List data,
-    Map<String, String> headers,
+    Uint8List? data,
+    Map<String, String>? headers,
   }) async {
     final response = await client.send(http.Request(method, Uri.parse(url))
       ..followRedirects = false

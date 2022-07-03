@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 // Tile “瓦片”
 class Tile extends StatelessWidget {
   const Tile({
-    this.child,
-    this.selected,
-    this.radiusnum,
+    required this.child,
+    required this.selected,
+    required this.radiusnum,
     this.blur,
   });
 
   final Widget child;
   final bool selected;
   final double radiusnum;
-  final double blur;
+  final double? blur;
 
   @override
   Widget build(BuildContext context) {

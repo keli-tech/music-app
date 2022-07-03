@@ -9,24 +9,24 @@ class PlayingAnimation extends StatelessWidget {
   final double windowWidth;
   final double windowHeight;
 
-  Animation<EdgeInsets> padding1;
-  Animation<EdgeInsets> padding2;
-  Animation<EdgeInsets> padding3;
+  Animation<EdgeInsets> padding1 = 0 as Animation<EdgeInsets>;
+  Animation<EdgeInsets> padding2 = 0 as Animation<EdgeInsets>;
+  Animation<EdgeInsets> padding3 = 0 as Animation<EdgeInsets>;
 
-  Animation<double> scala1;
-  Animation<double> scala2;
-  Animation<double> scala3;
+  Animation<double> scala1 = 0 as Animation<double>;
+  Animation<double> scala2 = 0 as Animation<double>;
+  Animation<double> scala3 = 0 as Animation<double>;
 
-  Animation<double> angle1;
-  Animation<double> angle2;
-  Animation<double> angle3;
+  Animation<double> angle1 = 0 as Animation<double>;
+  Animation<double> angle2 = 0 as Animation<double>;
+  Animation<double> angle3 = 0 as Animation<double>;
 
   PlayingAnimation({
-    Key key,
-    this.controller,
-    this.musicInfoModel,
-    this.windowWidth,
-    this.windowHeight,
+    Key? key,
+    required this.controller,
+    required this.musicInfoModel,
+    required this.windowWidth,
+    required this.windowHeight,
   }) : super(key: key) {
     angle1 = Tween<double>(
       begin: 0.0,
@@ -149,7 +149,7 @@ class PlayingAnimation extends StatelessWidget {
     );
   }
 
-  Widget _buildAnimation(BuildContext context, Widget child) {
+  Widget _buildAnimation(BuildContext context, Widget? child) {
     return Container(
       alignment: Alignment.bottomCenter,
       child: Container(

@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/Tile.dart';
@@ -12,32 +11,35 @@ import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class MusicRowItem extends StatelessWidget {
   const MusicRowItem({
-    this.mplID,
-    this.index,
-    this.lastItem,
-    this.musicInfoModels,
-    this.playId,
-    this.audioPlayerState,
-    this.musicInfoFavIDSet,
+    required this.mplID,
+    required this.index,
+    required this.lastItem,
+    required this.musicInfoModels,
+    required this.playId,
+    required this.playIndex,
+    required this.audioPlayerState,
+    required this.musicInfoFavIDSet,
     this.refreshFunction,
-    this.statusBarHeight,
+    required this.statusBarHeight,
     this.musicPlayListModel,
   });
 
-  final MusicPlayListModel musicPlayListModel;
+  final MusicPlayListModel? musicPlayListModel;
   final bool lastItem;
   final int mplID;
   final int index;
   final double statusBarHeight;
   final List<MusicInfoModel> musicInfoModels;
   final int playId;
-  final AudioPlayerState audioPlayerState;
+  final int playIndex;
+  final PlayerState audioPlayerState;
   final Set<int> musicInfoFavIDSet;
-  final Function() refreshFunction;
+  final Function()? refreshFunction;
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +52,7 @@ class MusicRowItem extends StatelessWidget {
         MusicControlService.play(context, musicInfoModels, index);
       },
       child: Tile(
-        selected: playId == musicInfoModels[index].id &&
-            audioPlayerState == AudioPlayerState.PLAYING,
+        selected: playId == _musicInfoModel.id && audioPlayerState.playing,
         radiusnum: 15.0,
         child: SafeArea(
           top: false,
@@ -78,24 +79,24 @@ class MusicRowItem extends StatelessWidget {
                           image: FileManager.musicAlbumPictureImage(
                               _musicInfoModel.artist, _musicInfoModel.album)),
                     ),
-                    child: playId == musicInfoModels[index].id &&
-                            audioPlayerState == AudioPlayerState.PLAYING
-                        ? Container(
-                            alignment: Alignment.bottomCenter,
-                            child: Container(
-                              key: Key("start"),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4.0),
-                                color: Colors.black45,
-                              ),
-                              child: new Image.asset(
-                                "assets/images/playing.gif",
-                                width: 50,
-                              ),
-                            ),
-                          )
-                        : Container(),
+                    child:
+                        playId == _musicInfoModel.id && audioPlayerState.playing
+                            ? Container(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  key: Key("start"),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                    color: Colors.black45,
+                                  ),
+                                  child: new Image.asset(
+                                    "assets/images/playing.gif",
+                                    width: 50,
+                                  ),
+                                ),
+                              )
+                            : Container(),
                   ),
                 ),
                 Expanded(
@@ -121,11 +122,10 @@ class MusicRowItem extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 _musicInfoModel.type != MusicInfoModel.TYPE_FOLD
-                                    ? '${_musicInfoModel.title} - ${_musicInfoModel.artist}'
+                                    ? '${_musicInfoModel.title} - $playId- ${_musicInfoModel.artist}'
                                     : "",
                                 style: playId == musicInfoModels[index].id &&
-                                        audioPlayerState ==
-                                            AudioPlayerState.PLAYING
+                                        audioPlayerState.playing
                                     ? themeData.textTheme.headline6
                                     : themeData.primaryTextTheme.headline6,
                                 maxLines: 1,
@@ -140,7 +140,7 @@ class MusicRowItem extends StatelessWidget {
                               ? '${_musicInfoModel.album}'
                               : "",
                           style: playId == musicInfoModels[index].id &&
-                                  audioPlayerState == AudioPlayerState.PLAYING
+                                  audioPlayerState.playing
                               ? themeData.textTheme.subtitle2
                               : themeData.primaryTextTheme.subtitle2,
                           maxLines: 1,
@@ -155,9 +155,9 @@ class MusicRowItem extends StatelessWidget {
                   child: Icon(
                     Icons.more_horiz,
                     color: playId == musicInfoModels[index].id &&
-                            audioPlayerState == AudioPlayerState.PLAYING
-                        ? themeData.textTheme.headline1.color
-                        : themeData.textTheme.headline1.color,
+                            audioPlayerState.playing
+                        ? themeData.textTheme.headline1?.color
+                        : themeData.textTheme.headline1?.color,
                   ),
                   onPressed: () {
                     // showCupertinoModalBottomSheet(
@@ -220,7 +220,7 @@ class MusicRowItem extends StatelessWidget {
 
           MusicPlayListModel musicPlayListModel =
               await DBProvider.db.getMusicPlayListByArtistName(artist, album);
-          if (musicPlayListModel.id > 0) {
+          if (musicPlayListModel.getId() > 0) {
             Navigator.of(context, rootNavigator: true)
                 .push(MaterialPageRoute<void>(
               builder: (BuildContext context) => PlayListDetailScreen(
@@ -290,7 +290,9 @@ class MusicRowItem extends StatelessWidget {
               .deleteMusicFromPlayList(mplID, musicInfoModels[index].id)
               .then((onValue) {
             if (onValue > 0) {
-              refreshFunction();
+              if (refreshFunction != null) {
+                refreshFunction!();
+              }
               ToastUtils.show("已从歌单删除.");
             }
           });
@@ -339,7 +341,7 @@ class MusicRowItem extends StatelessWidget {
                 ),
               ],
             ),
-          ).then((String value) {
+          ).then((String? value) {
             if (value != null) {
 //                setState(() { lastSelectedValue = value; });
             }

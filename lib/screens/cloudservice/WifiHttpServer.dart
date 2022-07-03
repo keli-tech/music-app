@@ -30,7 +30,7 @@ class WifiHttpServer extends StatefulWidget {
 
 class _WifiHttpServerState extends State<WifiHttpServer> {
   String serverUrl = "";
-  HttpServer server;
+  HttpServer? server;
   bool serverStarted = false;
   Logger _logger = new Logger(WifiHttpServer.className);
   final info = NetworkInfo();
@@ -42,16 +42,14 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
 
   @override
   void dispose() {
-    if (server != null) {
-      server.close(force: true);
-    }
+    server?.close(force: true);
     super.dispose();
   }
 
   _startServer() async {
-    var hostIp = '127.0.0.1';
-    hostIp = await info.getWifiIP();
-    
+    String hostIp = '';
+    hostIp = await info.getWifiIP() ?? '127.0.0.1';
+
     setState(() {
       serverStarted = true;
       serverUrl = 'http://$hostIp:8080';
@@ -65,7 +63,7 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
 
     // runZoned 捕获异步异常
     var runZoned2 = runZoned(() async {
-      await for (var request in server) {
+      await for (var request in server!) {
         switch (request.uri.toString().split("?").first) {
           case '/upload':
             _uploadController(request);
@@ -82,6 +80,9 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
           case '/':
             _homeController(request);
             break;
+          case '':
+            _homeController(request);
+            break;
           default:
             _publicController(request);
             break;
@@ -94,7 +95,10 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
   }
 
   _stopServer() async {
-    server.close(force: true);
+    if (server != null) {
+      server?.close(force: true);
+    }
+
     setState(() {
       serverStarted = false;
     });
@@ -103,7 +107,7 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
   // 列表页
   _musicListController(HttpRequest request) async {
     HttpBodyHandler.processRequest(request).then((body) async {
-      String musicPath = request.uri.queryParameters["path"];
+      String musicPath = request.uri.queryParameters["path"]!;
 
       DBProvider.db.getMusicInfoByPath(musicPath).then((onValue) {
         Map map = new Map();
@@ -118,7 +122,7 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
   // 删除文件和文件夹
   _deleteMusicController(HttpRequest request) async {
     HttpBodyHandler.processRequest(request).then((body) async {
-      int musicID = int.parse(request.uri.queryParameters["id"]);
+      int musicID = int.parse(request.uri.queryParameters["id"]!);
       var musicInfoJson = "";
 
       DBProvider.db.getMusic(musicID).then((musicInfoModel) async {
@@ -153,7 +157,7 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
       var musicInfoJson = "";
 
       try {
-        MusicInfoModel musicInfoModel =
+        MusicInfoModel? musicInfoModel =
             await DBProvider.db.getFoldByPathName(foldPath, foldName);
         if (musicInfoModel != null && musicInfoModel.id > 0) {
           Responses response =
@@ -208,79 +212,14 @@ class _WifiHttpServerState extends State<WifiHttpServer> {
       var file = FileManager.localFile(musicPath + fileUploaded.filename);
       // 保存文件
       file
-          .writeAsBytes(fileUploaded.content, mode: FileMode.WRITE)
+          .writeAsBytes(fileUploaded.content, mode: FileMode.write)
           .then((_) async {
-        int fileLength = await file.length();
-        String fileSize = Uri.decodeComponent(
-            (fileLength / 1024 / 1024).toStringAsFixed(2).toString() + "MB");
+        // 保存文件
 
+        FileManager.saveAudioFileInfo(file, musicPath, fileUploaded.filename);
+
+        // 上次完成则立即关闭 http 连接
         request.response.close();
-
-        // 保存到数据库
-        // todo bugfix, 部分无tab mp3 未读取到 tag，会卡住, 比如flac
-        TagProcessor tp = new TagProcessor();
-
-        var l = await tp.getTagsFromByteArray(file.readAsBytes());
-
-        AttachedPicture picture;
-        String title = fileUploaded.filename;
-        String artist = "未知";
-        String album = "未知";
-
-        l.forEach((f) {
-          if (f.tags != null && f.tags.containsKey("picture")) {
-            _logger.info(f.tags["picture"]);
-            //
-            // 保存音乐文件表
-            // picture = f.tags["picture"].cast(AttachedPicture);
-            picture = (f.tags['picture'] as Map).values.first;
-
-            _logger.info(picture);
-
-            title = f.tags["title"];
-            artist = f.tags["artist"];
-            album = f.tags["album"];
-          }
-        });
-
-        MusicInfoModel newMusicInfo = MusicInfoModel(
-          name: fileUploaded.filename,
-          path: musicPath,
-          fullpath: musicPath + fileUploaded.filename,
-          type: fileUploaded.filename.split(".").last.toLowerCase(),
-          syncstatus: true,
-          title: title,
-          artist: artist,
-          filesize: fileSize,
-          album: album,
-          sort: 100,
-          updatetime: new DateTime.now().millisecondsSinceEpoch,
-        );
-        int newMid = await DBProvider.db.newMusicInfo(newMusicInfo);
-
-        // 添加到专辑表
-        MusicPlayListModel newMusicPlayListModel = MusicPlayListModel(
-          name: album,
-          type: MusicPlayListModel.TYPE_ALBUM,
-          artist: artist,
-          sort: 100,
-        );
-        int newPlid =
-            await DBProvider.db.newMusicPlayList(newMusicPlayListModel);
-        if (newPlid > 0 && newMid > 0) {
-          // 保存到列表
-          await DBProvider.db.addMusicToPlayList(newPlid, newMid);
-        }
-
-        // 保存音乐封面
-        if (picture != null && picture.imageData != null) {
-          var dir = await FileManager.musicAlbumPicturePath(artist, album)
-              .create(recursive: true);
-          var imageFile = FileManager.musicAlbumPictureFile(artist, album);
-          imageFile
-              .writeAsBytes(picture.imageData, mode: FileMode.WRITE)
-              .then((_) async {});
-        }
       });
     });
   }

@@ -16,13 +16,13 @@ class WebDavFile {
   final String path;
 
   // ignore: public_member_api_docs
-  final String mimeType;
+  final String? mimeType;
 
   // ignore: public_member_api_docs
   final int size;
 
   // ignore: public_member_api_docs
-  final DateTime lastModified;
+  final DateTime? lastModified;
 
   // ignore: public_member_api_docs
   final List<int> shareTypes;
@@ -51,7 +51,7 @@ List<WebDavFile> treeFromWebDavXml(String xmlStr) {
   final tree = [];
 
   // parse the xml using the xml.parse method
-  final xmlDocument = xml.parse(xmlStr);
+  final xmlDocument = xml.XmlDocument.parse(xmlStr);
 
   // Iterate over the response to find all folders / files and parse the information
   for (final response in xmlDocument.findAllElements('d:response')) {

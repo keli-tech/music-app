@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_world/components/Tile.dart';
@@ -9,18 +8,19 @@ import 'package:hello_world/services/Database.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/services/MusicControlService.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
+import 'package:just_audio/just_audio.dart';
 
 // 文件中的列
 class FileRowItem extends StatelessWidget {
   const FileRowItem({
-    this.lastItem,
-    this.statusBarHeight,
-    this.index,
-    this.mplID,
-    this.musicInfoModels,
-    this.musicInfoFavIDSet,
-    this.audioPlayerState,
-    this.playId,
+    required this.lastItem,
+    required this.statusBarHeight,
+    required this.index,
+    required this.mplID,
+    required this.musicInfoModels,
+    required this.musicInfoFavIDSet,
+    required this.audioPlayerState,
+    required this.playId,
   });
 
   final bool lastItem;
@@ -29,7 +29,7 @@ class FileRowItem extends StatelessWidget {
   final int index;
   final double statusBarHeight;
   final List<MusicInfoModel> musicInfoModels;
-  final AudioPlayerState audioPlayerState;
+  final PlayerState audioPlayerState;
   final Set<int> musicInfoFavIDSet;
 
   final int playId;
@@ -71,15 +71,16 @@ class FileRowItem extends StatelessWidget {
         Navigator.of(context).push(CupertinoPageRoute<void>(
           title: musicInfoModels[index].name,
           builder: (BuildContext context) => FileList2Screen(
-            musicInfoModel: musicInfoModels[index],
+            fullpath: musicInfoModels[index].fullpath,
+            name: musicInfoModels[index].name,
             // colorName: colorName,
             // index: index,
           ),
         ));
       },
       child: Tile(
-        selected: playId == musicInfoModels[index].id &&
-            audioPlayerState == AudioPlayerState.PLAYING,
+        selected:
+            playId == musicInfoModels[index].id && audioPlayerState.playing,
         radiusnum: 15.0,
         child: SafeArea(
           top: false,
@@ -157,8 +158,8 @@ class FileRowItem extends StatelessWidget {
         },
         child: Tile(
           radiusnum: 15.0,
-          selected: playId == musicInfoModels[index].id &&
-              audioPlayerState == AudioPlayerState.PLAYING,
+          selected:
+              playId == musicInfoModels[index].id && audioPlayerState.playing,
           child: SafeArea(
             top: false,
             bottom: false,
@@ -187,7 +188,7 @@ class FileRowItem extends StatelessWidget {
                           ),
                         ),
                         child: playId == musicInfoModels[index].id &&
-                                audioPlayerState == AudioPlayerState.PLAYING
+                                audioPlayerState.playing
                             ? Container(
                                 alignment: Alignment.bottomCenter,
                                 child: Container(
@@ -231,8 +232,7 @@ class FileRowItem extends StatelessWidget {
                                   musicInfoModels[index].name,
                                   maxLines: 1,
                                   style: playId == musicInfoModels[index].id &&
-                                          audioPlayerState ==
-                                              AudioPlayerState.PLAYING
+                                          audioPlayerState.playing
                                       ? themeData.textTheme.subtitle2
                                       : themeData.primaryTextTheme.headline6,
                                   overflow: TextOverflow.ellipsis,
@@ -242,9 +242,9 @@ class FileRowItem extends StatelessWidget {
                           ),
                           const Padding(padding: EdgeInsets.only(top: 8.0)),
                           Text(
-                            musicInfoModels[index].filesize ?? "",
+                            musicInfoModels[index].filesize,
                             style: playId == musicInfoModels[index].id &&
-                                    audioPlayerState == AudioPlayerState.PLAYING
+                                    audioPlayerState.playing
                                 ? themeData.textTheme.subtitle2
                                 : themeData.primaryTextTheme.subtitle2,
                           ),
@@ -258,7 +258,7 @@ class FileRowItem extends StatelessWidget {
                       Icons.more_horiz,
                       semanticLabel: 'Add',
                       color: playId == musicInfoModels[index].id &&
-                              audioPlayerState == AudioPlayerState.PLAYING
+                              audioPlayerState.playing
                           ? themeData.primaryColorLight
                           : themeData.primaryColorDark,
                     ),
@@ -303,6 +303,7 @@ class FileRowItem extends StatelessWidget {
                 title: "收藏到歌单",
                 mid: musicInfoModels[index].id,
                 statusBarHeight: statusBarHeight,
+                musicInfoModel: musicInfoModels[index],
               );
             });
 
@@ -358,10 +359,10 @@ class FileRowItem extends StatelessWidget {
                 ),
               ],
             ),
-          ).then((String value) {
-            if (value != null) {
-//                setState(() { lastSelectedValue = value; });
-            }
+          ).then((String? value) {
+            // setState(() {
+            //   lastSelectedValue = value;
+            // });
           });
         }));
 

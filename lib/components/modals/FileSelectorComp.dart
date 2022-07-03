@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hello_world/services/FileManager.dart';
 import 'package:hello_world/utils/ToastUtils.dart';
 
@@ -9,12 +8,12 @@ import '../../services/Database.dart';
 
 class FileSelectorComp extends StatefulWidget {
   FileSelectorComp(
-      {Key key,
-      this.title,
-      this.level,
-      this.playListId,
-      this.musicInfoModel,
-      this.containerContext})
+      {Key? key,
+      required this.title,
+      required this.level,
+      required this.playListId,
+      required this.musicInfoModel,
+      required this.containerContext})
       : super(key: key);
 
   MusicInfoModel musicInfoModel;
@@ -163,6 +162,8 @@ class _FileSelectorComp extends State<FileSelectorComp>
             level: widget.level + 1,
             title: _listItem.musicInfoModel.name,
             musicInfoModel: _listItem.musicInfoModel,
+            containerContext: context,
+            playListId: 0,
           ),
         ));
       },
@@ -203,9 +204,9 @@ class _FileSelectorComp extends State<FileSelectorComp>
       key: Key(_listItem.musicInfoModel.id.toString()),
       isThreeLine: false,
       activeColor: themeData.primaryColor,
-      value: _listItem.checkState ?? false,
-      onChanged: (bool newChecked) {
-        if (newChecked) {
+      value: _listItem.checkState,
+      onChanged: (bool? newChecked) {
+        if (newChecked != null && newChecked) {
           DBProvider.db
               .addMusicToPlayList(
                   widget.playListId, _listItem.musicInfoModel.id)
@@ -224,7 +225,7 @@ class _FileSelectorComp extends State<FileSelectorComp>
         }
 
         setState(() {
-          _listItem.checkState = newChecked;
+          _listItem.checkState = newChecked ?? false;
         });
       },
       title: Row(

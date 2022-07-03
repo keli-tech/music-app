@@ -3,22 +3,36 @@ import 'dart:convert';
 import 'package:hello_world/models/MusicInfoModel.dart';
 
 class Profile {
-  int id = 0;
-  MusicInfoModel musicInfo;
-  List<MusicInfoModel> musicInfoList = [];
-  List<MusicInfoModel> musicInfoFavList = [];
-  int playIndex = 0;
+  int? _id = 0;
 
-  String documentDirectory;
+  int get id => _id ?? 0;
+
+  set id(int value) {
+    _id = value;
+  }
+
+  MusicInfoModel? _musicInfo;
+  List<MusicInfoModel>? _musicInfoList = [];
+  List<MusicInfoModel>? _musicInfoFavList = [];
+  int? _playIndex = 0;
+  int? _playId = 0;
+  String? _documentDirectory;
 
   Profile({
-    this.id,
-    this.musicInfo,
-    this.musicInfoList,
-    this.musicInfoFavList,
-    this.playIndex,
-    this.documentDirectory,
-  });
+    id: 0,
+    musicInfo: 0,
+    musicInfoList: 0,
+    musicInfoFavList: 0,
+    playIndex: 0,
+    documentDirectory: "",
+  }) {
+    this._id = id;
+    this._musicInfo = musicInfo;
+    this._musicInfoList = musicInfoList as List<MusicInfoModel>;
+    this._musicInfoFavList = musicInfoFavList as List<MusicInfoModel>;
+    this._playIndex = playIndex;
+    this._documentDirectory = documentDirectory;
+  }
 
   factory Profile.fromMap(Map<String, dynamic> json) {
     var a = List.castFrom(json["musicInfoList"]);
@@ -53,12 +67,56 @@ class Profile {
       return Profile.fromMap(jsonData);
     } catch (error) {
       print(error);
-      return null;
+      List<MusicInfoModel> a = [];
+      return new Profile(
+        id: 0,
+        musicInfo: new MusicInfoModel(),
+        musicInfoList: a,
+        musicInfoFavList: a,
+        playIndex: 0,
+        documentDirectory: "",
+      );
     }
   }
 
   String toJson() {
     final dyn = this.toMap();
     return json.encode(dyn);
+  }
+
+  MusicInfoModel get musicInfo => _musicInfo ?? new MusicInfoModel();
+
+  List<MusicInfoModel> get musicInfoList => _musicInfoList ?? [];
+
+  List<MusicInfoModel> get musicInfoFavList => _musicInfoFavList ?? [];
+
+  int get playIndex => _playIndex ?? 0;
+
+  int get playId => _playId ?? 0;
+
+  String get documentDirectory => _documentDirectory ?? "/";
+
+  set musicInfo(MusicInfoModel value) {
+    _musicInfo = value;
+  }
+
+  set musicInfoList(List<MusicInfoModel> value) {
+    _musicInfoList = value;
+  }
+
+  set musicInfoFavList(List<MusicInfoModel> value) {
+    _musicInfoFavList = value;
+  }
+
+  set playIndex(int value) {
+    _playIndex = value;
+  }
+
+  set playId(int value) {
+    _playId = value;
+  }
+
+  set documentDirectory(String value) {
+    _documentDirectory = value;
   }
 }

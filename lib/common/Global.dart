@@ -16,8 +16,15 @@ const _themes = <MaterialColor>[
 ];
 
 class Global {
-  static SharedPreferences _prefs;
-  static Profile profile = Profile();
+  static Profile profile = new Profile(
+    id: 0,
+    musicInfo: new MusicInfoModel(),
+    musicInfoList: [],
+    musicInfoFavList: [],
+    playIndex: 0,
+    documentDirectory: "",
+  );
+
   // 广告开关
   static bool showAd = false;
 
@@ -29,7 +36,7 @@ class Global {
 
   //初始化全局信息，会在APP启动时执行
   static Future init() async {
-    _prefs = await SharedPreferences.getInstance();
+    var _prefs = await SharedPreferences.getInstance();
     final directory = await getApplicationDocumentsDirectory();
 
     var _profile = _prefs.getString("profile");
@@ -42,7 +49,7 @@ class Global {
     }
 
     // 如果没有缓存策略，设置默认缓存策略
-    if (profile.musicInfo == null || profile.musicInfo.id <= 0) {
+    if (profile.musicInfo.id <= 0) {
       profile.musicInfo = MusicInfoModel()
         ..id = 0
         ..name = ""
@@ -61,10 +68,14 @@ class Global {
     }
 
     profile.documentDirectory = directory.path;
-    Logger logger = new Logger("Global");
-//    logger.info(profile.toJson().toString());
+    // _logger.info(profile.toJson().toString());
+    Logger _logger = new Logger("Global");
+    _logger.info("init");
   }
 
   // 持久化Profile信息
-  static saveProfile() => _prefs.setString("profile", profile.toJson());
+  static saveProfile() async {
+    var _prefs = await SharedPreferences.getInstance();
+    _prefs.setString("profile", profile.toJson());
+  }
 }

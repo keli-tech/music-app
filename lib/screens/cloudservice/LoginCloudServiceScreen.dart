@@ -8,6 +8,7 @@ import 'package:hello_world/components/Tile.dart';
 import 'package:hello_world/models/CloudServiceModel.dart';
 import 'package:hello_world/models/MusicInfoModel.dart';
 import 'package:hello_world/screens/cloudservice/NextCloudFileScreen.dart';
+
 // import 'package:hello_world/services/AdmobService.dart3';
 import 'package:hello_world/services/CloudService.dart';
 import 'package:hello_world/services/Database.dart';
@@ -17,11 +18,10 @@ import 'package:hello_world/utils/webdav/file.dart';
 
 class LoginCloudServiceScreen extends StatefulWidget {
   LoginCloudServiceScreen(
-      {Key key,
-      this.musicInfoModel,
-      this.path,
-      this.title,
-      this.cloudServiceModel})
+      {Key? key,
+      required this.path,
+      required this.title,
+      required this.cloudServiceModel})
       : super(key: key);
 
   static const String routeName = '/filelist2';
@@ -31,22 +31,15 @@ class LoginCloudServiceScreen extends StatefulWidget {
   String title = "";
   CloudServiceModel cloudServiceModel;
 
-  MusicInfoModel musicInfoModel;
-
   @override
   _LoginCloudServiceScreen createState() => _LoginCloudServiceScreen();
 }
 
 class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
     with SingleTickerProviderStateMixin {
-  List<WebDavFile> _files = [];
-  Animation<double> animation;
-  List<String> _downloadedFiles;
-  TextEditingController _urlTextController;
-  TextEditingController _accountTextController;
-  TextEditingController _passwordTextController;
-
-  bool _isLoading = false;
+  TextEditingController _urlTextController = 0 as TextEditingController;
+  TextEditingController _accountTextController = 0 as TextEditingController;
+  TextEditingController _passwordTextController = 0 as TextEditingController;
 
   @override
   void initState() {
@@ -94,7 +87,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                       //     AdMobService.handleEvent(event, args, 'Banner');
                       //   },
                       // ),
-                    )
+                      )
                   : Container(),
               SizedBox(
                 height: 20,
@@ -163,9 +156,10 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                   padding:
                       EdgeInsets.only(left: 30, top: 15, right: 30, bottom: 15),
                   color: themeData.primaryColorDark,
-                  child: Text("连接", style: TextStyle(
-                    color: themeData.primaryColorLight,
-                  )),
+                  child: Text("连接",
+                      style: TextStyle(
+                        color: themeData.primaryColorLight,
+                      )),
                   onPressed: () {
                     String host = _urlTextController.text.trim();
                     String account = _accountTextController.text.trim();
@@ -195,8 +189,7 @@ class _LoginCloudServiceScreen extends State<LoginCloudServiceScreen>
                               new DateTime.now().millisecondsSinceEpoch,
                         };
 
-                        final localpath =
-                            FileManager.localPathDirectory();
+                        final localpath = FileManager.localPathDirectory();
                         var dir = await new Directory(localpath +
                                 widget.cloudServiceModel.name.toLowerCase() +
                                 "/")

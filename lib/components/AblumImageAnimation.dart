@@ -11,25 +11,25 @@ class AlbumImageAnimation extends StatelessWidget {
   final double windowHeight;
   final double bottomBarHeight;
 
-  Animation<EdgeInsets> padding1;
-  Animation<EdgeInsets> padding2;
-  Animation<EdgeInsets> padding3;
+  Animation<EdgeInsets> padding1 = 0 as Animation<EdgeInsets>;
+  Animation<EdgeInsets> padding2 = 0 as Animation<EdgeInsets>;
+  Animation<EdgeInsets> padding3 = 0 as Animation<EdgeInsets>;
 
-  Animation<double> scala1;
-  Animation<double> scala2;
-  Animation<double> scala3;
+  Animation<double> scala1 = 0 as Animation<double>;
+  Animation<double> scala2 = 0 as Animation<double>;
+  Animation<double> scala3 = 0 as Animation<double>;
 
-  Animation<double> angle1;
-  Animation<double> angle2;
-  Animation<double> angle3;
+  Animation<double> angle1 = 0 as Animation<double>;
+  Animation<double> angle2 = 0 as Animation<double>;
+  Animation<double> angle3 = 0 as Animation<double>;
 
   AlbumImageAnimation({
-    Key key,
-    this.controller,
-    this.musicInfoModel,
-    this.windowWidth,
-    this.windowHeight,
-    this.bottomBarHeight,
+    Key? key,
+    required this.controller,
+    required this.musicInfoModel,
+    required this.windowWidth,
+    required this.windowHeight,
+    required this.bottomBarHeight,
   }) : super(key: key) {
     angle1 = Tween<double>(
       begin: 0.0,
@@ -152,7 +152,7 @@ class AlbumImageAnimation extends StatelessWidget {
     );
   }
 
-  Widget _buildAnimation(BuildContext context, Widget child) {
+  Widget _buildAnimation(BuildContext context, Widget? child) {
     return Container(
       width: 1000,
       alignment: Alignment.bottomCenter,
@@ -163,8 +163,7 @@ class AlbumImageAnimation extends StatelessWidget {
           child: Transform.rotate(
             angle: angle1.value + angle2.value + angle3.value,
             child: CircleAvatar(
-              backgroundImage: AssetImage(
-                  "assets/images/heijiao-record.png"),
+              backgroundImage: AssetImage("assets/images/heijiao-record.png"),
               radius: 32, // --> 半径越大，图片越大
               child: Center(
                 child: Container(
@@ -176,7 +175,8 @@ class AlbumImageAnimation extends StatelessWidget {
                     image: DecorationImage(
                         fit: BoxFit.fill, //这个地方很重要，需要设置才能充满
                         image: FileManager.musicAlbumPictureImage(
-                            musicInfoModel.artist, musicInfoModel.album)),
+                            musicInfoModel.artist,
+                            musicInfoModel.album)),
                   ),
                 ),
               ),
